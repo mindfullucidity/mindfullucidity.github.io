@@ -5,7 +5,7 @@ const route = useRoute()
 </script>
 
 <template>
-  <div class="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t">
+  <div class="md:hidden fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t">
     <div class="grid h-full max-w-lg grid-cols-3 mx-auto font-medium">
       <NuxtLink
         to="/"
