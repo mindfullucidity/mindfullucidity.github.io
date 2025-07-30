@@ -1,15 +1,5 @@
-<script setup lang="ts">
-const { isMobile } = useDevice()
-</script>
-
 <template>
-  <div>
+  <NuxtLayout>
     <NuxtPage />
-    <nav v-if="isMobile">
-      <MobileNavbar />
-    </nav>
-    <nav v-else>
-      <DesktopNavbar />
-    </nav>
-  </div>
+  </NuxtLayout>
 </template>
