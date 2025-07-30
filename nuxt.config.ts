@@ -20,7 +20,12 @@ export default defineNuxtConfig({
     ],
   },
 
-  modules: ['shadcn-nuxt', '@nuxtjs/device'],
+  modules: ['shadcn-nuxt', '@nuxtjs/device', '@nuxtjs/supabase'],
+  supabase: {
+    url: process.env.SUPABASE_URL,
+    key: process.env.SUPABASE_KEY,
+    redirect: false,
+  },
   shadcn: {
     /**
      * Prefix for all the imported component
