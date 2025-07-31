@@ -6,9 +6,9 @@
     <div class="flex w-full flex-col gap-1">
       <div class="flex items-center">
         <div class="flex items-center gap-2">
-          <div class="font-semibold">{{ entry.title }}</div>
+          <div class="font-semibold">{{ displayTitle }}</div>
         </div>
-        <div class="ml-auto text-xs text-foreground">{{ formattedDate }}</div>
+        <div v-if="entry.title" class="ml-auto text-xs text-foreground">{{ formattedDate }}</div>
       </div>
     </div>
     <div class="line-clamp-2 text-xs text-muted-foreground">
@@ -31,6 +31,10 @@ const props = defineProps<Props>();
 
 const formattedDate = computed(() => {
   return formatDate(props.entry.date);
+});
+
+const displayTitle = computed(() => {
+  return props.entry.title || formattedDate.value;
 });
 </script>
 

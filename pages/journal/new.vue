@@ -7,15 +7,13 @@ import JournalEntryEdit from '@/components/journal/JournalEntryEdit.vue';
 import { useJournal } from '@/composables/useJournal';
 import { ref } from 'vue';
 
-const { loadEntriesOverview, clearSelectedEntry } = useJournal();
-
-await loadEntriesOverview();
+const { clearSelectedEntry } = useJournal();
 clearSelectedEntry();
 
 const newEntry = ref({
   title: '',
   content: '',
-  date: new Date(),
+  date: new Date(new Date().setDate(new Date().getDate() - 1)),
 });
 
 definePageMeta({
