@@ -1,5 +1,9 @@
 <template>
   <div class="flex flex-col h-full">
+    <div class="flex items-center p-4 h-12 shrink-0">
+      <h1 class="text-xl font-bold">Journal</h1>
+    </div>
+    <Separator />
     <div class="p-4">
       <div class="flex items-center gap-2">
         <div class="relative flex-grow">
@@ -32,6 +36,7 @@ import JournalEntryCard from './JournalEntryCard.vue';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useJournal } from '@/composables/useJournal';
+import { Separator } from '@/components/ui/separator';
 
 const { entries, selectedEntry, loadEntries, selectEntry } = useJournal();
 const searchQuery = ref('');
