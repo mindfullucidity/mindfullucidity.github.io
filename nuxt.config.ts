@@ -22,8 +22,8 @@ export default defineNuxtConfig({
 
   modules: ['shadcn-nuxt', '@nuxtjs/device', '@nuxtjs/supabase', 'vue-sonner/nuxt'],
   supabase: {
-    url: process.env.SUPABASE_URL,
-    key: process.env.SUPABASE_KEY,
+    url: 'https://ghkcqaqojnuapfgwoqbj.supabase.co',
+    key: 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imdoa2NxYXFvam51YXBmZ3dvcWJqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTM5MDQzMzYsImV4cCI6MjA2OTQ4MDMzNn0.yaSaOrJqxBZ_Ky7ZuyuykLBzksOTBS8YR6kXtnO7zWA',
     redirect: false,
   },
   shadcn: {
