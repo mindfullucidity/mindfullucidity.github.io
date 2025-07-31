@@ -16,11 +16,14 @@ interface JournalEntry {
   content: string;
 }
 
-const entriesOverview = ref<JournalEntryOverview[]>([]);
+const entriesOverview = ref<JournalEntryOverview[] | null>(null);
 const entriesFullCache = new Map<number, JournalEntry>();
 const MAX_CACHE_SIZE = 5;
 
 const selectedEntry = ref<JournalEntry | null>(null);
+const isLoadingOverview = ref(false);
+const isLoadingEntry = ref(false);
+const isSavingEntry = ref(false);
 
 const generateDescription = (content: string): string => {
   const maxLength = 100;
@@ -35,16 +38,25 @@ export const useJournal = () => {
   const user = useSupabaseUser();
 
   const loadEntriesOverview = async () => {
-    const { data, error } = await supabase
-      .from('journals')
-      .select('id, title, date, description')
-      .order('date', { ascending: false });
-
-    if (error) {
-      console.error('Error loading journal entries overview:', error.message);
+    if (entriesOverview.value !== null && entriesOverview.value.length > 0 && !isLoadingOverview.value) {
+      // Data already loaded, no need to fetch again unless explicitly refreshed
       return;
     }
-    entriesOverview.value = data || [];
+    isLoadingOverview.value = true;
+    try {
+      const { data, error } = await supabase
+        .from('journals')
+        .select('id, title, date, description')
+        .order('date', { ascending: false });
+
+      if (error) {
+        console.error('Error loading journal entries overview:', error.message);
+        return;
+      }
+      entriesOverview.value = data || [];
+    } finally {
+      isLoadingOverview.value = false;
+    }
   };
 
   const loadFullEntry = async (id: number): Promise<JournalEntry | null> => {
@@ -52,27 +64,34 @@ export const useJournal = () => {
       return entriesFullCache.get(id)!;
     }
 
-    const { data, error } = await supabase
-      .from('journals')
-      .select('id, title, date, description, content')
-      .eq('id', id)
-      .single();
+    isLoadingEntry.value = true;
+    console.log('useJournal: isLoadingEntry set to true');
+    try {
+      const { data, error } = await supabase
+        .from('journals')
+        .select('id, title, date, description, content')
+        .eq('id', id)
+        .single();
 
-    if (error) {
-      console.error(`Error loading full journal entry ${id}:`, error.message);
-      return null;
-    }
-
-    if (data) {
-      if (entriesFullCache.size >= MAX_CACHE_SIZE) {
-        // Remove the oldest entry from cache
-        const oldestKey = entriesFullCache.keys().next().value;
-        entriesFullCache.delete(oldestKey);
+      if (error) {
+        console.error(`Error loading full journal entry ${id}:`, error.message);
+        return null;
       }
-      entriesFullCache.set(id, data);
-      return data;
+
+      if (data) {
+        if (entriesFullCache.size >= MAX_CACHE_SIZE) {
+          // Remove the oldest entry from cache
+          const oldestKey = entriesFullCache.keys().next().value;
+          entriesFullCache.delete(oldestKey);
+        }
+        entriesFullCache.set(id, data);
+        return data;
+      }
+      return null;
+    } finally {
+      isLoadingEntry.value = false;
+      console.log('useJournal: isLoadingEntry set to false');
     }
-    return null;
   };
 
   const selectEntry = async (entryOverview: JournalEntryOverview | null) => {
@@ -87,68 +106,124 @@ export const useJournal = () => {
     return await loadFullEntry(id);
   };
 
-  const createEntry = async (newEntry: Omit<JournalEntry, 'id' | 'date' | 'description'>) => {
+  const createEntry = async (newEntry: Omit<JournalEntry, 'id' | 'description'>) => {
     if (!user.value) {
       console.error('User not logged in.');
       return null;
     }
-    const description = generateDescription(newEntry.content);
-    const { data, error } = await supabase
-      .from('journals')
-      .insert({
-        title: newEntry.title,
-        content: newEntry.content,
-        description: description,
-        date: new Date().toISOString().slice(0, 10),
-        user_id: user.value.id,
-      })
-      .select()
-      .single();
+    isSavingEntry.value = true;
+    try {
+      const description = generateDescription(newEntry.content);
+      const { data, error } = await supabase
+        .from('journals')
+        .insert({
+          title: newEntry.title,
+          content: newEntry.content,
+          description: description,
+          date: newEntry.date,
+          user_id: user.value.id,
+        })
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error creating journal entry:', error.message);
+      if (error) {
+        console.error('Error creating journal entry:', error.message);
+        return null;
+      }
+      if (data) {
+        const newOverviewEntry: JournalEntryOverview = {
+          id: data.id,
+          title: data.title,
+          date: data.date,
+          description: data.description,
+        };
+        entriesOverview.value.unshift(newOverviewEntry); // Add to the beginning
+        entriesOverview.value.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Re-sort
+        return data;
+      }
       return null;
+    } finally {
+      isSavingEntry.value = false;
     }
-    if (data) {
-      await loadEntriesOverview(); // Refresh overview after creation
-      return data;
-    }
-    return null;
   };
 
   const updateEntry = async (updatedEntry: JournalEntry) => {
-    const description = generateDescription(updatedEntry.content);
-    const { data, error } = await supabase
-      .from('journals')
-      .update({
-        title: updatedEntry.title,
-        content: updatedEntry.content,
-        description: description,
-        date: updatedEntry.date,
-      })
-      .eq('id', updatedEntry.id)
-      .select()
-      .single();
+    isSavingEntry.value = true;
+    try {
+      const description = generateDescription(updatedEntry.content);
+      const { data, error } = await supabase
+        .from('journals')
+        .update({
+          title: updatedEntry.title,
+          content: updatedEntry.content,
+          description: description,
+          date: updatedEntry.date,
+        })
+        .eq('id', updatedEntry.id)
+        .select()
+        .single();
 
-    if (error) {
-      console.error('Error updating journal entry:', error.message);
+      if (error) {
+        console.error('Error updating journal entry:', error.message);
+        return null;
+      }
+      if (data) {
+        entriesFullCache.set(data.id, data); // Update cache
+        const index = entriesOverview.value.findIndex(entry => entry.id === data.id);
+        if (index !== -1) {
+          entriesOverview.value[index] = {
+            id: data.id,
+            title: data.title,
+            date: data.date,
+            description: data.description,
+          };
+          entriesOverview.value.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Re-sort
+        }
+        return data;
+      }
       return null;
+    } finally {
+      isSavingEntry.value = false;
     }
-    if (data) {
-      entriesFullCache.set(data.id, data); // Update cache
-      await loadEntriesOverview(); // Refresh overview after update
-      return data;
-    }
-    return null;
   };
 
   const clearSelectedEntry = () => {
     selectedEntry.value = null;
   };
 
+  const deleteEntry = async (id: number) => {
+    isSavingEntry.value = true;
+    try {
+      const { error } = await supabase
+        .from('journals')
+        .delete()
+        .eq('id', id);
+
+      if (error) {
+        console.error('Error deleting journal entry:', error.message);
+        return false;
+      }
+
+      // Remove from overview
+      entriesOverview.value = entriesOverview.value.filter(entry => entry.id !== id);
+      // Remove from cache
+      entriesFullCache.delete(id);
+      // Clear selected entry if it was the one deleted
+      if (selectedEntry.value?.id === id) {
+        selectedEntry.value = null;
+      }
+      return true;
+    } finally {
+      isSavingEntry.value = false;
+    }
+  };
+
   return {
     entriesOverview,
     selectedEntry,
+    isLoadingOverview,
+    isLoadingEntry,
+    isSavingEntry,
     loadEntriesOverview,
     loadFullEntry,
     selectEntry,
@@ -156,5 +231,6 @@ export const useJournal = () => {
     createEntry,
     updateEntry,
     clearSelectedEntry,
+    deleteEntry,
   };
 };

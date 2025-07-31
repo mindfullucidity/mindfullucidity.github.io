@@ -9,7 +9,7 @@ const route = useRoute()
     <div class="flex justify-between items-center h-full max-w-5xl mx-auto px-4 font-medium">
       <div class="flex items-center gap-x-4">
         <NuxtLink to="/" class="text-lg font-bold">
-          Lucid Awakening
+          Mindful Lucidity
         </NuxtLink>
       </div>
       <div class="flex items-center gap-x-4">

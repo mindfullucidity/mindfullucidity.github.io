@@ -4,10 +4,10 @@
       <span
         v-if="variant === 'plain'"
         :class="cn(
-          'flex items-center gap-2 text-sm text-muted-foreground mb-4 cursor-pointer',
+          'inline-flex items-center gap-2 text-sm text-muted-foreground mb-4 cursor-pointer px-2 py-1 rounded-md hover:bg-accent',
         )"
       >
-        <CalendarIcon class="mr-2 h-4 w-4 translate-y-[-1px]" />
+        <CalendarIcon class="h-4 w-4 translate-y-[-1px]" />
         {{ formattedDate || '' }}
       </span>
       <Button
@@ -22,7 +22,7 @@
         {{ formattedDate || "Pick a date" }}
       </Button>
     </PopoverTrigger>
-    <PopoverContent class="w-auto p-0">
+    <PopoverContent class="w-auto p-0" align="start">
       <Calendar v-model="date" />
     </PopoverContent>
   </Popover>
@@ -39,7 +39,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from '@/components/ui/popover'
-import { cn } from '@/lib/utils'
+import { cn, formatDate } from '@/lib/utils'
 
 const props = defineProps({
   variant: { type: String, default: 'default' },
@@ -71,18 +71,18 @@ const parseAndSetDate = (val: Date | string | null) => {
 parseAndSetDate(props.modelValue);
 
 watch(date, (newVal) => {
-  emit('update:modelValue', newVal);
+  if (newVal) {
+    emit('update:modelValue', newVal.toString());
+  } else {
+    emit('update:modelValue', null);
+  }
 });
 
 watch(() => props.modelValue, (newVal) => {
   parseAndSetDate(newVal);
 });
 
-const df = new DateFormatter('en-US', {
-  dateStyle: 'long',
-});
-
 const formattedDate = computed(() => {
-  return date.value ? df.format(date.value.toDate(getLocalTimeZone())) : '';
+  return date.value ? formatDate(date.value.toDate(getLocalTimeZone()).toISOString()) : '';
 });
 </script>

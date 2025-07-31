@@ -7,14 +7,10 @@ import JournalEntryEdit from '@/components/journal/JournalEntryEdit.vue';
 import { useJournal } from '@/composables/useJournal';
 import { ref, watch, onMounted } from 'vue';
 
-const { findEntryById, loadEntriesOverview, selectedEntry, selectEntry } = useJournal();
+const { findEntryById, selectedEntry, selectEntry } = useJournal();
 const route = useRoute();
 
 const entry = ref(null);
-
-onMounted(async () => {
-  await loadEntriesOverview(); // Load entries once when component is mounted
-});
 
 watch(() => route.params.id, async (newId) => {
   const entryId = Number(newId);
