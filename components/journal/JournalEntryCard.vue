@@ -8,7 +8,7 @@
         <div class="flex items-center gap-2">
           <div class="font-semibold">{{ entry.title }}</div>
         </div>
-        <div class="ml-auto text-xs text-foreground">{{ entry.date }}</div>
+        <div class="ml-auto text-xs text-foreground">{{ formattedDate }}</div>
       </div>
     </div>
     <div class="line-clamp-2 text-xs text-muted-foreground">
@@ -18,16 +18,19 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
+import type { JournalEntryOverview } from '@/composables/useJournal';
+import { formatDate } from '@/lib/utils';
 
-defineProps({
-  entry: {
-    type: Object,
-    required: true,
-  },
-  selected: {
-    type: Boolean,
-    default: false,
-  },
+interface Props {
+  entry: JournalEntryOverview;
+  selected?: boolean;
+}
+
+const props = defineProps<Props>();
+
+const formattedDate = computed(() => {
+  return formatDate(props.entry.date);
 });
 </script>
 

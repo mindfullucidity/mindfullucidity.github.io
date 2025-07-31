@@ -11,7 +11,7 @@
         <h1 class="text-2xl font-bold">{{ entry.title }}</h1>
         <div class="flex items-center gap-2 text-sm text-muted-foreground mb-4">
           <CalendarIcon class="h-4 w-4 translate-y-[-1px]" />
-          <p>{{ entry.date }}</p>
+          <p>{{ formattedDate }}</p>
         </div>
         <div class="mt-4">{{ entry.content }}</div>
       </div>
@@ -24,10 +24,17 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useJournal } from '@/composables/useJournal';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Calendar as CalendarIcon } from 'lucide-vue-next';
+import type { JournalEntry } from '@/composables/useJournal';
+import { formatDate } from '@/lib/utils';
 
-const props = defineProps<{ entry: any }>();
+const props = defineProps<{ entry: JournalEntry | null }>();
+
+const formattedDate = computed(() => {
+  return props.entry ? formatDate(props.entry.date) : '';
+});
 </script>
