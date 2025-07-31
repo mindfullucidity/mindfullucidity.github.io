@@ -6,13 +6,13 @@
 import JournalEntryView from '@/components/journal/JournalEntryView.vue';
 import { useJournal } from '@/composables/useJournal';
 
-const { findEntryById, loadEntries } = useJournal();
+const { findEntryById, loadEntriesOverview } = useJournal();
 const route = useRoute();
 
-loadEntries();
+await loadEntriesOverview();
 
 const entryId = Number(route.params.id);
-const entry = findEntryById(entryId);
+const entry = await findEntryById(entryId);
 
 definePageMeta({
   layout: 'journal',

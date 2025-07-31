@@ -43,35 +43,38 @@ import { Button } from '@/components/ui/button';
 import { useJournal } from '@/composables/useJournal';
 import { Separator } from '@/components/ui/separator';
 import { useRoute } from 'vue-router';
+import type { JournalEntryOverview } from '@/composables/useJournal';
 
-const { entries, selectedEntry, loadEntries, selectEntry, clearSelectedEntry, findEntryById } = useJournal();
+const { entriesOverview, selectedEntry, loadEntriesOverview, selectEntry, clearSelectedEntry } = useJournal();
 const searchQuery = ref('');
 const route = useRoute();
 
 onMounted(() => {
-  loadEntries();
+  loadEntriesOverview();
 });
 
-watch(() => route.path, (newPath) => {
+watch(() => route.path, async (newPath) => {
   if (newPath === '/journal') {
     clearSelectedEntry();
   } else if (newPath.startsWith('/journal/')) {
     const entryId = Number(newPath.split('/').pop());
     if (!isNaN(entryId)) {
-      const entry = findEntryById(entryId);
-      selectEntry(entry);
+      const entryOverview = entriesOverview.value.find(e => e.id === entryId);
+      if (entryOverview) {
+        await selectEntry(entryOverview);
+      }
     }
   }
 }, { immediate: true });
 
 const filteredEntries = computed(() => {
-  if (!entries.value) {
+  if (!entriesOverview.value) {
     return [];
   }
   if (!searchQuery.value) {
-    return entries.value;
+    return entriesOverview.value;
   }
-  return entries.value.filter(entry =>
+  return entriesOverview.value.filter((entry: JournalEntryOverview) =>
     entry.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
     entry.description.toLowerCase().includes(searchQuery.value.toLowerCase())
   );

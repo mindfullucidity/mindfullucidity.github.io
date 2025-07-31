@@ -24,24 +24,27 @@ import { Separator } from '@/components/ui/separator';
 import EditableInput from './EditableInput.vue';
 import EditableTextarea from './EditableTextarea.vue';
 import DatePicker from './DatePicker.vue';
+import type { JournalEntry } from '@/composables/useJournal';
 
-const props = defineProps<{ entry: any }>();
+const props = defineProps<{ entry: JournalEntry | null }>();
 
-const { createEntry, updateEntry, selectedEntry } = useJournal();
-const editableEntry = ref<any>(null);
+const { createEntry, updateEntry } = useJournal();
+const editableEntry = ref<JournalEntry | null>(null);
 
 watch(() => props.entry, (newVal) => {
-  editableEntry.value = newVal ? { ...newVal } : { title: '', content: '', date: new Date() };
+  editableEntry.value = newVal ? { ...newVal } : { id: 0, title: '', content: '', date: new Date().toISOString().slice(0, 10), description: '' };
 }, { immediate: true });
 
-const saveEntry = () => {
+const saveEntry = async () => {
   if (editableEntry.value) {
-    if (editableEntry.value.id) {
-      updateEntry(editableEntry.value);
-      navigateTo(`/journal/${editableEntry.value.id}`);
+    let resultEntry: JournalEntry | null = null;
+    if (editableEntry.value.id && editableEntry.value.id !== 0) {
+      resultEntry = await updateEntry(editableEntry.value);
     } else {
-      const newEntry = createEntry(editableEntry.value);
-      navigateTo(`/journal/${newEntry.id}`);
+      resultEntry = await createEntry({ title: editableEntry.value.title, content: editableEntry.value.content });
+    }
+    if (resultEntry) {
+      navigateTo(`/journal/${resultEntry.id}`);
     }
   }
 };

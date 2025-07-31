@@ -7,21 +7,21 @@ import JournalEntryEdit from '@/components/journal/JournalEntryEdit.vue';
 import { useJournal } from '@/composables/useJournal';
 import { ref, watch, onMounted } from 'vue';
 
-const { findEntryById, loadEntries, selectedEntry, selectEntry } = useJournal();
+const { findEntryById, loadEntriesOverview, selectedEntry, selectEntry } = useJournal();
 const route = useRoute();
 
 const entry = ref(null);
 
-onMounted(() => {
-  loadEntries(); // Load entries once when component is mounted
+onMounted(async () => {
+  await loadEntriesOverview(); // Load entries once when component is mounted
 });
 
-watch(() => route.params.id, (newId) => {
+watch(() => route.params.id, async (newId) => {
   const entryId = Number(newId);
-  const foundEntry = findEntryById(entryId);
+  const foundEntry = await findEntryById(entryId);
   if (foundEntry) {
     entry.value = foundEntry;
-    selectEntry(foundEntry);
+    await selectEntry(foundEntry);
   } else {
     entry.value = null; // Clear entry if not found
   }

@@ -7,9 +7,9 @@ import JournalEntryEdit from '@/components/journal/JournalEntryEdit.vue';
 import { useJournal } from '@/composables/useJournal';
 import { ref } from 'vue';
 
-const { loadEntries, clearSelectedEntry } = useJournal();
+const { loadEntriesOverview, clearSelectedEntry } = useJournal();
 
-loadEntries();
+await loadEntriesOverview();
 clearSelectedEntry();
 
 const newEntry = ref({
