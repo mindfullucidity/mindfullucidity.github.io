@@ -14,11 +14,11 @@ const route = useRoute()
       </div>
       <div class="flex items-center gap-x-4">
         <NuxtLink
-          to="/"
+          to="/home"
           class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
-          :class="{ 'bg-primary/10 text-primary': route.path === '/' }"
+          :class="{ 'bg-primary/10 text-primary': route.path === '/home' }"
         >
-          <Home v-if="route.path === '/'" class="w-5 h-5 mr-2" />
+          <Home v-if="route.path === '/home'" class="w-5 h-5 mr-2" />
           <span class="text-sm">Home</span>
         </NuxtLink>
         <NuxtLink
