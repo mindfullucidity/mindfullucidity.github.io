@@ -24,9 +24,9 @@ const route = useRoute()
         <NuxtLink
           to="/journal"
           class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
-          :class="{ 'bg-primary/10 text-primary': route.path === '/journal' }"
+          :class="{ 'bg-primary/10 text-primary': route.path.startsWith('/journal') }"
         >
-          <Book v-if="route.path === '/journal'" class="w-5 h-5 mr-2" />
+          <Book v-if="route.path.startsWith('/journal')" class="w-5 h-5 mr-2" />
           <span class="text-sm">Journal</span>
         </NuxtLink>
         <NuxtLink

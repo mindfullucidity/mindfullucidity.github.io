@@ -20,9 +20,9 @@ const route = useRoute()
       <NuxtLink
         to="/journal"
         class="inline-flex flex-col items-center justify-center px-5 hover:bg-muted"
-        :class="{ 'text-primary': route.path === '/journal' }"
+        :class="{ 'text-primary': route.path.startsWith('/journal') }"
       >
-        <div class="px-3 py-1 rounded-lg" :class="{ 'bg-primary/10': route.path === '/journal' }">
+        <div class="px-3 py-1 rounded-lg" :class="{ 'bg-primary/10': route.path.startsWith('/journal') }">
           <Book class="w-5 h-5" />
         </div>
         <span class="text-sm">Journal</span>

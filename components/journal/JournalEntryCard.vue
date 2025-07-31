@@ -12,7 +12,7 @@
       </div>
     </div>
     <div class="line-clamp-2 text-xs text-muted-foreground">
-      {{ entry.content.substring(0, 100) }}{{ entry.content.length > 100 ? '...' : '' }}
+      {{ entry.description }}
     </div>
   </button>
 </template>
