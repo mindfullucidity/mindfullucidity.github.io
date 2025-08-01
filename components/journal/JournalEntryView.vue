@@ -18,7 +18,7 @@
           <CalendarIcon class="h-4 w-4 translate-y-[-1px]" />
           <p>{{ formattedDate }}</p>
         </div>
-        <div class="mt-4">{{ entry.content }}</div>
+        <div class="mt-4 whitespace-pre-wrap">{{ entry.content }}</div>
       </div>
       <div v-else>
         <h1 class="text-2xl font-bold">Select a journal entry</h1>

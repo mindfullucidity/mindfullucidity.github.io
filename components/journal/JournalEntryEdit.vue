@@ -1,9 +1,17 @@
 <template>
   <div class="flex flex-col h-full">
+    <svg width="0" height="0" style="position: absolute;">
+      <defs>
+        <linearGradient id="sparkle-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
+          <stop offset="0%" stop-color="#a78bfa" />
+          <stop offset="100%" stop-color="#60a5fa" />
+        </linearGradient>
+      </defs>
+    </svg>
     <div class="flex items-center justify-end p-4 h-12 shrink-0">
       <div class="flex h-5 items-center space-x-1 text-sm">
-        <Button variant="ghost" size="icon">
-          <Sparkles class="w-4 h-4" />
+        <Button variant="ghost" size="icon" @click="enhanceEntry" :disabled="isEnhancingEntry">
+          <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" />
         </Button>
         <Separator orientation="vertical" class="mx-2" />
         <Button variant="ghost" size="icon" @click="() => { editableEntry?.id === 0 ? navigateTo('/journal') : navigateTo(`/journal/${editableEntry?.id}`) }">
@@ -16,7 +24,8 @@
     </div>
     <Separator />
     <div class="p-8 overflow-y-auto">
-      <div v-if="editableEntry">
+      <JournalEntryEditSkeleton v-if="isEnhancingEntry" />
+      <div v-else-if="editableEntry">
         <EditableInput v-model="editableEntry.title" placeholder="Title" />
         <DatePicker variant="plain" v-model="editableEntry.date" />
         <EditableTextarea v-model="editableEntry.content" placeholder="What did you dream about?" />
@@ -34,6 +43,7 @@ import { Sparkles } from 'lucide-vue-next';
 import EditableInput from './EditableInput.vue';
 import EditableTextarea from './EditableTextarea.vue';
 import DatePicker from './DatePicker.vue';
+import JournalEntryEditSkeleton from './JournalEntryEditSkeleton.vue';
 import type { JournalEntry } from '@/composables/useJournal';
 import { toast } from 'vue-sonner';
 
@@ -41,7 +51,8 @@ const props = defineProps<{ entry: JournalEntry | null }>();
 
 const { createEntry, updateEntry, isSavingEntry } = useJournal();
 const editableEntry = ref<JournalEntry | null>(null);
-
+const isEnhancingEntry = ref(false);
+const supabase = useSupabaseClient();
 
 watch(() => props.entry, (newVal) => {
   editableEntry.value = newVal ? { ...newVal } : { id: 0, title: '', content: '', date: new Date().toISOString().slice(0, 10), description: '' };
@@ -66,6 +77,42 @@ const saveEntry = async () => {
     } else {
       toast.error('Failed to save journal entry.');
     }
+  }
+};
+
+const enhanceEntry = async () => {
+  if (!editableEntry.value || (!editableEntry.value.title.trim() && !editableEntry.value.content.trim())) {
+    toast.error("Journal entry is empty. Nothing to enhance.");
+    return;
+  }
+
+  isEnhancingEntry.value = true;
+  try {
+    const { data, error } = await supabase.functions.invoke('enhance', {
+      body: {
+        type: "journal_entry",
+        object: {
+          title: editableEntry.value.title,
+          content: editableEntry.value.content,
+        },
+      },
+    });
+
+    if (error) {
+      toast.error(`Enhancement failed: ${error.message}`);
+      console.error("Enhancement error:", error);
+    } else if (data && data.object) {
+      editableEntry.value.title = data.object.title;
+      editableEntry.value.content = data.object.content;
+      toast.success("Journal entry enhanced successfully!");
+    } else {
+      toast.error("Enhancement failed: Unexpected response.");
+    }
+  } catch (err) {
+    toast.error(`An unexpected error occurred: ${err.message}`);
+    console.error("Unexpected enhancement error:", err);
+  } finally {
+    isEnhancingEntry.value = false;
   }
 };
 </script>

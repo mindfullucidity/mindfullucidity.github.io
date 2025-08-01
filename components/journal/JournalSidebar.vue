@@ -77,7 +77,7 @@ watch(() => route.path, async (newPath) => {
   } else if (newPath.startsWith('/journal/')) {
     const entryId = Number(newPath.split('/').pop());
     if (!isNaN(entryId)) {
-      const entryOverview = entriesOverview.value.find(e => e.id === entryId);
+      const entryOverview = entriesOverview.value?.find(e => e.id === entryId);
       if (entryOverview) {
         await selectEntry(entryOverview);
       }
@@ -89,12 +89,54 @@ const filteredEntries = computed(() => {
   if (!entriesOverview.value) {
     return [];
   }
-  if (!searchQuery.value) {
-    return entriesOverview.value;
+
+  let filtered = entriesOverview.value;
+
+  if (searchQuery.value) {
+    const query = searchQuery.value.toLowerCase();
+    const today = new Date();
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+
+    filtered = entriesOverview.value.filter((entry: JournalEntryOverview) => {
+      const entryDate = new Date(entry.date);
+
+      // Check for 'today'
+      if ('today'.includes(query) &&
+          entryDate.getDate() === today.getDate() &&
+          entryDate.getMonth() === today.getMonth() &&
+          entryDate.getFullYear() === today.getFullYear()) {
+        return true;
+      }
+
+      // Check for 'last night' (assuming last night means yesterday's date)
+      if ('last night'.includes(query) &&
+          entryDate.getDate() === yesterday.getDate() &&
+          entryDate.getMonth() === yesterday.getMonth() &&
+          entryDate.getFullYear() === yesterday.getFullYear()) {
+        return true;
+      }
+
+      // Check for specific date format (e.g., YYYY-MM-DD)
+      if (!isNaN(Date.parse(query)) && entry.date === query) {
+        return true;
+      }
+
+      // Existing title and description search
+      return entry.title.toLowerCase().includes(query) ||
+             entry.description.toLowerCase().includes(query);
+    });
   }
-  return entriesOverview.value.filter((entry: JournalEntryOverview) =>
-    entry.title.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-    entry.description.toLowerCase().includes(searchQuery.value.toLowerCase())
-  );
+
+  return filtered.sort((a, b) => {
+    // Sort by date in descending order
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+    if (dateA < dateB) return 1;
+    if (dateA > dateB) return -1;
+
+    // If dates are the same, sort by id in descending order
+    return b.id - a.id;
+  });
 });
 </script>
