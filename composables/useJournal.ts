@@ -2,14 +2,14 @@ import { ref } from 'vue';
 import { useSupabaseClient, useSupabaseUser } from '#imports';
 
 interface JournalEntryOverview {
-  id: number;
+  journal_id: number;
   title: string;
   date: string;
   description: string;
 }
 
 interface JournalEntry {
-  id: number;
+  journal_id: number;
   title: string;
   date: string;
   description: string;
@@ -46,7 +46,7 @@ export const useJournal = () => {
     try {
       const { data, error } = await supabase
         .from('journals')
-        .select('id, title, date, description')
+        .select('journal_id, title, date, description')
         .order('date', { ascending: false });
 
       if (error) {
@@ -59,21 +59,21 @@ export const useJournal = () => {
     }
   };
 
-  const loadFullEntry = async (id: number): Promise<JournalEntry | null> => {
-    if (entriesFullCache.has(id)) {
-      return entriesFullCache.get(id)!;
+  const loadFullEntry = async (journal_id: number): Promise<JournalEntry | null> => {
+    if (entriesFullCache.has(journal_id)) {
+      return entriesFullCache.get(journal_id)!;
     }
 
     isLoadingEntry.value = true;
     try {
       const { data, error } = await supabase
         .from('journals')
-        .select('id, title, date, description, content')
-        .eq('id', id)
+        .select('journal_id, title, date, description, content')
+        .eq('journal_id', journal_id)
         .single();
 
       if (error) {
-        console.error(`Error loading full journal entry ${id}:`, error.message);
+        console.error(`Error loading full journal entry ${journal_id}:`, error.message);
         return null;
       }
 
@@ -83,7 +83,7 @@ export const useJournal = () => {
           const oldestKey = entriesFullCache.keys().next().value;
           entriesFullCache.delete(oldestKey);
         }
-        entriesFullCache.set(id, data);
+        entriesFullCache.set(journal_id, data);
         return data;
       }
       return null;
@@ -94,14 +94,14 @@ export const useJournal = () => {
 
   const selectEntry = async (entryOverview: JournalEntryOverview | null) => {
     if (entryOverview) {
-      selectedEntry.value = await loadFullEntry(entryOverview.id);
+      selectedEntry.value = await loadFullEntry(entryOverview.journal_id);
     } else {
       selectedEntry.value = null;
     }
   };
 
-  const findEntryById = async (id: number): Promise<JournalEntry | null> => {
-    return await loadFullEntry(id);
+  const findEntryById = async (journal_id: number): Promise<JournalEntry | null> => {
+    return await loadFullEntry(journal_id);
   };
 
   const createEntry = async (newEntry: Omit<JournalEntry, 'id' | 'description'>) => {
@@ -130,7 +130,7 @@ export const useJournal = () => {
       }
       if (data) {
         const newOverviewEntry: JournalEntryOverview = {
-          id: data.id,
+          journal_id: data.journal_id,
           title: data.title,
           date: data.date,
           description: data.description,
@@ -157,7 +157,7 @@ export const useJournal = () => {
           description: description,
           date: updatedEntry.date,
         })
-        .eq('id', updatedEntry.id)
+        .eq('journal_id', updatedEntry.journal_id)
         .select()
         .single();
 
@@ -166,11 +166,11 @@ export const useJournal = () => {
         return null;
       }
       if (data) {
-        entriesFullCache.set(data.id, data); // Update cache
-        const index = entriesOverview.value.findIndex(entry => entry.id === data.id);
+        entriesFullCache.set(data.journal_id, data); // Update cache
+        const index = entriesOverview.value.findIndex(entry => entry.journal_id === data.journal_id);
         if (index !== -1) {
           entriesOverview.value[index] = {
-            id: data.id,
+            journal_id: data.journal_id,
             title: data.title,
             date: data.date,
             description: data.description,
@@ -189,13 +189,13 @@ export const useJournal = () => {
     selectedEntry.value = null;
   };
 
-  const deleteEntry = async (id: number) => {
+  const deleteEntry = async (journal_id: number) => {
     isSavingEntry.value = true;
     try {
       const { error } = await supabase
         .from('journals')
         .delete()
-        .eq('id', id);
+        .eq('journal_id', journal_id);
 
       if (error) {
         console.error('Error deleting journal entry:', error.message);
@@ -203,11 +203,11 @@ export const useJournal = () => {
       }
 
       // Remove from overview
-      entriesOverview.value = entriesOverview.value.filter(entry => entry.id !== id);
+      entriesOverview.value = entriesOverview.value.filter(entry => entry.journal_id !== journal_id);
       // Remove from cache
-      entriesFullCache.delete(id);
+      entriesFullCache.delete(journal_id);
       // Clear selected entry if it was the one deleted
-      if (selectedEntry.value?.id === id) {
+      if (selectedEntry.value?.journal_id === journal_id) {
         selectedEntry.value = null;
       }
       return true;
