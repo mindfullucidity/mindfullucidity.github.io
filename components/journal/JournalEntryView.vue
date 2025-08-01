@@ -28,19 +28,35 @@
         </div>
       </TabsContent>
       <TabsContent value="analysis" class="p-6 overflow-y-auto flex-grow">
+        <div v-if="entry?.journal_analyses?.length">
+          <div v-for="analysis in entry.journal_analyses" :key="analysis.journal_analysis_id" class="mb-4">
+            <PreviewAnalysisCard
+              :analysis-id="analysis.journal_analysis_id"
+              :type="analysis.type === 'ai' ? 'ai' : 'personal'"
+              :title="getAnalysisPrettyTitle(analysis.type)"
+              :content="analysis.content"
+              :show-actions="false"
+              @delete="handleAnalysisDelete"
+            />
+          </div>
+        </div>
+        <div v-else class="text-center text-muted-foreground">
+          <p>No analyses created yet.</p>
+          <p>Go to the edit page to create one.</p>
+        </div>
       </TabsContent>
     </Tabs>
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref, watch, onMounted } from 'vue';
+import { computed, ref, watch, onMounted, onUpdated } from 'vue';
 import { useJournal } from '@/composables/useJournal';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Calendar as CalendarIcon, Trash2, Pencil } from 'lucide-vue-next';
 import JournalEntrySkeleton from './JournalEntrySkeleton.vue';
-import type { JournalEntry } from '@/composables/useJournal';
+import type { JournalEntry, JournalAnalysis } from '@/composables/useJournal';
 import { formatDate } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRoute, useRouter } from 'vue-router';
@@ -50,8 +66,12 @@ import NewAIAnalysisCard from './analysis_card/NewAIAnalysisCard.vue';
 
 const props = defineProps<{ entryId: number | null }>();
 
-const { findEntryById, isLoadingEntry } = useJournal();
+const { findEntryById, isLoadingEntry, updateJournalAnalysis, deleteJournalAnalysis, getAnalysisPrettyTitle } = useJournal();
 const entry = ref<JournalEntry | null>(null);
+
+onUpdated(() => {
+  console.log('JournalEntryView: Component updated.');
+});
 
 const route = useRoute();
 const router = useRouter();
@@ -99,5 +119,31 @@ const deleteCurrentEntry = async () => {
     await deleteEntry(entry.value.journal_id);
     navigateTo('/journal');
   }
+};
+
+const handleAnalysisSave = async (updatedAnalysis: JournalAnalysis) => {
+  console.log('JournalEntryView: handleAnalysisSave called with', updatedAnalysis);
+  const result = await updateJournalAnalysis(updatedAnalysis);
+  if (result && entry.value?.journal_analyses) {
+    const existingAnalysis = entry.value.journal_analyses.find(a => a.journal_analysis_id === updatedAnalysis.journal_analysis_id);
+    if (existingAnalysis) {
+      // Update properties of the existing object to maintain reactivity
+      Object.assign(existingAnalysis, result);
+    }
+  }
+  console.log('JournalEntryView: handleAnalysisSave completed.');
+};
+
+const handleAnalysisCancel = () => {
+  console.log('JournalEntryView: handleAnalysisCancel called.');
+};
+
+const handleAnalysisDelete = async (analysisId: number) => {
+  console.log('JournalEntryView: handleAnalysisDelete called for analysis', analysisId);
+  const success = await deleteJournalAnalysis(analysisId);
+  if (success && entry.value) {
+    entry.value.journal_analyses = entry.value.journal_analyses?.filter(a => a.journal_analysis_id !== analysisId);
+  }
+  console.log('JournalEntryView: handleAnalysisDelete completed.');
 };
 </script>

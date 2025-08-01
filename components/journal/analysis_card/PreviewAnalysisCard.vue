@@ -3,15 +3,41 @@ import { Sparkle, User, Pencil, Trash2, ChevronDown } from 'lucide-vue-next'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ref } from 'vue'
+import { ref, onMounted, onUnmounted, onUpdated } from 'vue'
 
 const props = defineProps<{
+  analysisId: number;
   type: 'ai' | 'personal'
   title: string
-  content: string
+  content: string;
+  showActions?: boolean; // New prop
 }>()
 
+const emit = defineEmits(['delete', 'edit']);
+
 const isOpen = ref(true)
+
+const handleDelete = () => {
+  console.log('PreviewAnalysisCard: Delete clicked for analysis', props.analysisId);
+  emit('delete', props.analysisId);
+};
+
+const handleEdit = () => {
+  console.log('PreviewAnalysisCard: Edit clicked for analysis', props.analysisId);
+  emit('edit', props.analysisId);
+};
+
+onMounted(() => {
+  console.log('PreviewAnalysisCard: Mounted for analysis', props.analysisId);
+});
+
+onUnmounted(() => {
+  console.log('PreviewAnalysisCard: Unmounted for analysis', props.analysisId);
+});
+
+onUpdated(() => {
+  console.log('PreviewAnalysisCard: Component updated for analysis', props.analysisId);
+});
 </script>
 
 <template>
@@ -29,13 +55,20 @@ const isOpen = ref(true)
             </div>
             <CardTitle class="font-medium">{{ props.title }}</CardTitle>
           </div>
-          <div class="flex items-center gap-2">
-            <Button variant="ghost" size="icon" class="h-8 w-8 text-red-400 hover:text-red-400">
+          <div v-if="props.showActions" class="flex items-center gap-2">
+            <Button variant="ghost" size="icon" class="h-8 w-8 text-red-400 hover:text-red-400" @click="handleDelete">
               <Trash2 class="h-4 w-4" aria-hidden="true" />
             </Button>
-            <Button variant="ghost" size="icon" class="h-8 w-8">
+            <Button v-if="props.type === 'personal'" variant="ghost" size="icon" class="h-8 w-8" @click="handleEdit">
               <Pencil class="h-4 w-4" aria-hidden="true" />
             </Button>
+            <CollapsibleTrigger as-child>
+              <Button variant="ghost" size="icon" class="h-8 w-8">
+                <ChevronDown :class="isOpen ? 'rotate-180' : ''" class="h-4 w-4 transition-transform" />
+              </Button>
+            </CollapsibleTrigger>
+          </div>
+          <div v-else class="flex items-center gap-2">
             <CollapsibleTrigger as-child>
               <Button variant="ghost" size="icon" class="h-8 w-8">
                 <ChevronDown :class="isOpen ? 'rotate-180' : ''" class="h-4 w-4 transition-transform" />
