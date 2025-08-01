@@ -14,7 +14,7 @@
           <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" />
         </Button>
         <Separator orientation="vertical" class="mx-2" />
-        <Button variant="ghost" size="icon" @click="() => { editableEntry?.id === 0 ? navigateTo('/journal') : navigateTo(`/journal/${editableEntry?.id}`) }">
+        <Button variant="ghost" size="icon" @click="() => { if (!editableEntry || editableEntry.id === 0) { navigateTo('/journal') } else { navigateTo(`/journal/${editableEntry.id}`) } }">
           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-red-400"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
         </Button>
         <Button variant="ghost" size="icon" @click="saveEntry" :disabled="isSavingEntry">
