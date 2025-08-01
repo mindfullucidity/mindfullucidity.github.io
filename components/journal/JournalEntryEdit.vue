@@ -1,13 +1,6 @@
 <template>
   <div class="flex flex-col h-full">
-    <svg width="0" height="0" style="position: absolute;">
-      <defs>
-        <linearGradient id="sparkle-gradient" x1="0%" y1="0%" x2="100%" y2="0%">
-          <stop offset="0%" stop-color="#a78bfa" />
-          <stop offset="100%" stop-color="#60a5fa" />
-        </linearGradient>
-      </defs>
-    </svg>
+    
     <Tabs v-model="activeTab" class="flex flex-col h-full">
       <div class="flex items-center justify-between p-2 mt-2 h-8 shrink-0" :class="{ 'pointer-events-none opacity-50': isEnhancingEntry }">
         <TabsList>
@@ -19,11 +12,11 @@
             <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" />
           </Button>
           <Separator orientation="vertical" class="mx-2" />
-          <Button variant="ghost" size="icon" @click="() => { if (!editableEntry || editableEntry.id === 0) { navigateTo('/journal') } else { navigateTo(`/journal/${editableEntry.id}${route.hash}`) } }">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-red-400"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+          <Button variant="ghost" size="icon" @click="() => { if (!editableEntry || editableEntry.journal_id === 0) { navigateTo('/journal') } else { navigateTo(`/journal/${editableEntry.journal_id}${route.hash}`) } }">
+            <X class="w-4 h-4 text-red-400" />
           </Button>
           <Button variant="ghost" size="icon" @click="saveEntry" :disabled="isSavingEntry">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M20 6 9 17l-5-5"/></svg>
+            <Check class="w-4 h-4" />
           </Button>
         </div>
       </div>
@@ -36,10 +29,8 @@
           <EditableTextarea v-model="editableEntry.content" placeholder="What did you dream about?" />
         </div>
       </TabsContent>
-      <TabsContent value="analysis" class="flex-grow">
-        <div class="p-6">
+      <TabsContent value="analysis" class="p-6 overflow-y-auto flex-grow">
           <p>Analysis content goes here.</p>
-        </div>
       </TabsContent>
     </Tabs>
   </div>
@@ -50,7 +41,7 @@ import { ref, watch, onMounted } from 'vue';
 import { useJournal } from '@/composables/useJournal';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Sparkles } from 'lucide-vue-next';
+import { Sparkles, X, Check } from 'lucide-vue-next';
 import EditableInput from './EditableInput.vue';
 import EditableTextarea from './EditableTextarea.vue';
 import DatePicker from './DatePicker.vue';
@@ -72,7 +63,7 @@ const router = useRouter();
 const activeTab = ref('entry');
 
 watch(() => props.entry, (newVal) => {
-  editableEntry.value = newVal ? { ...newVal } : { id: 0, title: '', content: '', date: new Date().toISOString().slice(0, 10), description: '' };
+  editableEntry.value = newVal ? { ...newVal } : { journal_id: 0, title: '', content: '', date: new Date().toISOString().slice(0, 10), description: '' };
 }, { immediate: true });
 
 watch(activeTab, (newTab) => {
@@ -100,13 +91,13 @@ const saveEntry = async () => {
     }
 
     let resultEntry: JournalEntry | null = null;
-    if (editableEntry.value.id && editableEntry.value.id !== 0) {
+    if (editableEntry.value.journal_id && editableEntry.value.journal_id !== 0) {
       resultEntry = await updateEntry(editableEntry.value);
     } else {
       resultEntry = await createEntry({ title: editableEntry.value.title, content: editableEntry.value.content, date: editableEntry.value.date });
     }
     if (resultEntry) {
-      navigateTo(`/journal/${resultEntry.id}${route.hash}`);
+      navigateTo(`/journal/${resultEntry.journal_id}${route.hash}`);
     } else {
       toast.error('Failed to save journal entry.');
     }

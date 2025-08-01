@@ -8,10 +8,10 @@
         </TabsList>
         <div class="flex h-5 items-center space-x-1 text-sm">
           <Button variant="ghost" size="icon" @click="deleteCurrentEntry">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-red-400"><path d="M3 6h18"/><path d="M19 6v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6"/><path d="M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2"/></svg>
+            <Trash2 class="w-4 h-4 text-red-400" />
           </Button>
-          <Button variant="ghost" size="icon" @click="navigateTo(`/journal/${entry?.id}/edit${route.hash}`)">
-            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4"><path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z"/><path d="m15 5 4 4"/></svg>
+          <Button variant="ghost" size="icon" @click="navigateTo(`/journal/${entry?.journal_id}/edit${route.hash}`)">
+            <Pencil class="w-4 h-4" />
           </Button>
         </div>
       </div>
@@ -27,10 +27,7 @@
           <div class="mt-4 whitespace-pre-wrap">{{ entry.content }}</div>
         </div>
       </TabsContent>
-      <TabsContent value="analysis" class="flex-grow">
-        <div class="p-6">
-          <p>Analysis content goes here.</p>
-        </div>
+      <TabsContent value="analysis" class="p-6 overflow-y-auto flex-grow">
       </TabsContent>
     </Tabs>
   </div>
@@ -41,12 +38,15 @@ import { computed, ref, watch, onMounted } from 'vue';
 import { useJournal } from '@/composables/useJournal';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
-import { Calendar as CalendarIcon } from 'lucide-vue-next';
+import { Calendar as CalendarIcon, Trash2, Pencil } from 'lucide-vue-next';
 import JournalEntrySkeleton from './JournalEntrySkeleton.vue';
 import type { JournalEntry } from '@/composables/useJournal';
 import { formatDate } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useRoute, useRouter } from 'vue-router';
+import PreviewAnalysisCard from './analysis_card/PreviewAnalysisCard.vue';
+import NewPersonalAnalysisCard from './analysis_card/NewPersonalAnalysisCard.vue';
+import NewAIAnalysisCard from './analysis_card/NewAIAnalysisCard.vue';
 
 const props = defineProps<{ entryId: number | null }>();
 
@@ -80,6 +80,14 @@ onMounted(() => {
   }
 });
 
+watch(activeTab, (newTab) => {
+  if (newTab === 'analysis') {
+    router.push({ hash: '#analysis' });
+  } else {
+    router.push({ hash: '' });
+  }
+});
+
 const { deleteEntry } = useJournal();
 
 const formattedDate = computed(() => {
@@ -88,7 +96,7 @@ const formattedDate = computed(() => {
 
 const deleteCurrentEntry = async () => {
   if (entry.value) {
-    await deleteEntry(entry.value.id);
+    await deleteEntry(entry.value.journal_id);
     navigateTo('/journal');
   }
 };
