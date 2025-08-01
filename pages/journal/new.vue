@@ -11,6 +11,7 @@ const { clearSelectedEntry } = useJournal();
 clearSelectedEntry();
 
 const newEntry = ref({
+  id: 0,
   title: '',
   content: '',
   date: new Date(new Date().setDate(new Date().getDate() - 1)),

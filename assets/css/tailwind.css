@@ -120,7 +120,8 @@
     @apply border-border outline-ring/50;
   }
   body {
-    @apply bg-background text-foreground;
+    background: linear-gradient(to bottom, var(--background), #3a3d4e);
+    @apply text-foreground;
     font-family: 'Epilogue', sans-serif;
   }
 }
