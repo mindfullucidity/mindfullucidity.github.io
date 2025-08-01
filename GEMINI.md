@@ -4,3 +4,4 @@
 4. Please use tailwindcss where needed
 5. Dont use `#supabase` imports, supabase imports are always available by default
 6. When you need to deploy a edge function use `pnpm dlx supabase functions deploy` rather than the mcp tool (it is broken)
+7. Don't run or install this or ask to

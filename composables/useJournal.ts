@@ -14,6 +14,17 @@ interface JournalEntry {
   date: string;
   description: string;
   content: string;
+  analyses?: JournalAnalysis[];
+}
+
+export interface JournalAnalysis {
+  journal_analysis_id: number;
+  created_at: string;
+  journal_id: number;
+  type: string;
+  title: string;
+  content: string;
+  user_id: string;
 }
 
 const entriesOverview = ref<JournalEntryOverview[] | null>(null);
@@ -68,7 +79,7 @@ export const useJournal = () => {
     try {
       const { data, error } = await supabase
         .from('journals')
-        .select('journal_id, title, date, description, content')
+        .select('journal_id, title, date, description, content, journal_analyses(*)')
         .eq('journal_id', journal_id)
         .single();
 
@@ -216,6 +227,110 @@ export const useJournal = () => {
     }
   };
 
+  const loadJournalAnalyses = async (journalId: number): Promise<JournalAnalysis[]> => {
+    isLoadingEntry.value = true; // Re-using this for now, might need a separate one later
+    try {
+      const { data, error } = await supabase
+        .from('journal_analyses')
+        .select('*')
+        .eq('journal_id', journalId)
+        .order('created_at', { ascending: true });
+
+      if (error) {
+        console.error(`Error loading journal analyses for journal ${journalId}:`, error.message);
+        return [];
+      }
+      return data || [];
+    } finally {
+      isLoadingEntry.value = false;
+    }
+  };
+
+  const createJournalAnalysis = async (newAnalysis: Omit<JournalAnalysis, 'journal_analysis_id' | 'created_at' | 'user_id'>): Promise<JournalAnalysis | null> => {
+    if (!user.value) {
+      console.error('User not logged in.');
+      return null;
+    }
+    isSavingEntry.value = true;
+    try {
+      const { data, error } = await supabase
+        .from('journal_analyses')
+        .insert({
+          ...newAnalysis,
+          user_id: user.value.id,
+        })
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error creating journal analysis:', error.message);
+        return null;
+      }
+      return data;
+    } finally {
+      isSavingEntry.value = false;
+    }
+  };
+
+  const updateJournalAnalysis = async (updatedAnalysis: JournalAnalysis): Promise<JournalAnalysis | null> => {
+    isSavingEntry.value = true;
+    try {
+      const { data, error } = await supabase
+        .from('journal_analyses')
+        .update({
+          type: updatedAnalysis.type,
+          title: updatedAnalysis.title,
+          content: updatedAnalysis.content,
+        })
+        .eq('journal_analysis_id', updatedAnalysis.journal_analysis_id)
+        .select()
+        .single();
+
+      if (error) {
+        console.error('Error updating journal analysis:', error.message);
+        return null;
+      }
+      return data;
+    } finally {
+      isSavingEntry.value = false;
+    }
+  };
+
+  const deleteJournalAnalysis = async (analysisId: number): Promise<boolean> => {
+    isSavingEntry.value = true;
+    try {
+      const { error } = await supabase
+        .from('journal_analyses')
+        .delete()
+        .eq('journal_analysis_id', analysisId);
+
+      if (error) {
+        console.error('Error deleting journal analysis:', error.message);
+        return false;
+      }
+      return true;
+    } finally {
+      isSavingEntry.value = false;
+    }
+  };
+
+  const getAnalysisPrettyTitle = (type: string): string => {
+    switch (type) {
+      case 'jungian':
+        return 'Jungian Analysis';
+      case 'symbolic':
+        return 'Symbolic Analysis';
+      case 'initial-thoughts':
+        return 'Initial Thoughts';
+      case 'meditation':
+        return 'Meditation';
+      case 'retrospective':
+        return 'Retrospective';
+      default:
+        return type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, ' ');
+    }
+  };
+
   return {
     entriesOverview,
     selectedEntry,
@@ -230,5 +345,10 @@ export const useJournal = () => {
     updateEntry,
     clearSelectedEntry,
     deleteEntry,
+    loadJournalAnalyses,
+    createJournalAnalysis,
+    updateJournalAnalysis,
+    deleteJournalAnalysis,
+    getAnalysisPrettyTitle,
   };
 };
