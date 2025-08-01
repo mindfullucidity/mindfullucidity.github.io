@@ -8,7 +8,7 @@
         </linearGradient>
       </defs>
     </svg>
-    <div class="flex items-center justify-end p-4 h-12 shrink-0">
+    <div class="flex items-center justify-end p-4 h-12 shrink-0" :class="{ 'pointer-events-none opacity-50': isEnhancingEntry }">
       <div class="flex h-5 items-center space-x-1 text-sm">
         <Button variant="ghost" size="icon" @click="enhanceEntry" :disabled="isEnhancingEntry">
           <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" />
@@ -24,7 +24,7 @@
     </div>
     <Separator />
     <div class="p-8 overflow-y-auto">
-      <JournalEntryEditSkeleton v-if="isEnhancingEntry" />
+      <JournalEntrySkeleton v-if="isEnhancingEntry" />
       <div v-else-if="editableEntry">
         <EditableInput v-model="editableEntry.title" placeholder="Title" />
         <DatePicker variant="plain" v-model="editableEntry.date" />
@@ -43,7 +43,7 @@ import { Sparkles } from 'lucide-vue-next';
 import EditableInput from './EditableInput.vue';
 import EditableTextarea from './EditableTextarea.vue';
 import DatePicker from './DatePicker.vue';
-import JournalEntryEditSkeleton from './JournalEntryEditSkeleton.vue';
+import JournalEntrySkeleton from './JournalEntrySkeleton.vue';
 import type { JournalEntry } from '@/composables/useJournal';
 import { toast } from 'vue-sonner';
 

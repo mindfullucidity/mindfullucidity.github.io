@@ -18,7 +18,7 @@ interface JournalEntry {
 
 const entriesOverview = ref<JournalEntryOverview[] | null>(null);
 const entriesFullCache = new Map<number, JournalEntry>();
-const MAX_CACHE_SIZE = 5;
+const MAX_CACHE_SIZE = 20;
 
 const selectedEntry = ref<JournalEntry | null>(null);
 const isLoadingOverview = ref(false);
@@ -65,7 +65,6 @@ export const useJournal = () => {
     }
 
     isLoadingEntry.value = true;
-    console.log('useJournal: isLoadingEntry set to true');
     try {
       const { data, error } = await supabase
         .from('journals')
@@ -90,7 +89,6 @@ export const useJournal = () => {
       return null;
     } finally {
       isLoadingEntry.value = false;
-      console.log('useJournal: isLoadingEntry set to false');
     }
   };
 
