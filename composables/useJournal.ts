@@ -325,7 +325,7 @@ export const useJournal = () => {
     }
   };
 
-  const deleteJournalAnalysis = async (analysisId: number): Promise<boolean> => {
+  const deleteJournalAnalysis = async (analysisId: number, journalId: number): Promise<boolean> => {
     isSavingEntry.value = true;
     try {
       const { error } = await supabase

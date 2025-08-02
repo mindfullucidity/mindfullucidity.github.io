@@ -130,6 +130,7 @@ const journalAnalyses = ref<JournalAnalysis[]>([]);
 const showNewAnalysisCard = ref<'ai' | 'personal' | null>(null);
 const editingAnalysis = ref<JournalAnalysis | null>(null);
 const analysisContainerRef = ref<HTMLElement | null>(null);
+const lastDeletedAnalysis = ref<JournalAnalysis | null>(null);
 
 watch(() => props.entryId, async (newId) => {
   isContentReady.value = false; // Set to false when loading starts
@@ -184,7 +185,7 @@ const fetchJournalAnalyses = async (journalId: number) => {
   try {
     const analyses = await loadJournalAnalyses(journalId);
     if (analyses) {
-      journalAnalyses.value = analyses;
+      journalAnalyses.value.splice(0, journalAnalyses.value.length, ...analyses);
     }
   } finally {
     isLoadingAnalyses.value = false;
@@ -279,7 +280,8 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
 
         if (resultAnalysis) {
           toast.success('AI Analysis generated and saved successfully!');
-          await fetchJournalAnalyses(editableEntry.value.journal_id);
+          journalAnalyses.value.push(resultAnalysis);
+          journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
         } else {
           toast.error('Failed to save AI Analysis to database.');
         }
@@ -325,21 +327,61 @@ const handleSaveNewAnalysis = async (analysisData: Omit<JournalAnalysis, 'journa
 
   if (resultAnalysis) {
     toast.success('Analysis saved successfully!');
+    if (editingAnalysis.value) { // Check if it was an edit operation
+      const index = journalAnalyses.value.findIndex(a => a.journal_analysis_id === resultAnalysis.journal_analysis_id);
+      if (index !== -1) {
+        journalAnalyses.value[index] = resultAnalysis;
+      }
+    } else { // It was a new analysis
+      journalAnalyses.value.push(resultAnalysis);
+    }
+    journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     showNewAnalysisCard.value = null;
     editingAnalysis.value = null;
-    await fetchJournalAnalyses(editableEntry.value.journal_id);
   } else {
     toast.error('Failed to save analysis.');
   }
 };
 
-const handleDeleteAnalysis = async (analysisId: number) => {
-  const success = await deleteJournalAnalysis(analysisId);
-  if (success) {
-    toast.success('Analysis deleted successfully!');
-    if (editableEntry.value) {
-      await fetchJournalAnalyses(editableEntry.value.journal_id);
+const handleUndoDeleteAnalysis = async () => {
+  if (lastDeletedAnalysis.value) {
+    const restoredAnalysis = await createJournalAnalysis({
+      journal_id: lastDeletedAnalysis.value.journal_id,
+      type: lastDeletedAnalysis.value.type,
+      title: lastDeletedAnalysis.value.title,
+      content: lastDeletedAnalysis.value.content,
+    });
+
+    if (restoredAnalysis) {
+      toast.success('Analysis restored successfully!');
+      journalAnalyses.value.push(restoredAnalysis);
+      journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      lastDeletedAnalysis.value = null;
+    } else {
+      toast.error('Failed to restore analysis.');
     }
+  }
+};
+
+const handleDeleteAnalysis = async (analysisId: number) => {
+  console.log('Attempting to delete analysis with ID:', analysisId);
+  const analysisToDelete = journalAnalyses.value.find(a => a.journal_analysis_id === analysisId);
+  if (!analysisToDelete) {
+    toast.error('Analysis not found.');
+    return;
+  }
+
+  const success = await deleteJournalAnalysis(analysisId, editableEntry.value.journal_id);
+  if (success) {
+    lastDeletedAnalysis.value = analysisToDelete;
+    journalAnalyses.value = journalAnalyses.value.filter(a => a.journal_analysis_id !== analysisId);
+    toast.success('Analysis deleted successfully!', {
+      action: {
+        label: 'Undo',
+        onClick: () => handleUndoDeleteAnalysis(),
+      },
+      duration: 5000, // Toast duration in ms
+    });
   } else {
     toast.error('Failed to delete analysis.');
   }
