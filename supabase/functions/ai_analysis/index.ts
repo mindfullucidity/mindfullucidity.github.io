@@ -104,7 +104,7 @@ Deno.serve(async (req: Request) => {
     }
         systemPrompt += `
 
-Ensure the output is a valid JSON object with 'content' key. The content should be markdown compliant.
+Ensure the output is a valid JSON object with 'content' key. The content should be markdown compliant. Don't give the return a title.
 ${parser.getFormatInstructions()}`;
 
     humanPrompt += `Generate a new AI analysis based on the type "${generate.type}" and depth "${generate.depth}".`;
