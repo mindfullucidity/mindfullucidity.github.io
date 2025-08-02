@@ -1,10 +1,17 @@
 <script setup lang="ts">
-import { X, Sparkle } from 'lucide-vue-next'
+import { X, Sparkle, User } from 'lucide-vue-next'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ref } from 'vue'
+import { ref, type PropType } from 'vue'
 import { Skeleton } from '@/components/ui/skeleton'
+
+const props = defineProps({
+  type: {
+    type: String as PropType<'ai' | 'personal' | null>,
+    default: null
+  }
+});
 
 const emit = defineEmits(['cancel-generation']);
 
@@ -24,8 +31,18 @@ const handleCancel = () => {
             <div
               class="px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 bg-card border"
             >
-              <Sparkle class="h-3 w-3" aria-hidden="true" stroke="url(#sparkle-gradient)" />
-              <span class="pt-1 bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text">AI Analysis</span>
+              <template v-if="props.type === 'personal'">
+                <User class="h-3 w-3 text-blue-200" aria-hidden="true" />
+                <span class="pt-1 text-blue-200">Your Analysis</span>
+              </template>
+              <template v-else-if="props.type === 'ai'">
+                <Sparkle class="h-3 w-3" aria-hidden="true" stroke="url(#sparkle-gradient)" />
+                <span class="pt-1 bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text">AI Analysis</span>
+              </template>
+              <template v-else>
+                <Skeleton class="h-3 w-3 rounded-full" />
+                <Skeleton class="h-3 w-20" />
+              </template>
             </div>
             <CardTitle class="font-medium">
                 <Skeleton class="h-5 w-[150px]" />
