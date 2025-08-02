@@ -4,6 +4,10 @@ settings:
   autoInstallPeers: true
   excludeLinksFromLockfile: false
 
+overrides:
+  supabase: link:../../.local/share/pnpm/global/5/node_modules/supabase
+  link: link:../../.local/share/pnpm/global/5/node_modules/link
+
 importers:
 
   .:
@@ -26,6 +30,9 @@ importers:
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
+      link:
+        specifier: link:../../.local/share/pnpm/global/5/node_modules/link
+        version: link:../../.local/share/pnpm/global/5/node_modules/link
       lucide-vue-next:
         specifier: ^0.534.0
         version: 0.534.0(vue@3.5.18(typescript@5.8.3))
@@ -38,6 +45,9 @@ importers:
       shadcn-nuxt:
         specifier: 2.2.0
         version: 2.2.0(magicast@0.3.5)
+      supabase:
+        specifier: link:../../.local/share/pnpm/global/5/node_modules/supabase
+        version: link:../../.local/share/pnpm/global/5/node_modules/supabase
       tailwind-merge:
         specifier: ^3.3.1
         version: 3.3.1

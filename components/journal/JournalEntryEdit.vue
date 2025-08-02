@@ -29,8 +29,8 @@
           <EditableTextarea v-model="editableEntry.content" placeholder="What did you dream about?" />
         </div>
       </TabsContent>
-      <TabsContent value="analysis" class="p-6 overflow-y-auto flex-grow">
-          <div class="flex flex-col gap-4">
+      <TabsContent value="analysis" class="p-6">
+          <div class="flex flex-col gap-4 overflow-y-auto flex-grow" ref="analysisContainerRef">
             <template v-if="journalAnalyses.length > 0">
               <template v-for="analysis in journalAnalyses" :key="analysis.journal_analysis_id">
                 <NewPersonalAnalysisCard
@@ -46,7 +46,7 @@
                   :type="analysis.type.includes('ai') ? 'ai' : 'personal'"
                   :title="getAnalysisPrettyTitle(analysis.type)"
                   :content="analysis.content"
-                  showActions="true"
+                  :show-actions="true"
                   @delete="handleDeleteAnalysis"
                   @edit="handleEditAnalysis"
                 />
@@ -91,6 +91,9 @@ import { useRoute, useRouter } from 'vue-router';
 import NewAIAnalysisCard from './analysis_card/NewAIAnalysisCard.vue';
 import NewPersonalAnalysisCard from './analysis_card/NewPersonalAnalysisCard.vue';
 import PreviewAnalysisCard from './analysis_card/PreviewAnalysisCard.vue';
+import EditableInput from './EditableInput.vue';
+import DatePicker from './DatePicker.vue';
+import EditableTextarea from './EditableTextarea.vue';
 import { Plus, Sparkles, X, Check } from 'lucide-vue-next';
 
 const props = defineProps<{ entry: JournalEntry | null }>();
@@ -107,6 +110,7 @@ const activeTab = ref('entry');
 const journalAnalyses = ref<JournalAnalysis[]>([]);
 const showNewAnalysisCard = ref<'ai' | 'personal' | null>(null);
 const editingAnalysis = ref<JournalAnalysis | null>(null);
+const analysisContainerRef = ref<HTMLElement | null>(null);
 
 watch(() => props.entry, (newVal) => {
   editableEntry.value = newVal ? { ...newVal } : { journal_id: 0, title: '', content: '', date: new Date().toISOString().slice(0, 10), description: '' };
@@ -148,6 +152,14 @@ const handleAddPersonalAnalysis = () => {
     return;
   }
   showNewAnalysisCard.value = 'personal';
+  nextTick(() => {
+    if (analysisContainerRef.value) {
+      const lastChild = analysisContainerRef.value.lastElementChild;
+      if (lastChild) {
+        lastChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+    }
+  });
 };
 
 const handleAddAIAnalysis = () => {
@@ -156,6 +168,14 @@ const handleAddAIAnalysis = () => {
   }
   showNewAnalysisCard.value = 'ai';
   editingAnalysis.value = null;
+  nextTick(() => {
+    if (analysisContainerRef.value) {
+      const lastChild = analysisContainerRef.value.lastElementChild;
+      if (lastChild) {
+        lastChild.scrollIntoView({ behavior: 'smooth', block: 'end' });
+      }
+    }
+  });
 };
 
 const handleCancelNewAnalysis = () => {
