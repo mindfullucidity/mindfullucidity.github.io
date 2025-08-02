@@ -29,7 +29,7 @@
           <EditableTextarea v-model="editableEntry.content" placeholder="What did you dream about?" />
         </div>
       </TabsContent>
-      <TabsContent value="analysis" class="p-6">
+      <TabsContent value="analysis" class="p-6 overflow-y-auto flex-grow">
           <div class="flex flex-col gap-4 overflow-y-auto flex-grow" ref="analysisContainerRef">
             <template v-if="journalAnalyses.length > 0">
               <template v-for="analysis in journalAnalyses" :key="analysis.journal_analysis_id">
@@ -43,8 +43,8 @@
                 <PreviewAnalysisCard
                   v-else
                   :analysisId="analysis.journal_analysis_id"
-                  :type="analysis.type.includes('ai') ? 'ai' : 'personal'"
-                  :title="getAnalysisPrettyTitle(analysis.type)"
+                  :type="analysis.type"
+                  :title="getAnalysisPrettyTitle(analysis.title)"
                   :content="analysis.content"
                   :show-actions="true"
                   @delete="handleDeleteAnalysis"
@@ -64,16 +64,19 @@
             <template v-else-if="showNewAnalysisCard === 'ai' && !editingAnalysis">
               <NewAIAnalysisCard
                 :journalId="editableEntry.journal_id"
-                @save="handleSaveNewAnalysis"
+                @generate-ai-analysis="handleGenerateAIAnalysis"
                 @cancel="handleCancelNewAnalysis"
               />
             </template>
+            <template v-if="isGeneratingAIAnalysis">
+              <SkeletonPreviewAnalysisCard @cancel-generation="handleCancelAIAnalysisGeneration" />
+            </template>
 
             <div class="flex flex-col sm:flex-row gap-2 mt-4 justify-center">
-              <Button variant="ghost" class="border w-full sm:w-auto text-blue-200" @click="handleAddPersonalAnalysis">
+              <Button variant="ghost" class="border w-full sm:w-auto text-blue-200" @click="handleAddPersonalAnalysis" :disabled="isGeneratingAIAnalysis">
                 <Plus class="w-4 h-4" /> Add Your Analysis
               </Button>
-              <Button variant="ghost" class="border w-full sm:w-auto " @click="handleAddAIAnalysis">
+              <Button variant="ghost" class="border w-full sm:w-auto " @click="handleAddAIAnalysis" :disabled="isGeneratingAIAnalysis">
                 <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" /> <span class="bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text"> Generate AI Analysis</span>
               </Button>
             </div>
@@ -95,12 +98,15 @@ import EditableInput from './EditableInput.vue';
 import DatePicker from './DatePicker.vue';
 import EditableTextarea from './EditableTextarea.vue';
 import { Plus, Sparkles, X, Check } from 'lucide-vue-next';
+import SkeletonPreviewAnalysisCard from './analysis_card/SkeletonPreviewAnalysisCard.vue';
 
 const props = defineProps<{ entry: JournalEntry | null }>();
 
 const { createEntry, updateEntry, isSavingEntry, loadJournalAnalyses, createJournalAnalysis, updateJournalAnalysis, deleteJournalAnalysis, getAnalysisPrettyTitle } = useJournal();
 const editableEntry = ref<JournalEntry | null>(null);
 const isEnhancingEntry = ref(false);
+const isGeneratingAIAnalysis = ref(false);
+const abortController = ref<AbortController | null>(null);
 const supabase = useSupabaseClient();
 
 const route = useRoute();
@@ -181,6 +187,78 @@ const handleAddAIAnalysis = () => {
 const handleCancelNewAnalysis = () => {
   showNewAnalysisCard.value = null;
   editingAnalysis.value = null;
+};
+
+const handleCancelAIAnalysisGeneration = () => {
+  if (abortController.value) {
+    abortController.value.abort();
+  }
+  isGeneratingAIAnalysis.value = false;
+};
+
+const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: string, depth: string, content: string }) => {
+  if (!editableEntry.value || editableEntry.value.journal_id === 0) {
+    toast.error('Please save the journal entry first.');
+    return;
+  }
+
+  isGeneratingAIAnalysis.value = true;
+  showNewAnalysisCard.value = null; // Hide the new AI analysis card
+  abortController.value = new AbortController();
+
+  try {
+    const { data, error } = await supabase.functions.invoke('ai_analysis', {
+      signal: abortController.value.signal,
+      body: {
+        entry: {
+          title: editableEntry.value.title,
+          content: editableEntry.value.content,
+        },
+        analyses: journalAnalyses.value,
+        generate: {
+          type: payload.type,
+          depth: payload.depth,
+          note: payload.content,
+        },
+      },
+    });
+
+    if (error) {
+      toast.error(`AI Analysis failed: ${error.message}`);
+      console.error("AI Analysis error:", error);
+    } else if (data && data.object && data.object.content) {
+      // Only save if generation was not cancelled
+      if (isGeneratingAIAnalysis.value) {
+        const resultAnalysis = await createJournalAnalysis({
+          journal_id: payload.journal_id,
+          type: `ai`,
+          title: `${payload.type}`,
+          content: data.object.content,
+        });
+
+        if (resultAnalysis) {
+          toast.success('AI Analysis generated and saved successfully!');
+          await fetchJournalAnalyses(editableEntry.value.journal_id);
+        } else {
+          toast.error('Failed to save AI Analysis to database.');
+        }
+      } else {
+        console.log('AI Analysis completed after user cancellation. Not saving.');
+      }
+    } else {
+      toast.error("AI Analysis failed: Unexpected response from function.");
+    }
+  } catch (err: any) {
+    if (err.name === 'AbortError') {
+      console.log('AI Analysis generation aborted by user.');
+    } else {
+      toast.error(`An unexpected error occurred during AI Analysis: ${err.message}`);
+      console.error("Unexpected AI Analysis error:", err);
+    }
+  } finally {
+    isGeneratingAIAnalysis.value = false;
+    abortController.value = null;
+  }
 };
 
 const handleSaveNewAnalysis = async (analysisData: Omit<JournalAnalysis, 'journal_analysis_id' | 'created_at' | 'user_id'>) => {

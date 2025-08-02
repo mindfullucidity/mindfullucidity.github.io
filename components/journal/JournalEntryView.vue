@@ -32,8 +32,8 @@
           <div v-for="analysis in entry.journal_analyses" :key="analysis.journal_analysis_id" class="mb-4">
             <PreviewAnalysisCard
               :analysis-id="analysis.journal_analysis_id"
-              :type="analysis.type === 'ai' ? 'ai' : 'personal'"
-              :title="getAnalysisPrettyTitle(analysis.type)"
+              :type="analysis.type"
+              :title="getAnalysisPrettyTitle(analysis.title)"
               :content="analysis.content"
               :show-actions="false"
               @delete="handleAnalysisDelete"

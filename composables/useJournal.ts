@@ -320,6 +320,14 @@ export const useJournal = () => {
         return 'Jungian Analysis';
       case 'symbolic':
         return 'Symbolic Analysis';
+      case 'narrative':
+        return 'Narrative Analysis';
+      case 'cognitive-behavioral':
+        return 'Cognitive Behavioral Analysis';
+      case 'psychodynamic':
+        return 'Psychodynamic Analysis';
+      case 'humanistic':
+        return 'Humanistic Analysis';
       case 'initial-thoughts':
         return 'Initial Thoughts';
       case 'meditation':

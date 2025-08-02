@@ -3,7 +3,9 @@ import { Sparkle, User, Pencil, Trash2, ChevronDown } from 'lucide-vue-next'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible'
-import { ref, onMounted, onUnmounted, onUpdated } from 'vue'
+import { ref, computed } from 'vue'
+import { marked } from 'marked';
+import DOMPurify from 'dompurify';
 
 const props = defineProps<{
   analysisId: number;
@@ -24,6 +26,12 @@ const handleDelete = () => {
 const handleEdit = () => {
   emit('edit', props.analysisId);
 };
+
+const renderedContent = computed(() => {
+  let content = props.content;
+  const html = marked.parse(content, { breaks: true, gfm: true });
+  return DOMPurify.sanitize(html);
+});
 </script>
 
 <template>
@@ -65,7 +73,7 @@ const handleEdit = () => {
       </CardHeader>
       <CollapsibleContent>
         <CardContent class="pt-0">
-          <p class="text-sm leading-relaxed mb-2">{{ props.content }}</p>
+          <div class="prose prose-sm dark:prose-invert max-w-none" v-html="renderedContent"></div>
         </CardContent>
       </CollapsibleContent>
     </Card>

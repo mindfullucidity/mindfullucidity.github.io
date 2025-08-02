@@ -125,3 +125,22 @@
     font-family: 'Epilogue', sans-serif;
   }
 }
+
+/* Custom styles for prose content to re-enable list numbering and spacing */
+.prose ol {
+  list-style-type: decimal;
+  padding-left: 1.5em; /* Adjust as needed for indentation */
+}
+
+.prose ol li {
+  list-style-position: inside; /* Ensure marker is inside content flow */
+  margin-bottom: 0.5em; /* Space between list items */
+}
+
+.prose ol li p {
+  display: inline; /* Treat paragraphs within list items as inline to prevent new block formatting */
+}
+
+.prose p {
+  margin-bottom: 1em; /* Space between paragraphs */
+}
