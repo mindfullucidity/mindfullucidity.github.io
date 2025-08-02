@@ -2,7 +2,7 @@
   <div class="flex flex-col h-full">
     
     <Tabs v-model="activeTab" class="flex flex-col h-full">
-      <div class="flex items-center justify-between p-2 mt-2 h-8 shrink-0" :class="{ 'pointer-events-none opacity-50': isEnhancingEntry }">
+      <div class="flex items-center justify-between p-2 mt-2 h-8 shrink-0" :class="{ 'pointer-events-none opacity-50': isEnhancingEntry || isLoadingEntry || !isContentReady }">
         <TabsList>
           <TabsTrigger value="entry">Entry</TabsTrigger>
           <TabsTrigger value="analysis">Analysis</TabsTrigger>
@@ -12,17 +12,23 @@
             <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" />
           </Button>
           <Separator v-if="activeTab === 'entry'" orientation="vertical" class="mx-2" />
-          <Button variant="ghost" size="icon" @click="() => { if (!editableEntry || editableEntry.journal_id === 0) { navigateTo('/journal') } else { navigateTo(`/journal/${editableEntry.journal_id}${route.hash}`) } }">
-            <X class="w-4 h-4 text-red-400" />
+          <Button variant="ghost" size="icon" @click="deleteEntryAndNavigate">
+            <Trash2 class="w-4 h-4 text-red-400" />
           </Button>
-          <Button variant="ghost" size="icon" @click="saveEntry" :disabled="isSavingEntry">
-            <Check class="w-4 h-4" />
-          </Button>
+          <template v-if="hasUnsavedChanges">
+            <Separator orientation="vertical" class="mx-2" />
+            <Button variant="ghost" size="icon" @click="cancelEdit">
+              <X class="w-4 h-4 text-red-400" />
+            </Button>
+            <Button variant="ghost" size="icon" @click="saveEntry" :disabled="isSavingEntry">
+              <Check class="w-4 h-4" />
+            </Button>
+          </template>
         </div>
       </div>
       <Separator />
       <TabsContent value="entry" class="p-6 overflow-y-auto flex-grow">
-        <JournalEntrySkeleton v-if="isEnhancingEntry" />
+        <JournalEntrySkeleton v-if="isLoadingEntry || !editableEntry" />
         <div v-else-if="editableEntry">
           <EditableInput v-model="editableEntry.title" placeholder="Title" />
           <DatePicker variant="plain" v-model="editableEntry.date" />
@@ -31,7 +37,10 @@
       </TabsContent>
       <TabsContent value="analysis" class="p-6 overflow-y-auto flex-grow">
           <div class="flex flex-col gap-4 overflow-y-auto flex-grow" ref="analysisContainerRef">
-            <template v-if="journalAnalyses.length > 0">
+            <template v-if="isLoadingAnalyses">
+              <SkeletonPreviewAnalysisCard :type="null" />
+            </template>
+            <template v-else-if="journalAnalyses.length > 0">
               <template v-for="analysis in journalAnalyses" :key="analysis.journal_analysis_id">
                 <NewPersonalAnalysisCard
                   v-if="editingAnalysis && editingAnalysis.journal_analysis_id === analysis.journal_analysis_id"
@@ -69,7 +78,7 @@
               />
             </template>
             <template v-if="isGeneratingAIAnalysis">
-              <SkeletonPreviewAnalysisCard @cancel-generation="handleCancelAIAnalysisGeneration" />
+              <SkeletonPreviewAnalysisCard type="ai" @cancel-generation="handleCancelAIAnalysisGeneration" />
             </template>
 
             <div class="flex flex-col sm:flex-row gap-2 mt-4 justify-center">
@@ -97,15 +106,19 @@ import PreviewAnalysisCard from './analysis_card/PreviewAnalysisCard.vue';
 import EditableInput from './EditableInput.vue';
 import DatePicker from './DatePicker.vue';
 import EditableTextarea from './EditableTextarea.vue';
-import { Plus, Sparkles, X, Check } from 'lucide-vue-next';
+import { Plus, Sparkles, X, Check, Trash2 } from 'lucide-vue-next';
 import SkeletonPreviewAnalysisCard from './analysis_card/SkeletonPreviewAnalysisCard.vue';
 
-const props = defineProps<{ entry: JournalEntry | null }>();
+const props = defineProps<{ entryId: number | null }>();
 
-const { createEntry, updateEntry, isSavingEntry, loadJournalAnalyses, createJournalAnalysis, updateJournalAnalysis, deleteJournalAnalysis, getAnalysisPrettyTitle } = useJournal();
+const { createEntry, updateEntry, isSavingEntry, loadJournalAnalyses, createJournalAnalysis, updateJournalAnalysis, deleteJournalAnalysis, getAnalysisPrettyTitle, isLoadingEntry, findEntryById } = useJournal();
 const editableEntry = ref<JournalEntry | null>(null);
+const originalEntry = ref<JournalEntry | null>(null);
+const hasUnsavedChanges = ref(false);
 const isEnhancingEntry = ref(false);
+const isContentReady = ref(false);
 const isGeneratingAIAnalysis = ref(false);
+const isLoadingAnalyses = ref(false);
 const abortController = ref<AbortController | null>(null);
 const supabase = useSupabaseClient();
 
@@ -118,9 +131,32 @@ const showNewAnalysisCard = ref<'ai' | 'personal' | null>(null);
 const editingAnalysis = ref<JournalAnalysis | null>(null);
 const analysisContainerRef = ref<HTMLElement | null>(null);
 
-watch(() => props.entry, (newVal) => {
-  editableEntry.value = newVal ? { ...newVal } : { journal_id: 0, title: '', content: '', date: new Date().toISOString().slice(0, 10), description: '' };
+watch(() => props.entryId, async (newId) => {
+  isContentReady.value = false; // Set to false when loading starts
+  editableEntry.value = null; // Clear current entry to show skeleton immediately
+  if (newId) {
+    editableEntry.value = await findEntryById(newId);
+    originalEntry.value = editableEntry.value ? { ...editableEntry.value } : null;
+    hasUnsavedChanges.value = false;
+  } else {
+    editableEntry.value = { journal_id: 0, title: '', content: '', date: new Date().toISOString().slice(0, 10), description: '' };
+    originalEntry.value = null;
+    hasUnsavedChanges.value = false;
+  }
+  isContentReady.value = true; // Set to true after content is loaded
 }, { immediate: true });
+
+watch(editableEntry, (newVal, oldVal) => {
+  if (!originalEntry.value) {
+    hasUnsavedChanges.value = false;
+    return;
+  }
+  const isContentSame = newVal?.content === originalEntry.value.content;
+  const isTitleSame = newVal?.title === originalEntry.value.title;
+  const isDateSame = newVal?.date === originalEntry.value.date;
+
+  hasUnsavedChanges.value = !(isContentSame && isTitleSame && isDateSame);
+}, { deep: true });
 
 watch([activeTab, () => editableEntry.value?.journal_id], async ([newTab, newJournalId]) => {
   if (newTab === 'analysis' && newJournalId && newJournalId !== 0) {
@@ -144,9 +180,14 @@ onMounted(() => {
 });
 
 const fetchJournalAnalyses = async (journalId: number) => {
-  const analyses = await loadJournalAnalyses(journalId);
-  if (analyses) {
-    journalAnalyses.value = analyses;
+  isLoadingAnalyses.value = true;
+  try {
+    const analyses = await loadJournalAnalyses(journalId);
+    if (analyses) {
+      journalAnalyses.value = analyses;
+    }
+  } finally {
+    isLoadingAnalyses.value = false;
   }
 };
 
@@ -316,6 +357,27 @@ const handleEditAnalysis = (analysisId: number) => {
   }
 };
 
+const cancelEdit = () => {
+  if (originalEntry.value) {
+    editableEntry.value = { ...originalEntry.value };
+  }
+  hasUnsavedChanges.value = false;
+};
+
+const deleteEntryAndNavigate = async () => {
+  if (editableEntry.value && editableEntry.value.journal_id !== 0) {
+    const success = await deleteEntry(editableEntry.value.journal_id);
+    if (success) {
+      toast.success('Journal entry deleted successfully!');
+      navigateTo('/journal');
+    } else {
+      toast.error('Failed to delete journal entry.');
+    }
+  } else {
+    navigateTo('/journal');
+  }
+};
+
 const saveEntry = async () => {
   if (editableEntry.value) {
     console.log('Content before trim:', editableEntry.value.content);
@@ -331,6 +393,9 @@ const saveEntry = async () => {
       resultEntry = await createEntry({ title: editableEntry.value.title, content: editableEntry.value.content, date: editableEntry.value.date });
     }
     if (resultEntry) {
+      originalEntry.value = { ...resultEntry };
+      hasUnsavedChanges.value = false;
+      toast.success('Journal entry saved successfully!');
       navigateTo(`/journal/${resultEntry.journal_id}${route.hash}`);
     } else {
       toast.error('Failed to save journal entry.');

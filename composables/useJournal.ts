@@ -228,6 +228,12 @@ export const useJournal = () => {
   };
 
   const loadJournalAnalyses = async (journalId: number): Promise<JournalAnalysis[]> => {
+    // Check if analyses are already cached with the full entry
+    const cachedEntry = entriesFullCache.get(journalId);
+    if (cachedEntry && cachedEntry.analyses) {
+      return cachedEntry.analyses;
+    }
+
     isLoadingEntry.value = true; // Re-using this for now, might need a separate one later
     try {
       const { data, error } = await supabase
@@ -240,7 +246,12 @@ export const useJournal = () => {
         console.error(`Error loading journal analyses for journal ${journalId}:`, error.message);
         return [];
       }
-      return data || [];
+      const analyses = data || [];
+      // Update the cached entry with analyses if it exists
+      if (cachedEntry) {
+        cachedEntry.analyses = analyses;
+      }
+      return analyses;
     } finally {
       isLoadingEntry.value = false;
     }
@@ -266,6 +277,15 @@ export const useJournal = () => {
         console.error('Error creating journal analysis:', error.message);
         return null;
       }
+      if (data) {
+        const cachedEntry = entriesFullCache.get(data.journal_id);
+        if (cachedEntry) {
+          if (!cachedEntry.analyses) {
+            cachedEntry.analyses = [];
+          }
+          cachedEntry.analyses.push(data);
+        }
+      }
       return data;
     } finally {
       isSavingEntry.value = false;
@@ -290,6 +310,15 @@ export const useJournal = () => {
         console.error('Error updating journal analysis:', error.message);
         return null;
       }
+      if (data) {
+        const cachedEntry = entriesFullCache.get(data.journal_id);
+        if (cachedEntry && cachedEntry.analyses) {
+          const index = cachedEntry.analyses.findIndex(a => a.journal_analysis_id === data.journal_analysis_id);
+          if (index !== -1) {
+            cachedEntry.analyses[index] = data;
+          }
+        }
+      }
       return data;
     } finally {
       isSavingEntry.value = false;
@@ -307,6 +336,11 @@ export const useJournal = () => {
       if (error) {
         console.error('Error deleting journal analysis:', error.message);
         return false;
+      }
+      // Remove from cache
+      const cachedEntry = entriesFullCache.get(journalId);
+      if (cachedEntry && cachedEntry.analyses) {
+        cachedEntry.analyses = cachedEntry.analyses.filter(a => a.journal_analysis_id !== analysisId);
       }
       return true;
     } finally {
