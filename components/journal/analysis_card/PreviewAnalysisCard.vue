@@ -18,26 +18,12 @@ const emit = defineEmits(['delete', 'edit']);
 const isOpen = ref(true)
 
 const handleDelete = () => {
-  console.log('PreviewAnalysisCard: Delete clicked for analysis', props.analysisId);
   emit('delete', props.analysisId);
 };
 
 const handleEdit = () => {
-  console.log('PreviewAnalysisCard: Edit clicked for analysis', props.analysisId);
   emit('edit', props.analysisId);
 };
-
-onMounted(() => {
-  console.log('PreviewAnalysisCard: Mounted for analysis', props.analysisId);
-});
-
-onUnmounted(() => {
-  console.log('PreviewAnalysisCard: Unmounted for analysis', props.analysisId);
-});
-
-onUpdated(() => {
-  console.log('PreviewAnalysisCard: Component updated for analysis', props.analysisId);
-});
 </script>
 
 <template>

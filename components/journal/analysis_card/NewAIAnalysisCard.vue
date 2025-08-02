@@ -10,6 +10,7 @@ const props = defineProps<{ journalId: number }>();
 const emit = defineEmits(['save', 'cancel']);
 
 const selectedType = ref('jungian');
+const selectedDepth = ref('details');
 const content = ref('');
 
 const handleSave = () => {
@@ -44,6 +45,18 @@ const handleCancel = () => {
             <SelectItem value="symbolic">Symbolic</SelectItem>
           </SelectContent>
         </Select>
+
+        <Label for="depth" class="ml-10">Depth:</Label>
+        <Select v-model="selectedDepth">
+          <SelectTrigger id="depth">
+            <SelectValue placeholder="Select a depth" />
+          </SelectTrigger>
+          <SelectContent>
+            <SelectItem value="to-the-point">To The Point</SelectItem>
+            <SelectItem value="details">Details</SelectItem>
+            <SelectItem value="in-depth">In-Depth</SelectItem>
+          </SelectContent>
+        </Select>
       </div>
       <textarea
         v-model="content"
@@ -51,7 +64,7 @@ const handleCancel = () => {
         placeholder="Is there anything else you'd like to tell the AI before generating the analysis?"
       ></textarea>
       <div class="flex gap-2">
-        <Button variant="ghost" class="border h-8" @click="handleSave">Generate Analysis</Button>
+        <Button variant="ghost" class="border h-8 " @click="handleSave"><Sparkle class="h-4 w-4" stroke="url(#sparkle-gradient)" aria-hidden="true" /><span class="bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text">Generate AI Analysis</span></Button>
         <Button variant="ghost" class="h-8" @click="handleCancel">Cancel</Button>
       </div>
     </CardHeader>

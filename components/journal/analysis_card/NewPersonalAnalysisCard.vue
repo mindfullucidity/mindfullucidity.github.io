@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Skeleton } from '@/components/ui/skeleton'
 import type { JournalAnalysis } from '@/composables/useJournal';
 import { toast } from 'vue-sonner';
 
@@ -54,8 +55,9 @@ const handleEnhance = async () => {
   try {
     const { data, error } = await supabase.functions.invoke('enhance', {
       body: {
-        type: "journal_analysis",
+        type: "personal_analysis",
         object: {
+          type: selectedType.value,
           content: content.value,
         },
       },
@@ -66,6 +68,7 @@ const handleEnhance = async () => {
       console.error("Enhancement error:", error);
     } else if (data && data.object) {
       content.value = data.object.content;
+      selectedType.value = data.object.type; // Update type as well
       toast.success("Analysis enhanced successfully!");
     } else {
       toast.error("Enhancement failed: Unexpected response.");
@@ -88,7 +91,7 @@ const handleEnhance = async () => {
       </div>
       <div class="flex items-center gap-2">
         <Label for="type">Type:</Label>
-        <Select v-model="selectedType">
+        <Select v-model="selectedType" :disabled="isEnhancing">
           <SelectTrigger id="type">
             <SelectValue placeholder="Select a type" />
           </SelectTrigger>
@@ -100,12 +103,14 @@ const handleEnhance = async () => {
         </Select>
       </div>
       <textarea
+        v-if="!isEnhancing"
         v-model="content"
-        class="border-transparent placeholder:text-muted-foreground aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content w-full rounded-md bg-card px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm min-h-[100px]"
+        class="border-input placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content w-full rounded-md border bg-card px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm min-h-[100px]"
         placeholder="What do you think this dream means?"
       ></textarea>
+      <Skeleton v-else class="w-full h-[100px]" />
       <div class="flex gap-2">
-        <Button variant="ghost" class="border h-8" @click="handleSave">Save Analysis</Button>
+        <Button variant="ghost" class="border h-8" @click="handleSave" :disabled="isEnhancing">Save Analysis</Button>
         <Button variant="ghost" class="border h-8" @click="handleEnhance" :disabled="isEnhancing">
           <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" />
           <span class="bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text"> Enhance</span>
