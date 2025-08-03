@@ -1,21 +1,13 @@
 <template>
-  <JournalEntryEdit :entry="newEntry" />
+  <JournalEntryMerge :entryId="null" :isNewEntry="true" />
 </template>
 
 <script setup lang="ts">
-import JournalEntryEdit from '@/components/journal/JournalEntryEdit.vue';
+import JournalEntryMerge from '@/components/journal/JournalEntryMerge.vue';
 import { useJournal } from '@/composables/useJournal';
-import { ref } from 'vue';
 
 const { clearSelectedEntry } = useJournal();
 clearSelectedEntry();
-
-const newEntry = ref({
-  journal_id: 0,
-  title: '',
-  content: '',
-  date: new Date(new Date().setDate(new Date().getDate() - 1)),
-});
 
 definePageMeta({
   layout: 'journal',
