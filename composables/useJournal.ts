@@ -200,16 +200,41 @@ export const useJournal = () => {
     selectedEntry.value = null;
   };
 
+  const deleteJournalAnalysesByJournalId = async (journalId: number): Promise<boolean> => {
+    try {
+      const { error } = await supabase
+        .from('journal_analyses')
+        .delete()
+        .eq('journal_id', journalId);
+
+      if (error) {
+        console.error(`Error deleting analyses for journal ${journalId}:`, error.message);
+        return false;
+      }
+      return true;
+    } catch (err) {
+      console.error(`Unexpected error deleting analyses for journal ${journalId}:`, err);
+      return false;
+    }
+  };
+
   const deleteEntry = async (journal_id: number) => {
     isSavingEntry.value = true;
     try {
+      // First, delete all associated analyses
+      const analysesDeleted = await deleteJournalAnalysesByJournalId(journal_id);
+      if (!analysesDeleted) {
+        console.error(`Failed to delete analyses for journal ${journal_id}. Aborting journal deletion.`);
+        return false;
+      }
+
       const { error } = await supabase
         .from('journals')
         .delete()
         .eq('journal_id', journal_id);
 
       if (error) {
-        console.error('Error deleting journal entry:', error.message);
+        console.error('Error deleting journal entry:', error.message, error);
         return false;
       }
 
