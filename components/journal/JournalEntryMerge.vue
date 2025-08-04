@@ -591,7 +591,7 @@ const saveEntry = async () => {
     if (editableEntry.value.journal_id && editableEntry.value.journal_id !== 0) {
       resultEntry = await updateEntry(editableEntry.value);
     } else {
-      resultEntry = await createEntry({ title: editableEntry.value.title, content: editableEntry.value.content, date: editableEntry.value.date });
+      resultEntry = await createEntry(editableEntry.value);
     }
     if (resultEntry) {
       originalEntry.value = { ...resultEntry };
