@@ -134,6 +134,10 @@ export const useJournal = () => {
           content: newEntry.content,
           description: description,
           date: newEntry.date,
+          lucidity_level: newEntry.lucidity_level,
+          lucidity_trigger: newEntry.lucidity_trigger,
+          mood: newEntry.mood,
+          characteristics: newEntry.characteristics,
           user_id: user.value.id,
         })
         .select()
