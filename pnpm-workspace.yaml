@@ -1,3 +1,5 @@
+packages:
+  - .
 overrides:
   link: link:../../.local/share/pnpm/global/5/node_modules/link
   supabase: link:../../.local/share/pnpm/global/5/node_modules/supabase
