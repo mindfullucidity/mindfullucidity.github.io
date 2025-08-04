@@ -14,10 +14,10 @@
 <script setup lang="ts">
 import type { JournalEntry } from '@/composables/useJournal';
 import { TabsContent } from '@/components/ui/tabs';
-import JournalEntrySkeleton from '@/components/journal/JournalEntrySkeleton.vue';
-import EditableInput from '@/components/journal/EditableInput.vue';
-import DatePicker from '@/components/journal/DatePicker.vue';
-import EditableTextarea from '@/components/journal/EditableTextarea.vue';
+import JournalEntrySkeleton from '~/components/journal/view/JournalEntrySkeleton.vue';
+import EditableInput from '~/components/journal/misc/EditableInput.vue';
+import DatePicker from '~/components/journal/misc/DatePicker.vue';
+import EditableTextarea from '~/components/journal/misc/EditableTextarea.vue';
 
 const props = defineProps<{
   editableEntry: JournalEntry | null;

@@ -1,9 +1,9 @@
 <template>
-  <JournalEntryMerge :entryId="Number(route.params.id)" />
+  <JournalEntryView :entryId="Number(route.params.id)" />
 </template>
 
 <script setup lang="ts">
-import JournalEntryMerge from '@/components/journal/JournalEntryMerge.vue';
+import JournalEntryView from '~/components/journal/view/JournalEntryView.vue';
 import { useJournal } from '@/composables/useJournal';
 import { ref, watch, onMounted } from 'vue';
 

@@ -12,5 +12,5 @@
 </template>
 
 <script setup lang="ts">
-import JournalSidebar from '@/components/journal/JournalSidebar.vue';
+import JournalSidebar from '~/components/journal/sidebar/JournalSidebar.vue';
 </script>
