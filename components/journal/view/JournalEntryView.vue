@@ -16,7 +16,6 @@
       />
       <Separator />
       <JournalEntryViewEntry
-        v-if="editableEntry"
         v-model:editableEntry="editableEntry"
         :is-loading-entry="isLoadingEntry"
         :is-enhancing-entry="isEnhancingEntry"
@@ -32,11 +31,11 @@
       <TabsContent value="details" class="p-6 overflow-y-auto flex-grow">
         <div class="mx-auto max-w-4xl w-full">
           <JournalEntryViewDetails
-            v-if="editableEntry"
-            :initial-lucidity-level="editableEntry.lucidity_level"
-            :initial-lucidity-trigger="editableEntry.lucidity_trigger"
-            :initial-mood="editableEntry.mood"
-            :initial-characteristics="editableEntry.characteristics"
+            :initial-lucidity-level="editableEntry?.lucidity_level"
+            :initial-lucidity-trigger="editableEntry?.lucidity_trigger"
+            :initial-mood="editableEntry?.mood"
+            :initial-characteristics="editableEntry?.characteristics"
+            :is-loading-entry="isLoadingEntry"
             @update:lucidity-level="editableEntry.lucidity_level = $event"
             @update:lucidity-trigger="editableEntry.lucidity_trigger = $event"
             @update:mood="editableEntry.mood = $event"

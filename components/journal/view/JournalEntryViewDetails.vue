@@ -3,6 +3,7 @@ import { ref, computed, watch, onMounted } from 'vue';
 import { Moon, Sun, Cloud, Sparkles, Eye, Brain, AlertTriangle, RotateCcw } from 'lucide-vue-next';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
+import JournalEntryViewDetailsSkeleton from './JournalEntryViewDetailsSkeleton.vue';
 
 interface LucidityLevel {
   level: number;
@@ -23,6 +24,7 @@ const props = defineProps({
   initialLucidityTrigger: { type: String, default: '' },
   initialMood: { type: Number as PropType<number | null>, default: 50 },
   initialCharacteristics: { type: Array as () => string[], default: () => [] },
+  isLoadingEntry: { type: Boolean, default: false },
 });
 
 const emit = defineEmits([
@@ -183,109 +185,114 @@ const getMoodEmoji = computed(() => (value: number) => {
 
 <template>
   <div class="w-full mx-auto space-y-8">
-    <!-- Lucidity Level -->
-    <div class="space-y-4">
-      <div class="space-y-0">
-        <h3 class="text-lg font-semibold text-foreground">Lucidity Level</h3>
-        <p class="text-muted-foreground">How aware were you that you were dreaming?</p>
-      </div>
-      <div class="flex justify-between gap-4">
-        <div
-          v-for="level in lucidityLevels"
-          :key="level.level"
-          class="relative flex-1 cursor-pointer"
-          @click="handleLuciditySelect(level.level)"
-        >
-          <div
-            :class="[
-              'w-full h-20 rounded-xl flex flex-col items-center justify-center',
-              'transition-all duration-300 border-2',
-              selectedLucidity === level.level
-                ? `${level.color} border-white shadow-lg text-white`
-                : 'bg-card border-border hover:bg-muted'
-            ]"
-          >
-            <component :is="level.icon" class="w-6 h-6" />
-            <span class="text-xs mt-1 font-medium">{{ level.label }}</span>
+    <JournalEntryViewDetailsSkeleton v-if="isLoadingEntry || initialLucidityLevel === null" />
+    <div v-else>
+      <div class="w-full mx-auto space-y-8">
+        <!-- Lucidity Level -->
+        <div class="space-y-4">
+          <div class="space-y-0">
+            <h3 class="text-lg font-semibold text-foreground">Lucidity Level</h3>
+            <p class="text-muted-foreground">How aware were you that you were dreaming?</p>
           </div>
-        </div>
-      </div>
-
-      <div v-if="selectedLucidity > 0" class="pt-4">
-        <label class="block text-sm font-medium text-foreground mb-2">
-          What triggered your lucidity?
-        </label>
-        <Input
-          :model-value="lucidityTrigger"
-          @input="handleTriggerChange"
-          placeholder="e.g., reality check, unusual dream sign..."
-          class="w-full"
-        />
-      </div>
-    </div>
-
-    <!-- Mood Spectrum -->
-    <div class="space-y-4">
-      <div class="space-y-0">
-        <h3 class="text-lg font-semibold text-foreground">Mood Spectrum</h3>
-        <p class="text-muted-foreground">How did the dream make you feel overall?</p>
-      </div>
-      <div class="relative">
-        <div
-          class="h-12 rounded-full cursor-pointer relative overflow-hidden border border-border"
-          :style="{
-            background: `linear-gradient(to right,
-              hsl(330, 80%, 40%) 0%,
-              hsl(160, 70%, 50%) 50%,
-              hsl(260, 90%, 70%) 100%
-            )`
-          }"
-          @mousedown="startDragging"
-        >
-          <div
-            class="absolute top-1/2 w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-lg cursor-grab active:cursor-grabbing select-none"
-            :style="{
-              left: `${mood}%`,
-              transform: 'translate(-50%, -50%)',
-              backgroundColor: getMoodColor(mood)
-            }"
-          >
-            {{ getMoodEmoji(mood) }}
-          </div>
-        </div>
-        <div class="flex justify-between text-xs text-muted-foreground mt-2">
-          <span>Negative</span>
-          <span>Neutral</span>
-          <span>Positive</span>
-        </div>
-      </div>
-    </div>
-
-    <!-- Characteristics -->
-    <div class="space-y-4">
-      <div class="space-y-0">
-        <h3 class="text-lg font-semibold text-foreground">Characteristics</h3>
-        <p class="text-muted-foreground">Select any special qualities your dream had</p>
-      </div>
-      <div class="grid grid-cols-2 gap-3">
-        <div
-          v-for="characteristic in characteristics"
-          :key="characteristic.id"
-          @click="handleCharacteristicToggle(characteristic.id)"
-        >
-          <Card
-            :class="[
-              'p-4 cursor-pointer transition-all duration-300 border-2',
-              selectedCharacteristics.includes(characteristic.id)
-                ? `${characteristic.color} border-white shadow-lg text-white`
-                : 'bg-card border-border hover:bg-muted'
-            ]"
-          >
-            <div class="flex items-center space-x-3">
-              <component :is="characteristic.icon" class="w-5 h-5" />
-              <span class="font-medium">{{ characteristic.label }}</span>
+          <div class="flex justify-between gap-4">
+            <div
+              v-for="level in lucidityLevels"
+              :key="level.level"
+              class="relative flex-1 cursor-pointer"
+              @click="handleLuciditySelect(level.level)"
+            >
+              <div
+                :class="[
+                  'w-full h-20 rounded-xl flex flex-col items-center justify-center',
+                  'transition-all duration-300 border-2',
+                  selectedLucidity === level.level
+                    ? `${level.color} border-white shadow-lg text-white`
+                    : 'bg-card border-border hover:bg-muted'
+                ]"
+              >
+                <component :is="level.icon" class="w-6 h-6" />
+                <span class="text-xs mt-1 font-medium">{{ level.label }}</span>
+              </div>
             </div>
-          </Card>
+          </div>
+
+          <div v-if="selectedLucidity > 0" class="pt-4">
+            <label class="block text-sm font-medium text-foreground mb-2">
+              What triggered your lucidity?
+            </label>
+            <Input
+              :model-value="lucidityTrigger"
+              @input="handleTriggerChange"
+              placeholder="e.g., reality check, unusual dream sign..."
+              class="w-full"
+            />
+          </div>
+        </div>
+
+        <!-- Mood Spectrum -->
+        <div class="space-y-4">
+          <div class="space-y-0">
+            <h3 class="text-lg font-semibold text-foreground">Mood Spectrum</h3>
+            <p class="text-muted-foreground">How did the dream make you feel overall?</p>
+          </div>
+          <div class="relative">
+            <div
+              class="h-12 rounded-full cursor-pointer relative overflow-hidden border border-border"
+              :style="{
+                background: `linear-gradient(to right,
+                  hsl(330, 80%, 40%) 0%,
+                  hsl(160, 70%, 50%) 50%,
+                  hsl(260, 90%, 70%) 100%
+                )`
+              }"
+              @mousedown="startDragging"
+            >
+              <div
+                class="absolute top-1/2 w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-lg cursor-grab active:cursor-grabbing select-none"
+                :style="{
+                  left: `${mood}%`,
+                  transform: 'translate(-50%, -50%)',
+                  backgroundColor: getMoodColor(mood)
+                }"
+              >
+                {{ getMoodEmoji(mood) }}
+              </div>
+            </div>
+            <div class="flex justify-between text-xs text-muted-foreground mt-2">
+              <span>Negative</span>
+              <span>Neutral</span>
+              <span>Positive</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Characteristics -->
+        <div class="space-y-4">
+          <div class="space-y-0">
+            <h3 class="text-lg font-semibold text-foreground">Characteristics</h3>
+            <p class="text-muted-foreground">Select any special qualities your dream had</p>
+          </div>
+          <div class="grid grid-cols-2 gap-3">
+            <div
+              v-for="characteristic in characteristics"
+              :key="characteristic.id"
+              @click="handleCharacteristicToggle(characteristic.id)"
+            >
+              <Card
+                :class="[
+                  'p-4 cursor-pointer transition-all duration-300 border-2',
+                  selectedCharacteristics.includes(characteristic.id)
+                    ? `${characteristic.color} border-white shadow-lg text-white`
+                    : 'bg-card border-border hover:bg-muted'
+                ]"
+              >
+                <div class="flex items-center space-x-3">
+                  <component :is="characteristic.icon" class="w-5 h-5" />
+                  <span class="font-medium">{{ characteristic.label }}</span>
+                </div>
+              </Card>
+            </div>
+          </div>
         </div>
       </div>
     </div>
