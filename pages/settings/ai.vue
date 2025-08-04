@@ -110,9 +110,9 @@ function resetToDefaults() {
         <CardContent class="space-y-4">
           <div class="flex items-center justify-between">
             <div class="space-y-0.5">
-              <Label>Enable Custom AI Model</Label>
+              <Label>Custom AI Model</Label>
               <p class="text-sm text-muted-foreground">
-                Connect your own AI model for personalized dream analysis.
+                Connect your own AI model for unlimited access!
               </p>
             </div>
             <Switch
