@@ -1,0 +1,1 @@
+1. minor formatting issue with bade on journal entry card for some configs
