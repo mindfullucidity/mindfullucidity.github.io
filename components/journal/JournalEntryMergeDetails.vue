@@ -56,25 +56,25 @@ const lucidityLevels: LucidityLevel[] = [
     level: 0,
     label: 'Not Lucid',
     icon: Moon,
-    color: 'bg-slate-600/70',
+    color: 'bg-[#44475A]/70', // Dracula currentLine (darker gray/purple)
   },
   {
     level: 1,
     label: 'Slightly Aware',
     icon: Cloud,
-    color: 'bg-blue-500/70',
+    color: 'bg-[#F1FA8C]/70', // Dracula yellow
   },
   {
     level: 2,
     label: 'Moderately Lucid',
     icon: Eye,
-    color: 'bg-purple-500/70',
+    color: 'bg-[#8BE9FD]/70', // Dracula cyan
   },
   {
     level: 3,
     label: 'Fully Lucid',
     icon: Sparkles,
-    color: 'bg-yellow-500/70',
+    color: 'bg-[#BD93F9]/70', // Dracula purple
   }
 ];
 
@@ -83,25 +83,25 @@ const characteristics: Characteristic[] = [
     id: 'recurrent',
     label: 'Recurrent',
     icon: RotateCcw,
-    color: 'bg-green-500/70'
+    color: 'bg-[#50FA7B]/70' // Dracula green
   },
   {
     id: 'nightmare',
     label: 'Nightmare',
     icon: AlertTriangle,
-    color: 'bg-red-500/70'
+    color: 'bg-[#FF5555]/70' // Dracula red
   },
   {
     id: 'sleep_paralysis',
     label: 'Sleep Paralysis',
     icon: Brain,
-    color: 'bg-indigo-500/70'
+    color: 'bg-[#BD93F9]/70' // Dracula purple
   },
   {
     id: 'false_awakening',
     label: 'False Awakening',
     icon: Sun,
-    color: 'bg-orange-500/70'
+    color: 'bg-[#FFB86C]/70' // Dracula orange
   }
 ];
 
@@ -185,7 +185,7 @@ const getMoodEmoji = computed(() => (value: number) => {
   <div class="w-full mx-auto space-y-8">
     <!-- Lucidity Level -->
     <div class="space-y-4">
-      <div class="space-y-0.5">
+      <div class="space-y-0">
         <h3 class="text-lg font-semibold text-foreground">Lucidity Level</h3>
         <p class="text-muted-foreground">How aware were you that you were dreaming?</p>
       </div>
@@ -226,7 +226,7 @@ const getMoodEmoji = computed(() => (value: number) => {
 
     <!-- Mood Spectrum -->
     <div class="space-y-4">
-      <div class="space-y-0.5">
+      <div class="space-y-0">
         <h3 class="text-lg font-semibold text-foreground">Mood Spectrum</h3>
         <p class="text-muted-foreground">How did the dream make you feel overall?</p>
       </div>
@@ -235,9 +235,9 @@ const getMoodEmoji = computed(() => (value: number) => {
           class="h-12 rounded-full cursor-pointer relative overflow-hidden border border-border"
           :style="{
             background: `linear-gradient(to right,
-              hsl(330, 50%, 30%) 0%,
-              hsl(160, 60%, 45%) 50%,
-              hsl(260, 80%, 60%) 100%
+              hsl(330, 80%, 40%) 0%,
+              hsl(160, 70%, 50%) 50%,
+              hsl(260, 90%, 70%) 100%
             )`
           }"
           @mousedown="startDragging"
@@ -263,7 +263,7 @@ const getMoodEmoji = computed(() => (value: number) => {
 
     <!-- Characteristics -->
     <div class="space-y-4">
-      <div class="space-y-0.5">
+      <div class="space-y-0">
         <h3 class="text-lg font-semibold text-foreground">Characteristics</h3>
         <p class="text-muted-foreground">Select any special qualities your dream had</p>
       </div>
