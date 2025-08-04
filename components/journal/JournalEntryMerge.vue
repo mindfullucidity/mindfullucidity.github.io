@@ -103,6 +103,7 @@
 import type { JournalEntry, JournalAnalysis } from '@/composables/useJournal';
 import { toast } from 'vue-sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useAI } from '@/composables/useAI';
 import { useRoute, useRouter } from 'vue-router';
 import NewAIAnalysisCard from './analysis_card/NewAIAnalysisCard.vue';
 import NewPersonalAnalysisCard from './analysis_card/NewPersonalAnalysisCard.vue';
@@ -119,6 +120,7 @@ const props = defineProps<{
 }>();
 
 const { createEntry, updateEntry, isSavingEntry, loadJournalAnalyses, createJournalAnalysis, updateJournalAnalysis, deleteJournalAnalysis, getAnalysisPrettyTitle, isLoadingEntry, findEntryById, deleteEntry } = useJournal();
+const { invokeAIAnalysis, invokeEnhance } = useAI();
 const editableEntry = ref<JournalEntry | null>(null);
 const originalEntry = ref<JournalEntry | null>(null);
 const hasUnsavedChanges = ref(false);
@@ -263,21 +265,18 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
   abortController.value = new AbortController();
 
   try {
-    const { data, error } = await supabase.functions.invoke('ai_analysis', {
-      signal: abortController.value.signal,
-      body: {
-        entry: {
-          title: editableEntry.value.title,
-          content: editableEntry.value.content,
-        },
-        analyses: journalAnalyses.value,
-        generate: {
-          type: payload.type,
-          depth: payload.depth,
-          note: payload.content,
-        },
+    const { data, error } = await invokeAIAnalysis({
+      entry: {
+        title: editableEntry.value.title,
+        content: editableEntry.value.content,
       },
-    });
+      analyses: journalAnalyses.value,
+      generate: {
+        type: payload.type,
+        depth: payload.depth,
+        note: payload.content,
+      },
+    }, abortController.value.signal);
 
     if (error) {
       toast.error(`AI Analysis failed: ${error.message}`);
@@ -574,13 +573,11 @@ const enhanceEntry = async () => {
 
   isEnhancingEntry.value = true;
   try {
-    const { data, error } = await supabase.functions.invoke('enhance', {
-      body: {
-        type: "journal_entry",
-        object: {
-          title: editableEntry.value.title,
-          content: editableEntry.value.content,
-        },
+    const { data, error } = await invokeEnhance({
+      type: "journal_entry",
+      object: {
+        title: editableEntry.value.title,
+        content: editableEntry.value.content,
       },
     });
 

@@ -1,8 +1,9 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { ChatGoogleGenerativeAI } from "npm:@langchain/google-genai";
 import { HumanMessage, SystemMessage } from "npm:@langchain/core/messages";
 import { StructuredOutputParser } from "npm:langchain/output_parsers";
 import { z } from "npm:zod";
+
+import { setupAIModel } from "../_shared/model_setup.ts";
 
 interface JournalEntry {
   title: string;
@@ -29,7 +30,7 @@ interface RequestPayload {
 
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*' as const,
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type' as const,
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, X-AI-Settings' as const,
 };
 
 Deno.serve(async (req: Request) => {
@@ -43,10 +44,16 @@ Deno.serve(async (req: Request) => {
   try {
     const { entry, analyses, generate } = await req.json() as RequestPayload;
 
-    const model = new ChatGoogleGenerativeAI({
-      apiKey: Deno.env.get("GOOGLE_API_KEY"),
-      model: "gemini-2.5-flash",
-    });
+    const modelSetupResult = await setupAIModel(req);
+
+    if (modelSetupResult.status !== 200) {
+      return new Response(JSON.stringify({ error: modelSetupResult.message }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: modelSetupResult.status,
+      });
+    }
+
+    const model = modelSetupResult.model;
 
     const parser = StructuredOutputParser.fromZodSchema(
       z.object({
