@@ -1,6 +1,5 @@
 <template>
   <div class="flex flex-col h-full">
-    
     <Tabs v-model="activeTab" class="flex flex-col h-full">
       <div class="flex items-center justify-between p-2 mt-2 h-8 shrink-0" :class="{ 'pointer-events-none opacity-50': isEnhancingEntry || isLoadingEntry || !isContentReady }">
         <TabsList>
@@ -112,6 +111,10 @@
         </div>
       </TabsContent>
     </Tabs>
+
+    <Dialog v-model:open="showUpgradeDialog">
+      <EnableCustomCardPlusUpgrade description="You've reached your rate limit for AI features for today. Upgrade to Plus or use your own AI model for unlimited access!" />
+    </Dialog>
   </div>
 </template>
 
@@ -119,7 +122,11 @@
 import type { JournalEntry, JournalAnalysis } from '@/composables/useJournal';
 import { toast } from 'vue-sonner';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import EnableCustomCardPlusUpgrade from '@/components/EnableCustomCardPlusUpgrade.vue';
 import { useAI } from '@/composables/useAI';
+
+
+import { useLocalStorage } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 import NewAIAnalysisCard from './analysis_card/NewAIAnalysisCard.vue';
 import NewPersonalAnalysisCard from './analysis_card/NewPersonalAnalysisCard.vue';
@@ -138,6 +145,18 @@ const props = defineProps<{
 
 const { createEntry, updateEntry, isSavingEntry, loadJournalAnalyses, createJournalAnalysis, updateJournalAnalysis, deleteJournalAnalysis, getAnalysisPrettyTitle, isLoadingEntry, findEntryById, deleteEntry } = useJournal();
 const { invokeAIAnalysis, invokeEnhance } = useAI();
+const showUpgradeDialog = ref(false);
+import { getData, setData } from 'nuxt-storage/local-storage';
+
+const lastShownDate = useLocalStorage('lastUpgradeDialogShown', '');
+
+const shouldShowDialog = () => {
+  const today = new Date().toISOString().slice(0, 10);
+  if (lastShownDate.value !== today) {
+    return true;
+  }
+  return false;
+};
 const editableEntry = ref<JournalEntry | null>(null);
 const originalEntry = ref<JournalEntry | null>(null);
 const hasUnsavedChanges = ref(false);
@@ -312,6 +331,9 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
     if (error) {
       toast.error(`AI Analysis failed: ${error.message}`);
       console.error("AI Analysis error:", error);
+      if (error.message.includes("rate limit") && shouldShowDialog()) {
+        showUpgradeDialog.value = true;
+      }
     } else if (data && data.object && data.object.content) {
       // Only save if generation was not cancelled
       if (isGeneratingAIAnalysis.value) {
@@ -615,6 +637,12 @@ const enhanceEntry = async () => {
     if (error) {
       toast.error(`Enhancement failed: ${error.message}`);
       console.error("Enhancement error:", error);
+      const includesRateLimit = error.message.toLowerCase().includes("rate limit");
+      const shouldShow = shouldShowDialog();
+      if (includesRateLimit && shouldShow) {
+        showUpgradeDialog.value = true;
+        lastShownDate.value = new Date().toISOString().slice(0, 10);
+      }
     } else if (data && data.object) {
       editableEntry.value.title = data.object.title;
       editableEntry.value.content = data.object.content;
