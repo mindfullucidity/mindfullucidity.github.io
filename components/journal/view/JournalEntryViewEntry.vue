@@ -1,7 +1,7 @@
 <template>
   <TabsContent value="entry" class="p-6 overflow-y-auto flex-grow">
     <div class="mx-auto max-w-4xl w-full">
-      <JournalEntrySkeleton v-if="isLoadingEntry || !editableEntry || isEnhancingEntry" />
+      <JournalEntryViewEntrySkeleton v-if="isLoadingEntry || !editableEntry || isEnhancingEntry" />
       <div v-else-if="editableEntry && !isEnhancingEntry">
         <EditableInput v-model="editableEntry.title" placeholder="Title" @update:modelValue="emit('update:editableEntry', editableEntry)" />
         <DatePicker variant="plain" v-model="editableEntry.date" @update:modelValue="emit('update:editableEntry', editableEntry)" />
@@ -14,7 +14,7 @@
 <script setup lang="ts">
 import type { JournalEntry } from '@/composables/useJournal';
 import { TabsContent } from '@/components/ui/tabs';
-import JournalEntrySkeleton from '~/components/journal/view/JournalEntrySkeleton.vue';
+import JournalEntryViewEntrySkeleton from '~/components/journal/view/JournalEntryViewEntrySkeleton.vue';
 import EditableInput from '~/components/journal/misc/EditableInput.vue';
 import DatePicker from '~/components/journal/misc/DatePicker.vue';
 import EditableTextarea from '~/components/journal/misc/EditableTextarea.vue';
