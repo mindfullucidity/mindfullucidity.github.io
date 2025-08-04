@@ -8,7 +8,7 @@
         <div class="flex items-center gap-2">
           <div class="font-semibold">{{ displayTitle }}</div>
         </div>
-        <div v-if="entry.title" class="ml-auto text-xs text-foreground">{{ formattedDate }}</div>
+        <div v-if="entry.title" class="ml-auto text-xs text-foreground whitespace-nowrap">{{ formattedDate }}</div>
       </div>
     </div>
     <div class="line-clamp-2 text-xs text-muted-foreground">
