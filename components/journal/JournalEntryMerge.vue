@@ -28,66 +28,70 @@
       </div>
       <Separator />
       <TabsContent value="entry" class="p-6 overflow-y-auto flex-grow">
-        <JournalEntrySkeleton v-if="isLoadingEntry || !editableEntry || isEnhancingEntry" />
-        <div v-else-if="editableEntry && !isEnhancingEntry">
-          <EditableInput v-model="editableEntry.title" placeholder="Title" />
-          <DatePicker variant="plain" v-model="editableEntry.date" />
-          <EditableTextarea v-model="editableEntry.content" placeholder="What did you dream about?" />
+        <div class="mx-auto max-w-4xl w-full">
+          <JournalEntrySkeleton v-if="isLoadingEntry || !editableEntry || isEnhancingEntry" />
+          <div v-else-if="editableEntry && !isEnhancingEntry">
+            <EditableInput v-model="editableEntry.title" placeholder="Title" />
+            <DatePicker variant="plain" v-model="editableEntry.date" />
+            <EditableTextarea v-model="editableEntry.content" placeholder="What did you dream about?" />
+          </div>
         </div>
       </TabsContent>
       <TabsContent value="analysis" class="p-6 overflow-y-auto flex-grow">
-          <div class="flex flex-col gap-4 overflow-y-auto flex-grow" ref="analysisContainerRef">
-            <template v-if="isLoadingAnalyses">
-              <SkeletonPreviewAnalysisCard :type="null" />
-            </template>
-            <template v-else-if="journalAnalyses.length > 0">
-              <template v-for="analysis in journalAnalyses" :key="analysis.journal_analysis_id">
+          <div class="mx-auto max-w-4xl w-full">
+            <div class="flex flex-col gap-4 overflow-y-auto flex-grow" ref="analysisContainerRef">
+              <template v-if="isLoadingAnalyses">
+                <SkeletonPreviewAnalysisCard :type="null" />
+              </template>
+              <template v-else-if="journalAnalyses.length > 0">
+                <template v-for="analysis in journalAnalyses" :key="analysis.journal_analysis_id">
+                  <NewPersonalAnalysisCard
+                    v-if="editingAnalysis && editingAnalysis.journal_analysis_id === analysis.journal_analysis_id"
+                    :journalId="editableEntry.journal_id"
+                    :initialAnalysis="editingAnalysis"
+                    @save="handleSaveNewAnalysis"
+                    @cancel="handleCancelNewAnalysis"
+                  />
+                  <PreviewAnalysisCard
+                    v-else
+                    :analysisId="analysis.journal_analysis_id"
+                    :type="analysis.type"
+                    :title="getAnalysisPrettyTitle(analysis.title)"
+                    :content="analysis.content"
+                    :show-actions="true"
+                    @delete="handleDeleteAnalysis"
+                    @edit="handleEditAnalysis"
+                  />
+                </template>
+              </template>
+
+              <!-- This section is for adding *new* analyses, not editing existing ones -->
+              <template v-if="showNewAnalysisCard === 'personal' && !editingAnalysis">
                 <NewPersonalAnalysisCard
-                  v-if="editingAnalysis && editingAnalysis.journal_analysis_id === analysis.journal_analysis_id"
                   :journalId="editableEntry.journal_id"
-                  :initialAnalysis="editingAnalysis"
                   @save="handleSaveNewAnalysis"
                   @cancel="handleCancelNewAnalysis"
                 />
-                <PreviewAnalysisCard
-                  v-else
-                  :analysisId="analysis.journal_analysis_id"
-                  :type="analysis.type"
-                  :title="getAnalysisPrettyTitle(analysis.title)"
-                  :content="analysis.content"
-                  :show-actions="true"
-                  @delete="handleDeleteAnalysis"
-                  @edit="handleEditAnalysis"
+              </template>
+              <template v-else-if="showNewAnalysisCard === 'ai' && !editingAnalysis">
+                <NewAIAnalysisCard
+                  :journalId="editableEntry.journal_id"
+                  @generate-ai-analysis="handleGenerateAIAnalysis"
+                  @cancel="handleCancelNewAnalysis"
                 />
               </template>
-            </template>
+              <template v-if="isGeneratingAIAnalysis">
+                <SkeletonPreviewAnalysisCard type="ai" @cancel-generation="handleCancelAIAnalysisGeneration" />
+              </template>
 
-            <!-- This section is for adding *new* analyses, not editing existing ones -->
-            <template v-if="showNewAnalysisCard === 'personal' && !editingAnalysis">
-              <NewPersonalAnalysisCard
-                :journalId="editableEntry.journal_id"
-                @save="handleSaveNewAnalysis"
-                @cancel="handleCancelNewAnalysis"
-              />
-            </template>
-            <template v-else-if="showNewAnalysisCard === 'ai' && !editingAnalysis">
-              <NewAIAnalysisCard
-                :journalId="editableEntry.journal_id"
-                @generate-ai-analysis="handleGenerateAIAnalysis"
-                @cancel="handleCancelNewAnalysis"
-              />
-            </template>
-            <template v-if="isGeneratingAIAnalysis">
-              <SkeletonPreviewAnalysisCard type="ai" @cancel-generation="handleCancelAIAnalysisGeneration" />
-            </template>
-
-            <div class="flex flex-col sm:flex-row gap-2 mt-4 justify-center">
-              <Button variant="ghost" class="border w-full sm:w-auto text-blue-200" @click="handleAddPersonalAnalysis" :disabled="isGeneratingAIAnalysis">
-                <Plus class="w-4 h-4" /> Add Your Analysis
-              </Button>
-              <Button variant="ghost" class="border w-full sm:w-auto " @click="handleAddAIAnalysis" :disabled="isGeneratingAIAnalysis">
-                <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" /> <span class="bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text"> Generate AI Analysis</span>
-              </Button>
+              <div class="flex flex-col sm:flex-row gap-2 mt-4 justify-center">
+                <Button variant="ghost" class="border w-full sm:w-auto text-blue-200" @click="handleAddPersonalAnalysis" :disabled="isGeneratingAIAnalysis">
+                  <Plus class="w-4 h-4" /> Add Your Analysis
+                </Button>
+                <Button variant="ghost" class="border w-full sm:w-auto " @click="handleAddAIAnalysis" :disabled="isGeneratingAIAnalysis">
+                  <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" /> <span class="bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text"> Generate AI Analysis</span>
+                </Button>
+              </div>
             </div>
           </div>
       </TabsContent>

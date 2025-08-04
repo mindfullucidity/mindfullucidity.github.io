@@ -1,10 +1,10 @@
 <template>
   <NuxtLayout name="default">
-    <div class="grid grid-cols-3 h-full">
-      <div class="col-span-1 border-r overflow-y-auto pt-16">
+    <div class="flex h-full">
+      <div class="border-r overflow-y-auto pt-16 max-w-sm">
         <JournalSidebar />
       </div>
-      <div class="col-span-2 overflow-y-auto pt-16">
+      <div class="flex-grow overflow-y-auto pt-16">
         <NuxtPage />
       </div>
     </div>

@@ -47,12 +47,12 @@ const isHoveringNavbar = ref(false)
           to="/settings"
           class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
           :class="{
-            'bg-primary/10': hoveredItem === 'settings' || (hoveredItem === null && !isHoveringNavbar && route.path === '/settings'),
-            'text-primary': route.path === '/settings'
+            'bg-primary/10': hoveredItem === 'settings' || (hoveredItem === null && !isHoveringNavbar && route.path.startsWith('/settings')),
+            'text-primary': route.path.startsWith('/settings')
           }"
           @mouseover="hoveredItem = 'settings'"
         >
-          <Settings v-if="route.path === '/settings'" class="w-5 h-5 mr-2" />
+          <Settings v-if="route.path.startsWith('/settings')" class="w-5 h-5 mr-2" />
           <span class="text-sm">Settings</span>
         </NuxtLink>
       </div>

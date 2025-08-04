@@ -58,7 +58,7 @@ watch(() => route.path, (newPath) => {
       <div class="flex h-[calc(100vh-4rem)] overflow-hidden">
         <!-- Sidebar -->
         <div
-          class="w-64 border-r border-border bg-muted/10 min-h-full overflow-y-auto"
+          class="w-64 border-r border-border min-h-full overflow-y-auto"
           @mouseover="isHoveringNavbar = true"
           @mouseleave="isHoveringNavbar = false; hoveredItem = null"
         >
