@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col h-full">
     <Tabs v-model="activeTab" class="flex flex-col h-full">
-      <JournalEntryMergeToolbar
+      <JournalEntryViewToolbar
         v-model:activeTab="activeTab"
         :is-enhancing-entry="isEnhancingEntry"
         :is-loading-entry="isLoadingEntry"
@@ -15,13 +15,13 @@
         @save-entry="saveEntry"
       />
       <Separator />
-      <JournalEntryMergeEntry
+      <JournalEntryViewEntry
         v-if="editableEntry"
         v-model:editableEntry="editableEntry"
         :is-loading-entry="isLoadingEntry"
         :is-enhancing-entry="isEnhancingEntry"
       />
-      <JournalEntryMergeAnalysis
+      <JournalEntryViewAnalysis
         v-if="editableEntry"
         ref="journalAnalysisRef"
         :editable-entry="editableEntry"
@@ -31,7 +31,7 @@
       />
       <TabsContent value="details" class="p-6 overflow-y-auto flex-grow">
         <div class="mx-auto max-w-4xl w-full">
-          <JournalEntryMergeDetails
+          <JournalEntryViewDetails
             v-if="editableEntry"
             :initial-lucidity-level="editableEntry.lucidity_level"
             :initial-lucidity-trigger="editableEntry.lucidity_trigger"
@@ -63,10 +63,10 @@ import { useJournal } from '@/composables/useJournal';
 import { useLocalStorage } from '@vueuse/core';
 import { useRoute, useRouter } from 'vue-router';
 
-import JournalEntryMergeToolbar from './JournalEntryMergeToolbar.vue';
-import JournalEntryMergeEntry from './JournalEntryMergeEntry.vue';
-import JournalEntryMergeAnalysis from './JournalEntryMergeAnalysis.vue';
-import JournalEntryMergeDetails from './JournalEntryMergeDetails.vue';
+import JournalEntryViewToolbar from './JournalEntryViewToolbar.vue';
+import JournalEntryViewEntry from './JournalEntryViewEntry.vue';
+import JournalEntryViewAnalysis from './JournalEntryViewAnalysis.vue';
+import JournalEntryViewDetails from './JournalEntryViewDetails.vue';
 
 const props = defineProps<{
   entryId: number | null,
@@ -98,7 +98,7 @@ const activeTab = ref('entry');
 
 const lastDeletedEntry = ref<JournalEntry | null>(null);
 
-const journalAnalysisRef = ref<typeof JournalEntryMergeAnalysis | null>(null);
+const journalAnalysisRef = ref<typeof JournalEntryViewAnalysis | null>(null);
 
 watch(() => props.entryId, async (newId) => {
   isContentReady.value = false; 

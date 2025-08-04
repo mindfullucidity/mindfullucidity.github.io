@@ -1,9 +1,9 @@
 <template>
-  <JournalEntryMerge :entryId="null" :isNewEntry="true" />
+  <JournalEntryView :entryId="null" :isNewEntry="true" />
 </template>
 
 <script setup lang="ts">
-import JournalEntryMerge from '@/components/journal/JournalEntryMerge.vue';
+import JournalEntryView from '~/components/journal/view/JournalEntryView.vue';
 import { useJournal } from '@/composables/useJournal';
 
 const { clearSelectedEntry } = useJournal();

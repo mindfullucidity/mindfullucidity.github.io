@@ -41,7 +41,7 @@
             :key="entry.journal_id" 
             :entry="entry"
             :selected="selectedEntry && selectedEntry.journal_id === entry.journal_id"
-            @click="navigateTo(`/journal/${entry.journal_id}`)" 
+            @click="navigateTo(`/journal/${entry.journal_id}${route.hash}`)" 
           />
         </template>
       </div>
@@ -51,13 +51,13 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue';
-import JournalEntryCard from './JournalEntryCard.vue';
+import JournalEntryCard from '../sidebar/JournalEntryCard.vue';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useJournal } from '@/composables/useJournal';
 import { Separator } from '@/components/ui/separator';
 import { Search, Plus, SearchX, FileText } from 'lucide-vue-next';
-import JournalEntryCardSkeleton from './JournalEntryCardSkeleton.vue';
+import JournalEntryCardSkeleton from '../sidebar/JournalEntryCardSkeleton.vue';
 import type { JournalEntryOverview } from '@/composables/useJournal';
 
 const { entriesOverview, selectedEntry, isLoadingOverview, loadEntriesOverview, selectEntry, clearSelectedEntry } = useJournal();
