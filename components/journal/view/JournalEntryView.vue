@@ -197,10 +197,24 @@ const handleUndoDeleteEntry = async () => {
       title: lastDeletedEntry.value.title,
       content: lastDeletedEntry.value.content,
       date: lastDeletedEntry.value.date,
+      lucidity_level: lastDeletedEntry.value.lucidity_level,
+      lucidity_trigger: lastDeletedEntry.value.lucidity_trigger,
+      mood: lastDeletedEntry.value.mood,
+      characteristics: lastDeletedEntry.value.characteristics,
     });
 
     if (restoredEntry) {
       toast.success('Journal entry restored successfully!');
+      if (lastDeletedEntry.value.analyses) {
+        for (const analysis of lastDeletedEntry.value.analyses) {
+          await createJournalAnalysis({
+            journal_id: restoredEntry.journal_id,
+            type: analysis.type,
+            title: analysis.title,
+            content: analysis.content,
+          });
+        }
+      }
       navigateTo(`/journal/${restoredEntry.journal_id}`);
       lastDeletedEntry.value = null;
     } else {
