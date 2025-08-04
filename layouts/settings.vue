@@ -20,6 +20,9 @@ const sidebarItems: SidebarItem[] = [
 const route = useRoute()
 const activeSection = ref(route.path.split('/').pop() === 'settings' ? 'profile' : route.path.split('/').pop())
 
+const isHoveringNavbar = ref(false)
+const hoveredItem = ref<string | null>(null)
+
 watch(() => route.path, (newPath) => {
   activeSection.value = newPath.split('/').pop() === 'settings' ? 'profile' : newPath.split('/').pop()
 })
@@ -54,19 +57,25 @@ watch(() => route.path, (newPath) => {
 
       <div class="flex h-[calc(100vh-4rem)] overflow-hidden">
         <!-- Sidebar -->
-        <div class="w-64 border-r border-border bg-muted/10 min-h-full overflow-y-auto">
+        <div
+          class="w-64 border-r border-border bg-muted/10 min-h-full overflow-y-auto"
+          @mouseover="isHoveringNavbar = true"
+          @mouseleave="isHoveringNavbar = false; hoveredItem = null"
+        >
           <div class="p-6">
             <nav class="space-y-1">
               <NuxtLink
                 v-for="item in sidebarItems"
                 :key="item.id"
                 :to="item.to"
-                :class="cn(
-                  'w-full flex items-center justify-between px-3 py-2 text-sm font-medium rounded-md transition-colors',
-                  activeSection === item.id
-                    ? 'bg-primary text-primary-foreground'
-                    : 'text-muted-foreground hover:text-foreground hover:bg-muted'
-                )"
+                class="w-full inline-flex items-center justify-between px-3 py-1 rounded-lg text-sm font-medium transition-colors"
+                :class="{
+                  'bg-primary/10': hoveredItem === item.id || (hoveredItem === null && activeSection === item.id),
+                  'text-primary': activeSection === item.id,
+                  'text-foreground': activeSection !== item.id
+                }"
+                @mouseover="hoveredItem = item.id"
+                @mouseleave="hoveredItem = null"
               >
                 <div class="flex items-center space-x-3">
                   <component :is="item.icon" class="h-4 w-4" />
