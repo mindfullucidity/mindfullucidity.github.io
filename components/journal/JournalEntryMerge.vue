@@ -6,6 +6,7 @@
         <TabsList>
           <TabsTrigger value="entry">Entry</TabsTrigger>
           <TabsTrigger value="analysis">Analysis</TabsTrigger>
+          <TabsTrigger value="details">Details</TabsTrigger>
         </TabsList>
         <div class="flex h-5 items-center space-x-1 text-sm">
           <Button v-if="activeTab === 'entry'" variant="ghost" size="icon" @click="enhanceEntry" :disabled="isEnhancingEntry">
@@ -95,6 +96,11 @@
             </div>
           </div>
       </TabsContent>
+      <TabsContent value="details" class="p-6 overflow-y-auto flex-grow">
+        <div class="mx-auto max-w-4xl w-full">
+          <JournalEntryMergeDetails />
+        </div>
+      </TabsContent>
     </Tabs>
   </div>
 </template>
@@ -113,6 +119,7 @@ import DatePicker from './DatePicker.vue';
 import EditableTextarea from './EditableTextarea.vue';
 import { Plus, Sparkles, X, Check, Trash2 } from 'lucide-vue-next';
 import SkeletonPreviewAnalysisCard from './analysis_card/SkeletonPreviewAnalysisCard.vue';
+import JournalEntryMergeDetails from './JournalEntryMergeDetails.vue';
 
 const props = defineProps<{
   entryId: number | null,
@@ -183,6 +190,8 @@ watch([activeTab, () => editableEntry.value?.journal_id], async ([newTab, newJou
       journalAnalyses.value = [];
     }
     router.push({ hash: '#analysis' });
+  } else if (newTab === 'details') {
+    router.push({ hash: '#details' });
   } else {
     router.push({ hash: '' });
   }
@@ -191,6 +200,8 @@ watch([activeTab, () => editableEntry.value?.journal_id], async ([newTab, newJou
 onMounted(() => {
   if (route.hash === '#analysis') {
     activeTab.value = 'analysis';
+  } else if (route.hash === '#details') {
+    activeTab.value = 'details';
   } else {
     activeTab.value = 'entry';
   }
