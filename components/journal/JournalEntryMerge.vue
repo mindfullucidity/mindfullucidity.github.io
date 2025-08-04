@@ -98,7 +98,17 @@
       </TabsContent>
       <TabsContent value="details" class="p-6 overflow-y-auto flex-grow">
         <div class="mx-auto max-w-4xl w-full">
-          <JournalEntryMergeDetails />
+          <JournalEntryMergeDetails
+            v-if="editableEntry"
+            :initial-lucidity-level="editableEntry.lucidity_level"
+            :initial-lucidity-trigger="editableEntry.lucidity_trigger"
+            :initial-mood="editableEntry.mood"
+            :initial-characteristics="editableEntry.characteristics"
+            @update:lucidity-level="editableEntry.lucidity_level = $event"
+            @update:lucidity-trigger="editableEntry.lucidity_trigger = $event"
+            @update:mood="editableEntry.mood = $event"
+            @update:characteristics="editableEntry.characteristics = $event"
+          />
         </div>
       </TabsContent>
     </Tabs>
@@ -154,13 +164,17 @@ watch(() => props.entryId, async (newId) => {
   editableEntry.value = null; // Clear current entry to show skeleton immediately
   if (newId) {
     editableEntry.value = await findEntryById(newId);
+    if (editableEntry.value) {
+      editableEntry.value.characteristics = editableEntry.value.characteristics || [];
+      editableEntry.value.lucidity_level = editableEntry.value.lucidity_level ?? 0;
+    }
     originalEntry.value = editableEntry.value ? { ...editableEntry.value } : null;
     hasUnsavedChanges.value = false;
   } else {
     const today = new Date();
     const yesterday = new Date(today);
     yesterday.setDate(today.getDate() - 1);
-    editableEntry.value = { journal_id: 0, title: '', content: '', date: yesterday.toISOString().slice(0, 10), description: '' };
+    editableEntry.value = { journal_id: 0, title: '', content: '', date: yesterday.toISOString().slice(0, 10), description: '', lucidity_level: 0, lucidity_trigger: '', mood: 50, characteristics: [] };
     originalEntry.value = null;
     hasUnsavedChanges.value = false;
   }
@@ -175,8 +189,14 @@ watch(editableEntry, (newVal, oldVal) => {
   const isContentSame = newVal?.content === originalEntry.value.content;
   const isTitleSame = newVal?.title === originalEntry.value.title;
   const isDateSame = newVal?.date === originalEntry.value.date;
+  const isLucidityLevelSame = newVal?.lucidity_level === originalEntry.value.lucidity_level;
+  const isLucidityTriggerSame = newVal?.lucidity_trigger === originalEntry.value.lucidity_trigger;
+  const isMoodSame = newVal?.mood === originalEntry.value.mood;
+  const isCharacteristicsSame = JSON.stringify(newVal?.characteristics) === JSON.stringify(originalEntry.value.characteristics);
 
-  hasUnsavedChanges.value = !(isContentSame && isTitleSame && isDateSame);
+  hasUnsavedChanges.value = !(isContentSame && isTitleSame && isDateSame && isLucidityLevelSame && isLucidityTriggerSame && isMoodSame && isCharacteristicsSame);
+
+  // old console log
 }, { deep: true });
 
 watch([activeTab, () => editableEntry.value?.journal_id], async ([newTab, newJournalId]) => {
@@ -325,14 +345,14 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
           }
         }
       } else {
-        console.log('AI Analysis completed after user cancellation. Not saving.');
+        // old console log
       }
     } else {
       toast.error("AI Analysis failed: Unexpected response from function.");
     }
   } catch (err: any) {
     if (err.name === 'AbortError') {
-      console.log('AI Analysis generation aborted by user.');
+      // old console log
     } else {
       toast.error(`An unexpected error occurred during AI Analysis: ${err.message}`);
       console.error("Unexpected AI Analysis error:", err);
@@ -344,7 +364,7 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
 };
 
 const handleSaveNewAnalysis = async (analysisData: Omit<JournalAnalysis, 'journal_analysis_id' | 'created_at' | 'user_id'>) => {
-  console.log('handleSaveNewAnalysis called. isNewEntry:', props.isNewEntry, 'editableEntry.journal_id:', editableEntry.value?.journal_id);
+  // old console log
   if (props.isNewEntry) {
     if (editingAnalysis.value) {
       // Update existing in-memory analysis
@@ -438,7 +458,7 @@ const handleUndoDeleteAnalysis = async () => {
 };
 
 const handleDeleteAnalysis = async (analysisId: number) => {
-  console.log('Attempting to delete analysis with ID:', analysisId);
+  // old console log
   const analysisToDelete = journalAnalyses.value.find(a => a.journal_analysis_id === analysisId);
   if (!analysisToDelete) {
     toast.error('Analysis not found.');
@@ -494,7 +514,7 @@ const cancelEdit = () => {
 };
 
 const deleteEntryAndNavigate = async () => {
-  console.log('Attempting to delete entry:', editableEntry.value);
+  // old console log
   if (editableEntry.value && editableEntry.value.journal_id !== 0) {
     lastDeletedEntry.value = { ...editableEntry.value }; // Store a copy for undo
     const success = await deleteEntry(editableEntry.value.journal_id);
@@ -539,7 +559,7 @@ const handleUndoDeleteEntry = async () => {
 
 const saveEntry = async () => {
   if (editableEntry.value) {
-    console.log('Content before trim:', editableEntry.value.content);
+    // old console log
     if (!editableEntry.value.content.trim()) {
       toast.error('Journal entry cannot be empty.');
       return;

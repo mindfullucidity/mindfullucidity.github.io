@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { Moon, Sun, Cloud, Sparkles, Eye, Brain, AlertTriangle, RotateCcw } from 'lucide-vue-next';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -7,22 +7,49 @@ import { Input } from '@/components/ui/input';
 interface LucidityLevel {
   level: number;
   label: string;
-  icon: any; // Using 'any' for now, will refine if needed
+  icon: any;
   color: string;
 }
 
 interface Characteristic {
   id: string;
   label: string;
-  icon: any; // Using 'any' for now, will refine if needed
+  icon: any;
   color: string;
 }
 
-const selectedLucidity = ref<number>(0);
-const lucidityTrigger = ref<string>('');
-const moodValue = ref<number>(50);
-const selectedCharacteristics = ref<string[]>([]);
+const props = defineProps({
+  initialLucidityLevel: { type: Number, default: 0 },
+  initialLucidityTrigger: { type: String, default: '' },
+  initialMood: { type: Number as PropType<number | null>, default: 50 },
+  initialCharacteristics: { type: Array as () => string[], default: () => [] },
+});
+
+const emit = defineEmits([
+  'update:lucidityLevel',
+  'update:lucidityTrigger',
+  'update:mood',
+  'update:characteristics',
+]);
+
+const selectedLucidity = ref<number>(props.initialLucidityLevel);
+const lucidityTrigger = ref<string>(props.initialLucidityTrigger);
+const mood = ref<number>(props.initialMood ?? 50);
+const selectedCharacteristics = ref<string[]>(props.initialCharacteristics);
 const isDragging = ref(false);
+
+watch(() => props.initialLucidityLevel, (newVal) => {
+  selectedLucidity.value = newVal;
+});
+watch(() => props.initialLucidityTrigger, (newVal) => {
+  lucidityTrigger.value = newVal;
+});
+watch(() => props.initialMood, (newVal) => {
+  mood.value = newVal === null ? 50 : newVal;
+});
+watch(() => props.initialCharacteristics, (newVal) => {
+  selectedCharacteristics.value = newVal;
+});
 
 const lucidityLevels: LucidityLevel[] = [
   {
@@ -83,19 +110,26 @@ const handleLuciditySelect = (level: number) => {
   if (level === 0) {
     lucidityTrigger.value = '';
   }
+  emit('update:lucidityLevel', selectedLucidity.value);
+  emit('update:lucidityTrigger', lucidityTrigger.value);
 };
 
 const handleTriggerChange = (event: Event) => {
   lucidityTrigger.value = (event.target as HTMLInputElement).value;
+  emit('update:lucidityTrigger', lucidityTrigger.value);
 };
 
 let moodSpectrumRect: DOMRect | null = null;
 
 const handleMoodDrag = (event: MouseEvent) => {
-  if (!moodSpectrumRect) return;
+  if (!moodSpectrumRect) {
+    console.error('moodSpectrumRect is null in handleMoodDrag');
+    return;
+  }
   const x = event.clientX - moodSpectrumRect.left;
   const percentage = Math.max(0, Math.min(100, (x / moodSpectrumRect.width) * 100));
-  moodValue.value = percentage;
+  mood.value = Math.round(percentage);
+  emit('update:mood', mood.value);
 };
 
 const startDragging = (event: MouseEvent) => {
@@ -115,10 +149,11 @@ const stopDragging = () => {
 const handleCharacteristicToggle = (characteristicId: string) => {
   const index = selectedCharacteristics.value.indexOf(characteristicId);
   if (index > -1) {
-    selectedCharacteristics.value.splice(index, 1);
+    selectedCharacteristics.value = selectedCharacteristics.value.filter(id => id !== characteristicId);
   } else {
-    selectedCharacteristics.value.push(characteristicId);
+    selectedCharacteristics.value = [...selectedCharacteristics.value, characteristicId];
   }
+  emit('update:characteristics', selectedCharacteristics.value);
 };
 
 const getMoodColor = computed(() => (value: number) => {
@@ -210,12 +245,12 @@ const getMoodEmoji = computed(() => (value: number) => {
           <div
             class="absolute top-1/2 w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-lg cursor-grab active:cursor-grabbing select-none"
             :style="{
-              left: `${moodValue}%`,
+              left: `${mood}%`,
               transform: 'translate(-50%, -50%)',
-              backgroundColor: getMoodColor(moodValue)
+              backgroundColor: getMoodColor(mood)
             }"
           >
-            {{ getMoodEmoji(moodValue) }}
+            {{ getMoodEmoji(mood) }}
           </div>
         </div>
         <div class="flex justify-between text-xs text-muted-foreground mt-2">

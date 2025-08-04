@@ -15,6 +15,10 @@ interface JournalEntry {
   description: string;
   content: string;
   analyses?: JournalAnalysis[];
+  lucidity_level?: number;
+  lucidity_trigger?: string;
+  mood?: number;
+  characteristics?: string[];
 }
 
 export interface JournalAnalysis {
@@ -79,7 +83,7 @@ export const useJournal = () => {
     try {
       const { data, error } = await supabase
         .from('journals')
-        .select('journal_id, title, date, description, content, journal_analyses(*)')
+        .select('journal_id, title, date, description, content, lucidity_level, lucidity_trigger, mood, characteristics, journal_analyses(*)')
         .eq('journal_id', journal_id)
         .single();
 
@@ -167,6 +171,10 @@ export const useJournal = () => {
           content: updatedEntry.content,
           description: description,
           date: updatedEntry.date,
+          lucidity_level: updatedEntry.lucidity_level,
+          lucidity_trigger: updatedEntry.lucidity_trigger,
+          mood: updatedEntry.mood,
+          characteristics: updatedEntry.characteristics,
         })
         .eq('journal_id', updatedEntry.journal_id)
         .select()
