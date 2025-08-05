@@ -41,7 +41,7 @@ const getTextColorClass = (item: SidebarItem) => {
   <NuxtLayout name="default">
     <div class="flex flex-col flex-grow">
       <!-- Header -->
-      <div class="border-b border-border backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div class="border-b border-border backdrop-blur">
         <div class="flex h-12 items-center px-4">
           <div class="flex items-center space-x-4">
             <div class="flex items-center space-x-2">

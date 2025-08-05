@@ -5,7 +5,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import AuroraBorealis from '@/components/AuroraBorealis.vue';
+
 
 import {
   PlusCircle,
@@ -129,7 +129,7 @@ const getLucidityColor = (level: number) => {
 
 <template>
   <div class="relative min-h-screen overflow-hidden">
-    <AuroraBorealis class="absolute inset-0 z-0" />
+    
     <div class="relative z-10 min-h-screen text-foreground p-6">
       <div class="max-w-7xl mx-auto space-y-8">
         <!-- Welcome Section -->

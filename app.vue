@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { Toaster } from '@/components/ui/sonner'
 import 'vue-sonner/style.css'
+import AuroraBorealis from '@/components/AuroraBorealis.vue';
 
 const user = useSupabaseUser()
 const router = useRouter()
@@ -37,9 +38,10 @@ watch(user, (currentUser, previousUser) => {
       </linearGradient>
     </defs>
   </svg>
+  <AuroraBorealis class="fixed inset-0 z-0" />
   <!-- The v-if ensures that we don't render the page until the user state is known -->
   <!-- This prevents the flicker or redirect to the login page -->
-  <div v-if="user !== undefined">
+  <div v-if="user !== undefined" class="relative z-10">
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
