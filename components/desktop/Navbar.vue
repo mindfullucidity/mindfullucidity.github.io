@@ -7,7 +7,7 @@ const isHoveringNavbar = ref(false)
 </script>
 
 <template>
-  <div class="hidden md:block fixed top-0 left-0 z-50 w-full h-16 bg-background border-b">
+  <div class="hidden md:block fixed top-0 left-0 z-50 w-full h-16 bg-background/50 border-b">
     <div class="flex justify-between items-center h-full mx-auto px-4 font-medium">
       <div class="flex items-center gap-x-4">
         <NuxtLink to="/" class="text-lg font-bold ml-5">

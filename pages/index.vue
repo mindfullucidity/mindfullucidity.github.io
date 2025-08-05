@@ -11,7 +11,7 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center bg-background text-foreground relative">
+  <div class="min-h-screen flex flex-col items-center justify-center bg-background text-foreground relative mt-20">
     <AuroraBorealis />
     <div class="relative z-10 w-full">
     <!-- Hero Section -->
