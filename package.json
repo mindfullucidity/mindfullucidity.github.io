@@ -10,9 +10,11 @@
     "postinstall": "nuxt prepare"
   },
   "dependencies": {
+    "@fortawesome/free-brands-svg-icons": "^7.0.0",
     "@nuxtjs/device": "^3.2.4",
     "@nuxtjs/supabase": "^1.6.0",
     "@tailwindcss/vite": "^4.1.11",
+    "@vesp/nuxt-fontawesome": "^2.0.0",
     "@vueuse/core": "^13.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
