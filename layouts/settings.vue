@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { cn } from '@/lib/utils'
-import { User, Bot, Search, Bell, ChevronRight } from 'lucide-vue-next'
+import { User, Bot, Search, Bell, ChevronRight, Zap } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 
@@ -15,6 +15,7 @@ interface SidebarItem {
 const sidebarItems: SidebarItem[] = [
   { id: 'profile', label: 'Profile', icon: User, to: '/settings' },
   { id: 'ai', label: 'AI', icon: Bot, to: '/settings/ai' },
+  { id: 'plus', label: 'Plus', icon: Zap, to: '/settings/plus' },
 ]
 
 const route = useRoute()
@@ -26,6 +27,14 @@ const hoveredItem = ref<string | null>(null)
 watch(() => route.path, (newPath) => {
   activeSection.value = newPath.split('/').pop() === 'settings' ? 'profile' : newPath.split('/').pop()
 })
+
+const getTextColorClass = (item: SidebarItem) => {
+  if (item.id === 'plus') {
+    return 'text-plus-gold';
+  } else {
+    return activeSection.value === item.id ? 'text-primary' : 'text-foreground';
+  }
+};
 </script>
 
 <template>
@@ -69,11 +78,12 @@ watch(() => route.path, (newPath) => {
                 :key="item.id"
                 :to="item.to"
                 class="w-full inline-flex items-center justify-between px-3 py-1 rounded-lg text-sm font-medium transition-colors"
-                :class="{
-                  'bg-primary/10': hoveredItem === item.id || (hoveredItem === null && activeSection === item.id),
-                  'text-primary': activeSection === item.id,
-                  'text-foreground': activeSection !== item.id
-                }"
+                :class="[
+                  {
+                    'bg-primary/10': hoveredItem === item.id || (hoveredItem === null && activeSection === item.id),
+                  },
+                  item.id === 'plus' ? 'text-plus-gold' : getTextColorClass(item)
+                ]"
                 @mouseover="hoveredItem = item.id"
                 @mouseleave="hoveredItem = null"
               >

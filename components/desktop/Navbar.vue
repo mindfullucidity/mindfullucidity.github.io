@@ -11,7 +11,7 @@ const isHoveringNavbar = ref(false)
     <div class="flex justify-between items-center h-full mx-auto px-4 font-medium">
       <div class="flex items-center gap-x-4">
         <NuxtLink to="/" class="text-lg font-bold ml-5">
-          Mindful Lucidity
+          MindfulLucidity
         </NuxtLink>
       </div>
       <div
