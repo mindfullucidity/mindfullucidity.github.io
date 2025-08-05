@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Timer, Zap, ZoomIn } from 'lucide-vue-next'
+import AuroraBorealis from '~/components/AuroraBorealis.vue'
 
 definePageMeta({
   layout: 'default',
@@ -10,7 +11,9 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center bg-background text-foreground">
+  <div class="min-h-screen flex flex-col items-center justify-center bg-background text-foreground relative">
+    <AuroraBorealis />
+    <div class="relative z-10 w-full">
     <!-- Hero Section -->
     <section class="w-full py-12 md:py-24 lg:py-32 text-center">
       <div class="container mx-auto px-4 md:px-6">
@@ -37,7 +40,7 @@ definePageMeta({
     </section>
 
     <!-- Key Features Showcase -->
-    <section class="w-full py-12 md:py-24 lg:py-32 bg-muted">
+    <section class="w-full py-12 md:py-24 lg:py-32 bg-black/50">
       <div class="container mx-auto px-4 md:px-6">
         <h2 class="text-3xl font-bold tracking-tighter text-center sm:text-4xl md:text-5xl mb-12">
           Key Features
@@ -109,7 +112,7 @@ definePageMeta({
     </section>
 
     <!-- MindfulLucidity Plus Overview -->
-    <section class="w-full py-12 md:py-24 lg:py-32 bg-muted">
+    <section class="w-full py-12 md:py-24 lg:py-32 bg-black/50">
       <div class="container mx-auto px-4 md:px-6 text-center">
         <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl mb-4 text-plus-gold flex items-center justify-center gap-2">
           <Zap class="h-10 w-10 text-plus-gold" />
@@ -134,6 +137,7 @@ definePageMeta({
         </nav>
       </div>
     </footer>
+    </div>
   </div>
 </template>
 
