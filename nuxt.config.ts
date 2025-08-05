@@ -40,5 +40,14 @@ export default defineNuxtConfig({
 
   vueSonner: {
     css: false // true by default to include css file
-  }
+  },
+
+  // Ensure text-plus-gold is always included in the CSS
+  tailwindcss: {
+    config: {
+      safelist: [
+        'text-plus-gold',
+      ],
+    },
+  },
 })
