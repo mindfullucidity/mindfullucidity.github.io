@@ -25,6 +25,7 @@ const props = defineProps({
   initialMood: { type: Number as PropType<number | null>, default: 50 },
   initialCharacteristics: { type: Array as () => string[], default: () => [] },
   isLoadingEntry: { type: Boolean, default: false },
+  isEnhancingDetails: { type: Boolean, default: false },
 });
 
 const emit = defineEmits([
@@ -220,7 +221,13 @@ const getMoodEmoji = computed(() => (value: number) => {
             <label class="block text-sm font-medium text-foreground mb-2">
               What triggered your lucidity?
             </label>
-            <Input
+            <div v-if="isEnhancingDetails" class="space-y-2">
+              <Skeleton class="h-5 w-full" />
+              <Skeleton class="h-5 w-full" />
+              <Skeleton class="h-5 w-4/5" />
+            </div>
+            <Textarea
+              v-else
               :model-value="lucidityTrigger"
               @input="handleTriggerChange"
               placeholder="e.g., reality check, unusual dream sign..."

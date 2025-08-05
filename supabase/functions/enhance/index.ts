@@ -16,6 +16,11 @@ interface PersonalAnalysis {
   content: string;
 }
 
+interface JournalDetails {
+  lucidity_level: number;
+  lucidity_trigger: string;
+}
+
 export const corsHeaders = {
   'Access-Control-Allow-Origin': '*' as const,
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, X-AI-Settings' as const,
@@ -91,6 +96,30 @@ Deno.serve(async (req: Request) => {
       const parsedContent = await parser.parse(enhancedContent as string);
 
       return new Response(JSON.stringify({ type: "personal_analysis", object: parsedContent }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    } else if (type === "journal_details") {
+      const { lucidity_level, lucidity_trigger } = object as JournalDetails;
+
+      const parser = StructuredOutputParser.fromZodSchema(
+        z.object({
+          lucidity_trigger: z.string().describe("The enhanced lucidity trigger text"),
+        })
+      );
+
+      const systemPrompt = `You are an AI assistant that enhances lucidity trigger descriptions for dream journal entries.\nYour goal is to refine the provided lucidity trigger, improving its clarity, coherence, and expressiveness.\nMaintain the original meaning and core idea of the trigger.\nDo not add new information or alter facts.\nEnsure the output is a valid JSON object with a 'lucidity_trigger' key.\nContext: The user's lucidity level was ${lucidity_level}.`;
+
+      const humanPrompt = `Original Lucidity Trigger: ${lucidity_trigger}`;
+
+      const { content: enhancedContent } = await model.invoke([
+        new SystemMessage(systemPrompt),
+        new HumanMessage(humanPrompt),
+      ]);
+
+      const parsedContent = await parser.parse(enhancedContent as string);
+
+      return new Response(JSON.stringify({ type: "journal_details", object: parsedContent }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 200,
       });

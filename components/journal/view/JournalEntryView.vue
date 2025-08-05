@@ -36,6 +36,7 @@
             :initial-mood="editableEntry?.mood"
             :initial-characteristics="editableEntry?.characteristics"
             :is-loading-entry="isLoadingEntry"
+            :is-enhancing-details="activeTab === 'details' && isEnhancingEntry"
             @update:lucidity-level="editableEntry.lucidity_level = $event"
             @update:lucidity-trigger="editableEntry.lucidity_trigger = $event"
             @update:mood="editableEntry.mood = $event"
@@ -260,7 +261,7 @@ const saveEntry = async () => {
   }
 };
 
-const enhanceEntry = async () => {
+const enhanceJournalEntry = async () => {
   if (!editableEntry.value || (!editableEntry.value.title.trim() && !editableEntry.value.content.trim())) {
     toast.error("Journal entry is empty. Nothing to enhance.");
     return;
@@ -297,6 +298,53 @@ const enhanceEntry = async () => {
     console.error("Unexpected enhancement error:", err);
   } finally {
     isEnhancingEntry.value = false;
+  }
+};
+
+const enhanceJournalDetails = async () => {
+  if (!editableEntry.value || !editableEntry.value.lucidity_trigger.trim()) {
+    toast.error("Lucidity trigger is empty. Nothing to enhance.");
+    return;
+  }
+
+  isEnhancingEntry.value = true;
+  try {
+    const { data, error } = await invokeEnhance({
+      type: "journal_details",
+      object: {
+        lucidity_level: editableEntry.value.lucidity_level,
+        lucidity_trigger: editableEntry.value.lucidity_trigger,
+      },
+    });
+
+    if (error) {
+      toast.error(`Enhancement failed: ${error.message}`);
+      console.error("Enhancement error:", error);
+      const includesRateLimit = error.message.toLowerCase().includes("rate limit");
+      const shouldShow = shouldShowDialog();
+      if (includesRateLimit && shouldShow) {
+        showUpgradeDialog.value = true;
+        lastShownDate.value = new Date().toISOString().slice(0, 10);
+      }
+    } else if (data && data.object) {
+      editableEntry.value.lucidity_trigger = data.object.lucidity_trigger;
+      toast.success("Lucidity trigger enhanced successfully!");
+    } else {
+      toast.error("Enhancement failed: Unexpected response.");
+    }
+  } catch (err) {
+    toast.error(`An unexpected error occurred: ${err.message}`);
+    console.error("Unexpected enhancement error:", err);
+  } finally {
+    isEnhancingEntry.value = false;
+  }
+};
+
+const enhanceEntry = () => {
+  if (activeTab.value === 'details') {
+    enhanceJournalDetails();
+  } else {
+    enhanceJournalEntry();
   }
 };
 </script>
