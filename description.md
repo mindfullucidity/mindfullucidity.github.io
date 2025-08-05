@@ -78,7 +78,6 @@ The home screen serves as a personalized dashboard for logged-in users, providin
     - "Did You Know?" or "Dream Tip of the Day" (educational content related to dream journaling or AI features).
 - **Journaling Streak/Reminders:** Encourage consistent journaling with a visual streak counter or a reminder to log a dream.
 - **Subscription Status/Upgrade Prompt:** A subtle reminder or call to action for users who are not "Plus" subscribers, highlighting the benefits of upgrading or using their own AI key.
-- **"Explore Your Dreams" Section:** A curated list of AI analysis types or journaling prompts to encourage deeper exploration.
 
 ## Public Page (`/`)
 

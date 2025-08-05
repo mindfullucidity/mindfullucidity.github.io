@@ -128,7 +128,7 @@ definePageMeta({
     </section>
 
     <!-- Footer -->
-    <footer class="w-full py-6 border-t">
+    <footer class="w-full py-6">
       <div class="container mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between text-sm text-muted-foreground">
         <p>&copy; 2025 Mindful Lucidity. All rights reserved.</p>
         <nav class="flex gap-4 sm:gap-6 mt-4 md:mt-0">
