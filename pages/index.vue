@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Timer, Zap, ZoomIn } from 'lucide-vue-next'
-import AuroraBorealis from '~/components/AuroraBorealis.vue'
+
 
 definePageMeta({
   layout: 'default',
@@ -11,8 +11,8 @@ definePageMeta({
 </script>
 
 <template>
-  <div class="min-h-screen flex flex-col items-center justify-center bg-background text-foreground relative mt-20">
-    <AuroraBorealis />
+  <div class="min-h-screen flex flex-col items-center justify-center text-foreground relative mt-20">
+    
     <div class="relative z-10 w-full">
     <!-- Hero Section -->
     <section class="w-full py-12 md:py-24 lg:py-32 text-center">
