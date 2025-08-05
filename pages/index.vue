@@ -40,7 +40,7 @@ definePageMeta({
     </section>
 
     <!-- Key Features Showcase -->
-    <section class="w-full py-12 md:py-24 lg:py-32 bg-black/50">
+    <section class="w-full py-12 md:py-24 lg:py-32 bg-card">
       <div class="container mx-auto px-4 md:px-6">
         <h2 class="text-3xl font-bold tracking-tighter text-center sm:text-4xl md:text-5xl mb-12">
           Key Features
@@ -112,7 +112,7 @@ definePageMeta({
     </section>
 
     <!-- MindfulLucidity Plus Overview -->
-    <section class="w-full py-12 md:py-24 lg:py-32 bg-black/50">
+    <section class="w-full py-12 md:py-24 lg:py-32 bg-card">
       <div class="container mx-auto px-4 md:px-6 text-center">
         <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl mb-4 text-plus-gold flex items-center justify-center gap-2">
           <Zap class="h-10 w-10 text-plus-gold" />

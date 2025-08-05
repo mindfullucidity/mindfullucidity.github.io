@@ -59,25 +59,25 @@ const lucidityLevels: LucidityLevel[] = [
     level: 0,
     label: 'Not Lucid',
     icon: Moon,
-    color: 'bg-[#44475A]/70', // Dracula currentLine (darker gray/purple)
+    color: 'bg-[#44475A]/40', // Dracula currentLine (darker gray/purple)
   },
   {
     level: 1,
     label: 'Slightly Aware',
     icon: Cloud,
-    color: 'bg-[#F1FA8C]/70', // Dracula yellow
+    color: 'bg-[#F1FA8C]/40', // Dracula yellow
   },
   {
     level: 2,
     label: 'Moderately Lucid',
     icon: Eye,
-    color: 'bg-[#8BE9FD]/70', // Dracula cyan
+    color: 'bg-[#8BE9FD]/40', // Dracula cyan
   },
   {
     level: 3,
     label: 'Fully Lucid',
     icon: Sparkles,
-    color: 'bg-[#BD93F9]/70', // Dracula purple
+    color: 'bg-[#BD93F9]/40', // Dracula purple
   }
 ];
 
@@ -86,25 +86,25 @@ const characteristics: Characteristic[] = [
     id: 'recurrent',
     label: 'Recurrent',
     icon: RotateCcw,
-    color: 'bg-[#50FA7B]/70' // Dracula green
+    color: 'bg-[#50FA7B]/40' // Dracula green
   },
   {
     id: 'nightmare',
     label: 'Nightmare',
     icon: AlertTriangle,
-    color: 'bg-[#FF5555]/70' // Dracula red
+    color: 'bg-[#FF5555]/40' // Dracula red
   },
   {
     id: 'sleep_paralysis',
     label: 'Sleep Paralysis',
     icon: Brain,
-    color: 'bg-[#BD93F9]/70' // Dracula purple
+    color: 'bg-[#BD93F9]/40' // Dracula purple
   },
   {
     id: 'false_awakening',
     label: 'False Awakening',
     icon: Sun,
-    color: 'bg-[#FFB86C]/70' // Dracula orange
+    color: 'bg-[#FFB86C]/40' // Dracula orange
   }
 ];
 
@@ -231,7 +231,7 @@ const getMoodEmoji = computed(() => (value: number) => {
               :model-value="lucidityTrigger"
               @input="handleTriggerChange"
               placeholder="e.g., reality check, unusual dream sign..."
-              class="w-full"
+              class="w-full bg-card"
             />
           </div>
         </div>

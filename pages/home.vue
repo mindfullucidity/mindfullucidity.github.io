@@ -174,7 +174,7 @@ const getLucidityColor = (level: number) => {
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
           <!-- Recent Entries -->
           <div class="lg:col-span-2">
-            <Card class="bg-black/50 border-border h-full">
+            <Card class="bg-card border-border h-full">
               <CardHeader>
                 <CardTitle class="flex items-center gap-2 text-foreground">
                   <BookOpen class="h-5 w-5 text-primary" />
@@ -190,7 +190,7 @@ const getLucidityColor = (level: number) => {
                     <Card
                       v-for="entry in journalEntries"
                       :key="entry.id"
-                      class="bg-black/50 border-border hover:border-primary transition-colors cursor-pointer"
+                      class="bg-card border-border hover:border-white transition-colors cursor-pointer"
                     >
                       <CardContent class="p-4">
                         <div class="space-y-3">
@@ -231,7 +231,7 @@ const getLucidityColor = (level: number) => {
           <!-- Right Sidebar -->
           <div class="space-y-6">
             <!-- Journaling Streak -->
-            <Card class="bg-black/50 border-border">
+            <Card class="bg-card border-border">
               <CardHeader class="pb-3">
                 <CardTitle class="flex items-center gap-2 text-foreground">
                   <Flame class="h-5 w-5 text-destructive" />
@@ -258,7 +258,7 @@ const getLucidityColor = (level: number) => {
             </Card>
 
             <!-- Subscription Status -->
-            <Card v-if="!isSubscribed" class="bg-black/50 border-warning">
+            <Card v-if="!isSubscribed" class="bg-card border-warning">
               <CardHeader class="pb-3">
                 <CardTitle class="flex items-center gap-2 text-foreground">
                   <Crown class="h-5 w-5 text-warning" />
@@ -300,7 +300,7 @@ const getLucidityColor = (level: number) => {
             <Card
               v-for="(card, index) in insightCards"
               :key="index"
-              class="bg-black/50 border-border hover:border-primary transition-colors"
+              class="bg-card border-border hover:border-white transition-colors"
             >
               <CardContent class="p-4">
                 <div class="space-y-3">
