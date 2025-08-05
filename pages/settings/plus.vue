@@ -1,23 +1,67 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Zap, ExternalLink } from 'lucide-vue-next'
 import { Lightbulb } from 'lucide-vue-next'
+import { toast } from 'vue-sonner'
 
 definePageMeta({
   layout: 'settings',
 })
 
-const isPlusSubscriber = ref(true) // This would come from your user's subscription status
+const user = useSupabaseUser()
+const supabase = useSupabaseClient()
+
+const isPlusSubscriber = computed(() => user.value?.app_metadata?.user_role === 'plus')
 const currentPrice = ref('$5/month') // This would come from your user's subscription data
 const renewalDate = ref('August 5, 2026') // This would come from your user's subscription data
 
+async function callSetUserRole(role: 'plus' | 'normal') {
+  try {
+    const { data, error } = await supabase.functions.invoke('set_user_role', {
+      body: { role },
+    })
+
+    if (error) {
+      throw error
+    }
+
+    toast.success(`User role updated to ${role}.`)
+
+    // Refresh the user session to get the updated app_metadata
+    await supabase.auth.refreshSession();
+    console.log('User after refresh:', user.value);
+  } catch (error: any) {
+    console.error('Error updating user role:', error);
+    let errorMessage = 'An unknown error occurred.';
+    if (error.context && error.context.body && typeof error.context.body === 'string') {
+      try {
+        const parsedError = JSON.parse(error.context.body);
+        if (parsedError.error) {
+          errorMessage = parsedError.error;
+        }
+      } catch (parseError) {
+        // If parsing fails, use the raw body
+        errorMessage = error.context.body;
+      }
+    } else if (error.message) {
+      errorMessage = error.message;
+    }
+
+    toast.error(errorMessage, {
+      title: 'Error updating role',
+    });
+  }
+}
+
+function handleUpgrade() {
+  callSetUserRole('plus')
+}
+
 function handleUnsubscribe() {
-  // Logic to handle unsubscription
-  console.log('Unsubscribe clicked')
-  isPlusSubscriber.value = false // For demonstration
+  callSetUserRole('normal')
 }
 
 function handleManagePayment() {
@@ -53,7 +97,7 @@ function handleManagePayment() {
           <p>
             You may experience the full capabilities without Plus, through the use of your own API keys with our Custom AI Model feature. Plus users do not need to add their own API keys, as they get full access regardless. Plus is mostly for people who want to support this project.
           </p>
-          <Button>Upgrade to Plus ($5/month)</Button>
+          <Button @click="handleUpgrade">Upgrade to Plus ($5/month)</Button>
           <div class="flex items-start space-x-2 text-sm text-muted-foreground">
             <Lightbulb class="h-4 w-4 flex-shrink-0 mt-1" />
             <p>
