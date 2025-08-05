@@ -68,11 +68,26 @@ export async function setupAIModel(req: Request) {
     }
 
     const userId = userData?.user?.id;
+    const userRole = userData?.user?.app_metadata?.user_role;
 
     if (!userId) {
       return {
         status: 401,
         message: 'Unauthorized: User ID not found.'
+      };
+    }
+
+    // If the user is a 'plus' subscriber, skip the rate limit check
+    if (userRole === 'plus') {
+      console.log('User is a plus subscriber, skipping AI usage check.');
+      const model = new ChatGoogleGenerativeAI({
+        apiKey: Deno.env.get('GOOGLE_API_KEY'),
+        model: 'gemini-2.5-flash',
+      });
+      return {
+        status: 200,
+        message: 'Public AI model setup (Plus subscriber)',
+        model: model
       };
     }
 
@@ -94,7 +109,7 @@ export async function setupAIModel(req: Request) {
     }
 
     // If no error, it means the check passed and usage was decremented
-    console.log('Using public AI model.');
+    console.log('Using public AI model (rate limit checked).');
     const model = new ChatGoogleGenerativeAI({
       apiKey: Deno.env.get('GOOGLE_API_KEY'),
       model: 'gemini-2.5-flash',
