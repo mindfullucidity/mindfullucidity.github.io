@@ -2,7 +2,7 @@
   <div class="flex flex-col h-full">
     <div class="flex-shrink-0">
       <div class="flex items-center p-4 h-12">
-        <h1 class="text-xl font-bold">Journal</h1>
+        <h1 class="text-xl  font-semibold">Journal</h1>
       </div>
       <Separator />
       <div class="p-4">

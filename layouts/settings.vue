@@ -39,15 +39,12 @@ const getTextColorClass = (item: SidebarItem) => {
 
 <template>
   <NuxtLayout name="default">
-    <div class="min-h-screen bg-background">
+    <div class="bg-background pt-16 min-h-screen">
       <!-- Header -->
       <div class="border-b border-border bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div class="flex h-16 items-center px-6">
+        <div class="flex h-12 items-center px-4">
           <div class="flex items-center space-x-4">
             <div class="flex items-center space-x-2">
-              <div class="h-8 w-8 rounded-full bg-primary flex items-center justify-center">
-                <span class="text-primary-foreground font-semibold text-sm">ML</span>
-              </div>
               <div>
                 <h1 class="text-lg font-semibold">Settings</h1>
               </div>
@@ -57,14 +54,11 @@ const getTextColorClass = (item: SidebarItem) => {
             <Button variant="ghost" size="icon">
               <Bell class="h-4 w-4" />
             </Button>
-            <Button variant="ghost" size="icon">
-              <Search class="h-4 w-4" />
-            </Button>
           </div>
         </div>
       </div>
 
-      <div class="flex h-[calc(100vh-4rem)] overflow-hidden">
+      <div class="flex h-full">
         <!-- Sidebar -->
         <div
           class="w-64 border-r border-border min-h-full overflow-y-auto"
@@ -101,7 +95,7 @@ const getTextColorClass = (item: SidebarItem) => {
 
         <!-- Main Content -->
         <div class="flex-1 h-full overflow-y-auto">
-          <div class="max-w-4xl mx-auto p-6">
+          <div class="max-w-4xl mx-auto p-6 min-h-full">
             <div class="space-y-6">
               <slot />
             </div>
