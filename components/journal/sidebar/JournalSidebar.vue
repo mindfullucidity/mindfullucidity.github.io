@@ -18,7 +18,7 @@
       </div>
       <Separator />
     </div>
-    <div class="flex-grow overflow-y-auto">
+    <ScrollArea class="flex-grow overflow-y-auto">
       <div class="flex flex-col gap-2 p-4">
         <template v-if="isLoadingOverview || entriesOverview === null">
           <JournalEntryCardSkeleton v-for="i in 3" :key="i" />
@@ -45,7 +45,7 @@
           />
         </template>
       </div>
-    </div>
+    </ScrollArea>
   </div>
 </template>
 
@@ -59,6 +59,7 @@ import { Separator } from '@/components/ui/separator';
 import { Search, Plus, SearchX, FileText } from 'lucide-vue-next';
 import JournalEntryCardSkeleton from '../sidebar/JournalEntryCardSkeleton.vue';
 import type { JournalEntryOverview } from '@/composables/useJournal';
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 const { entriesOverview, selectedEntry, isLoadingOverview, loadEntriesOverview, selectEntry, clearSelectedEntry } = useJournal();
 const searchQuery = ref('');
