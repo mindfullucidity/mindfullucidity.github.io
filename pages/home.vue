@@ -7,6 +7,7 @@ import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useHome } from '@/composables/useHome';
 import JournalEntryCardExpanded from '~/components/journal/misc/JournalEntryCardExpanded.vue';
+import JournalEntryCardExpandedSkeleton from '~/components/journal/misc/JournalEntryCardExpandedSkeleton.vue';
 
 
 import {
@@ -40,47 +41,9 @@ interface InsightCard {
 }
 
 const username = ref("Alex");
-const journalEntries = ref<JournalEntry[]>([
-  {
-    id: "1",
-    title: "Flying Over Mountains",
-    content: "Had an incredible lucid dream where I was soaring over snow-capped mountains, feeling the wind rush past me. The details were so vivid, I could see every tree and rock below. It was an exhilarating experience, unlike anything I've felt before. I tried to control my flight, and with some effort, I managed to change direction and speed. The dream ended with me landing gently in a field of wildflowers.",
-    date: "2024-01-15",
-    lucidityLevel: 3,
-    characteristics: ["recurrent"]
-  },
-  {
-    id: "2",
-    title: "Underwater Adventure",
-    content: "Dreamed I could breathe underwater and explored a coral reef city. The colors were vibrant, and I saw fish of all shapes and sizes. There were ancient ruins covered in coral, and I felt a sense of wonder and peace. I even interacted with some friendly dolphins. The water was crystal clear, and the sunlight filtered through, creating beautiful patterns on the seabed. It was a truly magical place.",
-    date: "2024-01-14",
-    lucidityLevel: 2,
-    characteristics: ["false_awakening"]
-  },
-  {
-    id: "3",
-    title: "Meeting My Future Self",
-    content: "A profound dream where I had a conversation with an older version of myself. They gave me advice about my career and personal life. It felt incredibly real, and their words resonated deeply. I asked about future challenges and how to overcome them. The older me was calm and wise, offering guidance that felt both comforting and empowering. I woke up feeling inspired and with a clearer sense of direction.",
-    date: "2024-01-13",
-    lucidityLevel: 3,
-    characteristics: ["sleep_paralysis"]
-  },
-  {
-    id: "4",
-    title: "Shapeshifting Animals",
-    content: "Witnessed animals transforming into different creatures in a magical forest. A fox turned into an eagle, and a bear became a deer. It was a surreal and fascinating spectacle. The forest itself seemed alive, with glowing plants and singing trees. I felt a sense of awe and curiosity, observing these transformations without fear. The dream was full of vibrant energy and unexpected changes.",
-    date: "2024-01-12",
-    lucidityLevel: 1,
-    characteristics: ["nightmare"]
-  },
-  {
-    id: "5",
-    content: "Just a regular dream with no title. I was walking through a familiar neighborhood, but everything felt slightly off. The houses were different colors, and the streets were wider. I tried to find my way home, but every turn led me to an unfamiliar place. It wasn't scary, just disorienting. I eventually woke up feeling a bit confused but otherwise fine. No specific events stood out, just a general sense of being lost.",
-    date: "2024-01-11",
-    lucidityLevel: 0,
-    characteristics: []
-  }
-]);
+const journalEntries = ref<JournalEntry[]>([]);
+const isLoadingEntries = ref(true);
+
 const streakInfo = ref({
   streak_length: 0,
   last_entry_date: null,
@@ -95,10 +58,16 @@ const insights = ref({
   tipOfDay: "Try reality checks throughout the day to increase lucid dreaming frequency."
 });
 
-const { getDreamStreakInfo } = useHome();
+const { getDreamStreakInfo, getRecentJournalEntries } = useHome();
 
 onMounted(async () => {
   streakInfo.value = await getDreamStreakInfo();
+  try {
+    isLoadingEntries.value = true;
+    journalEntries.value = await getRecentJournalEntries();
+  } finally {
+    isLoadingEntries.value = false;
+  }
 });
 
 const insightCards = computed<InsightCard[]>(() => [
@@ -225,11 +194,16 @@ const streakMessage = computed(() => {
               <CardContent>
                 <ScrollArea class="h-96">
                   <div class="space-y-4 pr-4">
-                    <JournalEntryCardExpanded
-                      v-for="entry in journalEntries"
-                      :key="entry.id"
-                      :entry="entry"
-                    />
+                    <div v-if="isLoadingEntries">
+                      <JournalEntryCardExpandedSkeleton v-for="i in 5" :key="i" />
+                    </div>
+                    <div v-else>
+                      <JournalEntryCardExpanded
+                        v-for="entry in journalEntries"
+                        :key="entry.id"
+                        :entry="entry"
+                      />
+                    </div>
                   </div>
                 </ScrollArea>
               </CardContent>
@@ -308,7 +282,7 @@ const streakMessage = computed(() => {
             <Card
               v-for="(card, index) in insightCards"
               :key="index"
-              class="bg-card border-border hover:border-white transition-colors"
+              class="bg-card border-border hover:border-gray-500/50 transition-colors"
             >
               <CardContent class="p-4">
                 <div class="space-y-3">

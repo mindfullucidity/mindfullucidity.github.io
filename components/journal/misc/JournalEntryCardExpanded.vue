@@ -3,6 +3,7 @@ import { computed } from 'vue';
 import { Calendar, Eye, RotateCcw, AlertTriangle, Brain, Sun } from 'lucide-vue-next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { navigateTo } from '#app';
 
 interface JournalEntry {
   id: string;
@@ -66,10 +67,14 @@ const activeCharacteristics = computed(() => {
     return characteristicsData.find(char => char.id === charId);
   }).filter(Boolean); // Filter out undefined in case of unknown charId
 });
+
+const goToJournalEntry = () => {
+  navigateTo(`/journal/${props.entry.id}`);
+};
 </script>
 
 <template>
-  <Card class="w-full bg-transparent border-border hover:bg-card hover:border-white transition-colors cursor-pointer">
+  <Card class="w-full bg-transparent border-border hover:bg-card hover:border-gray-500/50 transition-colors cursor-pointer mb-4" @click="goToJournalEntry">
     <CardHeader class="flex flex-row items-center justify-between pb-2">
       <CardTitle class="text-2xl font-bold">
         {{ displayTitle }}
