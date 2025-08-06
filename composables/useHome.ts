@@ -70,10 +70,21 @@ export const useHome = () => {
     }
   };
 
+  const clearCache = () => {
+    streakInfo.value = {
+      streak_length: 0,
+      last_entry_date: null,
+      days_since_last_entry: null,
+      has_logged_today: false,
+    };
+    journalEntries.value = [];
+  };
+
   return {
     streakInfo,
     journalEntries,
     getDreamStreakInfo,
     getRecentJournalEntries,
+    clearCache,
   }
 }

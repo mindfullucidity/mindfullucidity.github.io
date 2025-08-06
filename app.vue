@@ -5,21 +5,6 @@ import AuroraBorealis from '@/components/AuroraBorealis.vue';
 
 const user = useSupabaseUser()
 const router = useRouter()
-
-// This watcher will run immediately and whenever the user's state changes.
-watch(user, (currentUser, previousUser) => {
-  if (currentUser) {
-    // If user is logged in, redirect them away from login/register pages.
-    if (router.currentRoute.value.path === '/login' || router.currentRoute.value.path === '/register') {
-      navigateTo('/home')
-    }
-  } else if (previousUser !== undefined) { // Only redirect if user state has been determined
-    // If user is logged out, redirect to login unless they are on a public page.
-    if (!unprotectedRoutes.some(route => route === router.currentRoute.value.path)) {
-      navigateTo('/login')
-    }
-  }
-}, { immediate: true })
 </script>
 
 <template>

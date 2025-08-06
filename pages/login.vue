@@ -19,7 +19,7 @@
       </div>
       <GoogleButton type="Log In" :on-click="signInWithGoogle" />
       <p class="text-center text-sm text-muted-foreground">
-        Don't have an account? <NuxtLink to="/register" class="text-primary hover:underline">Register</NuxtLink>
+        Don't have an account? <NuxtLink :to="{ path: '/register', query: { to: redirectToPath } }" class="text-primary hover:underline">Register</NuxtLink>
       </p>
     </div>
   </div>
@@ -31,7 +31,7 @@ definePageMeta({
 })
 
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 
 import { Button } from '~/components/ui/button'
@@ -41,6 +41,9 @@ const email = ref('')
 const password = ref('')
 const supabase = useSupabaseClient()
 const router = useRouter()
+const route = useRoute()
+
+const redirectToPath = computed(() => route.query.to?.toString() || '/home');
 
 const handleLogin = async () => {
   try {
@@ -49,7 +52,7 @@ const handleLogin = async () => {
       password: password.value,
     })
     if (error) throw error
-    router.push('/')
+    navigateTo(`/redirect?to=${redirectToPath.value}`)
   } catch (error: any) {
     alert(error.message)
   }
@@ -60,7 +63,7 @@ const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: `${window.location.origin}/home`,
+        redirectTo: `${window.location.origin}/redirect?to=${redirectToPath.value}`,
       },
     })
     if (error) throw error

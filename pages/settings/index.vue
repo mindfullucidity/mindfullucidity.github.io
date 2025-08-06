@@ -49,7 +49,7 @@ async function logout() {
   try {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
-    await navigateTo('/login')
+    await navigateTo('/redirect?to=/&logout=true')
   } catch (error: any) {
     toast.error('Error logging out', {
       description: error.message,

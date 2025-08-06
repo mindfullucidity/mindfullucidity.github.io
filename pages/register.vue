@@ -27,7 +27,7 @@
       </div>
       <GoogleButton type="Register" :on-click="signInWithGoogle" />
       <p class="text-center text-sm text-muted-foreground">
-        Already have an account? <NuxtLink to="/login" class="text-primary hover:underline">Login</NuxtLink>
+        Already have an account? <NuxtLink :to="{ path: '/login', query: { to: redirectToPath } }" class="text-primary hover:underline">Login</NuxtLink>
       </p>
     </div>
   </div>
@@ -39,7 +39,7 @@ definePageMeta({
 })
 
 import { ref } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 
 
 import { Button } from '~/components/ui/button'
@@ -51,6 +51,9 @@ const password = ref('')
 const confirmPassword = ref('')
 const supabase = useSupabaseClient()
 const router = useRouter()
+const route = useRoute()
+
+const redirectToPath = computed(() => route.query.to?.toString() || '/home');
 
 const handleRegister = async () => {
   if (password.value !== confirmPassword.value) {
@@ -69,7 +72,7 @@ const handleRegister = async () => {
     })
     if (error) throw error
     alert('Registration successful! Please check your email to confirm your account.')
-    router.push('/')
+    navigateTo(`/redirect?to=${redirectToPath.value}`)
   } catch (error: any) {
     alert(error.message)
   }
@@ -80,7 +83,7 @@ const signInWithGoogle = async () => {
     const { error } = await supabase.auth.signInWithOAuth({
       provider: 'google',
       options: {
-        redirectTo: window.location.origin,
+        redirectTo: `${window.location.origin}/redirect?to=${redirectToPath.value}`,
       },
     })
     if (error) throw error
