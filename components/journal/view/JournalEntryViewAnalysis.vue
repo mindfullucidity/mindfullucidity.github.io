@@ -43,7 +43,7 @@
           />
         </template>
         <template v-if="isGeneratingAIAnalysis">
-          <SkeletonPreviewAnalysisCard type="ai" @cancel-generation="handleCancelAIAnalysisGeneration" />
+          <SkeletonPreviewAnalysisCard type="ai" :title="generatingAnalysisType ? getAnalysisPrettyTitle(generatingAnalysisType) : null" @cancel-generation="handleCancelAIAnalysisGeneration" />
         </template>
 
         <div class="flex flex-col sm:flex-row gap-2 mt-4 justify-center">
@@ -93,6 +93,7 @@ const editingAnalysis = ref<JournalAnalysis | null>(null);
 const lastDeletedAnalysis = ref<JournalAnalysis | null>(null);
 const isLoadingAnalyses = ref(false);
 const isGeneratingAIAnalysis = ref(false);
+const generatingAnalysisType = ref<string | null>(null);
 const abortController = ref<AbortController | null>(null);
 
 const analysisContainerRef = ref<HTMLElement | null>(null);
@@ -168,6 +169,7 @@ const handleAddAIAnalysis = () => {
 const handleCancelNewAnalysis = () => {
   showNewAnalysisCard.value = null;
   editingAnalysis.value = null;
+  generatingAnalysisType.value = null;
 };
 
 const handleCancelAIAnalysisGeneration = () => {
@@ -175,6 +177,7 @@ const handleCancelAIAnalysisGeneration = () => {
     abortController.value.abort();
   }
   isGeneratingAIAnalysis.value = false;
+  generatingAnalysisType.value = null;
 };
 
 const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: string, depth: string, content: string }) => {
@@ -184,6 +187,7 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
   }
 
   isGeneratingAIAnalysis.value = true;
+  generatingAnalysisType.value = payload.type;
   showNewAnalysisCard.value = null; 
   abortController.value = new AbortController();
 
