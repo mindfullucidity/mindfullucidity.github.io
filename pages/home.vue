@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { useHome } from '@/composables/useHome';
+import JournalEntryCardExpanded from '~/components/journal/misc/JournalEntryCardExpanded.vue';
 
 
 import {
@@ -24,11 +25,11 @@ import {
 
 interface JournalEntry {
   id: string;
-  title: string;
+  title?: string;
+  content: string;
   date: string;
-  description: string;
   lucidityLevel: number;
-  mood: string;
+  characteristics: string[];
 }
 
 interface InsightCard {
@@ -43,34 +44,41 @@ const journalEntries = ref<JournalEntry[]>([
   {
     id: "1",
     title: "Flying Over Mountains",
+    content: "Had an incredible lucid dream where I was soaring over snow-capped mountains, feeling the wind rush past me. The details were so vivid, I could see every tree and rock below. It was an exhilarating experience, unlike anything I've felt before. I tried to control my flight, and with some effort, I managed to change direction and speed. The dream ended with me landing gently in a field of wildflowers.",
     date: "2024-01-15",
-    description: "Had an incredible lucid dream where I was soaring over snow-capped mountains…",
-    lucidityLevel: 8,
-    mood: "Euphoric"
+    lucidityLevel: 3,
+    characteristics: ["recurrent"]
   },
   {
     id: "2",
     title: "Underwater Adventure",
+    content: "Dreamed I could breathe underwater and explored a coral reef city. The colors were vibrant, and I saw fish of all shapes and sizes. There were ancient ruins covered in coral, and I felt a sense of wonder and peace. I even interacted with some friendly dolphins. The water was crystal clear, and the sunlight filtered through, creating beautiful patterns on the seabed. It was a truly magical place.",
     date: "2024-01-14",
-    description: "Dreamed I could breathe underwater and explored a coral reef city…",
-    lucidityLevel: 6,
-    mood: "Curious"
+    lucidityLevel: 2,
+    characteristics: ["false_awakening"]
   },
   {
     id: "3",
     title: "Meeting My Future Self",
+    content: "A profound dream where I had a conversation with an older version of myself. They gave me advice about my career and personal life. It felt incredibly real, and their words resonated deeply. I asked about future challenges and how to overcome them. The older me was calm and wise, offering guidance that felt both comforting and empowering. I woke up feeling inspired and with a clearer sense of direction.",
     date: "2024-01-13",
-    description: "A profound dream where I had a conversation with an older version of myself…",
-    lucidityLevel: 9,
-    mood: "Reflective"
+    lucidityLevel: 3,
+    characteristics: ["sleep_paralysis"]
   },
   {
     id: "4",
     title: "Shapeshifting Animals",
+    content: "Witnessed animals transforming into different creatures in a magical forest. A fox turned into an eagle, and a bear became a deer. It was a surreal and fascinating spectacle. The forest itself seemed alive, with glowing plants and singing trees. I felt a sense of awe and curiosity, observing these transformations without fear. The dream was full of vibrant energy and unexpected changes.",
     date: "2024-01-12",
-    description: "Witnessed animals transforming into different creatures in a magical forest…",
-    lucidityLevel: 4,
-    mood: "Wonder"
+    lucidityLevel: 1,
+    characteristics: ["nightmare"]
+  },
+  {
+    id: "5",
+    content: "Just a regular dream with no title. I was walking through a familiar neighborhood, but everything felt slightly off. The houses were different colors, and the streets were wider. I tried to find my way home, but every turn led me to an unfamiliar place. It wasn't scary, just disorienting. I eventually woke up feeling a bit confused but otherwise fine. No specific events stood out, just a general sense of being lost.",
+    date: "2024-01-11",
+    lucidityLevel: 0,
+    characteristics: []
   }
 ]);
 const streakInfo = ref({
@@ -217,41 +225,11 @@ const streakMessage = computed(() => {
               <CardContent>
                 <ScrollArea class="h-96">
                   <div class="space-y-4 pr-4">
-                    <Card
+                    <JournalEntryCardExpanded
                       v-for="entry in journalEntries"
                       :key="entry.id"
-                      class="bg-card border-border hover:border-white transition-colors cursor-pointer"
-                    >
-                      <CardContent class="p-4">
-                        <div class="space-y-3">
-                          <div class="flex justify-between items-start">
-                            <h3 class="font-semibold text-foreground line-clamp-1">
-                              {{ entry.title }}
-                            </h3>
-                            <div class="flex items-center gap-2">
-                              <Badge :class="getMoodColor(entry.mood)">
-                                {{ entry.mood }}
-                              </Badge>
-                            </div>
-                          </div>
-                          <p class="text-muted-foreground text-sm line-clamp-2">
-                            {{ entry.description }}
-                          </p>
-                          <div class="flex justify-between items-center">
-                            <div class="flex items-center gap-2 text-xs text-muted-foreground">
-                              <Calendar class="h-3 w-3" />
-                              {{ new Date(entry.date).toLocaleDateString() }}
-                            </div>
-                            <div class="flex items-center gap-1">
-                              <Sparkles :class="`h-4 w-4 ${getLucidityColor(entry.lucidityLevel)}`" />
-                              <span :class="`text-sm font-medium ${getLucidityColor(entry.lucidityLevel)}`">
-                                {{ entry.lucidityLevel }}/10
-                              </span>
-                            </div>
-                          </div>
-                        </div>
-                      </CardContent>
-                    </Card>
+                      :entry="entry"
+                    />
                   </div>
                 </ScrollArea>
               </CardContent>
