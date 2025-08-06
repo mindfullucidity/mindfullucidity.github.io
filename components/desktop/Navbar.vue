@@ -29,7 +29,7 @@ async function logout() {
   try {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
-    await navigateTo('/login')
+    await navigateTo('/')
   } catch (error) {
     console.error('Error logging out:', error.message)
   }
@@ -75,21 +75,9 @@ async function logout() {
             <Book v-if="route.path.startsWith('/journal')" class="w-5 h-5 mr-2" />
             <span class="text-sm">Journal</span>
           </NuxtLink>
-          <NuxtLink
-            to="/settings"
-            class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
-            :class="{
-              'bg-primary/30': hoveredItem === 'settings' || (hoveredItem === null && !isHoveringNavbar && route.path.startsWith('/settings')),
-              'text-primary-selected': route.path.startsWith('/settings')
-            }"
-            @mouseover="hoveredItem = 'settings'"
-          >
-            <Settings v-if="route.path.startsWith('/settings')" class="w-5 h-5 mr-2" />
-            <span class="text-sm">Settings</span>
-          </NuxtLink>
         </div>
         <DropdownMenu v-if="user" v-model:open="isDropdownOpen">
-          <DropdownMenuTrigger class="flex items-center gap-2 focus:outline-none hover:opacity-75 transition-opacity duration-200">
+          <DropdownMenuTrigger class="flex items-center gap-2 focus:outline-none hover:opacity-75 transition-opacity duration-200 ml-4">
             <Avatar class="w-8 h-8">
               <AvatarImage :src="user.user_metadata?.avatar_url || ''" />
               <AvatarFallback>
@@ -112,6 +100,9 @@ async function logout() {
             </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
+        <Button v-else @click="navigateTo('/login')" class="ml-4">
+          Login
+        </Button>
       </div>
     </div>
   </div>

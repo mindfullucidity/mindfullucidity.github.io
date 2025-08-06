@@ -1,7 +1,7 @@
 <template>
   <Title>Login | MindfulLucidity</Title>
   <div class="flex items-center justify-center min-h-screen bg-background">
-    <div class="w-full max-w-md p-8 space-y-6 bg-card rounded-lg border border-border shadow-xl shadow-black/50">
+    <div class="w-full max-w-md p-8 space-y-6 bg-card rounded-lg border border-border">
       <h2 class="text-2xl font-bold text-center text-foreground">Login</h2>
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>
