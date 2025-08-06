@@ -1,129 +1,175 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useSupabaseClient, useSupabaseUser } from '#imports'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Switch } from '@/components/ui/switch'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { toast } from 'vue-sonner'
+import { LogOut, Trash2 } from 'lucide-vue-next'
 
 definePageMeta({
   layout: 'settings',
 })
 
-const formData = ref({
-  name: 'John Doe',
-  email: 'john.doe@example.com',
-  bio: 'Software developer passionate about open source',
-  location: 'San Francisco, CA',
-  website: 'https://johndoe.dev',
-  company: 'Acme Corp',
-  publicProfile: true,
-})
+const supabase = useSupabaseClient()
+const user = useSupabaseUser()
 
-const handleInputChange = (field: string, value: any) => {
-  formData.value = { ...formData.value, [field]: value }
+
+const displayName = ref('')
+const email = ref('')
+
+watch(user, (newUser) => {
+  if (newUser) {
+    displayName.value = newUser.user_metadata?.full_name || newUser.email || ''
+    email.value = newUser.email || ''
+  }
+}, { immediate: true })
+
+async function updateDisplayName() {
+  try {
+    const { error } = await supabase.auth.updateUser({
+      data: { full_name: displayName.value },
+    })
+    if (error) throw error
+    toast.success('Display name updated!', {
+      description: 'Your display name has been successfully updated.',
+    })
+  } catch (error: any) {
+    toast.error('Error updating display name', {
+      description: error.message,
+    })
+  }
+}
+
+async function logout() {
+  try {
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
+    await navigateTo('/login')
+  } catch (error: any) {
+    toast.error('Error logging out', {
+      description: error.message,
+    })
+  }
+}
+
+async function deleteAccount() {
+  if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+    return
+  }
+  try {
+    // Supabase does not directly expose a client-side function to delete a user's account for security reasons.
+    // This typically needs to be handled on the backend (e.g., via a Supabase Edge Function or a custom API endpoint)
+    // that has the appropriate service role key to call the Admin API.
+    // For this example, we'll simulate it or provide a placeholder.
+    // In a real application, you would call an Edge Function here.
+    toast.error('Account deletion initiated', {
+      description: 'Please contact support to complete account deletion. This feature is not yet implemented client-side.',
+    })
+    // Example of how you might call an Edge Function:
+    // const { data, error } = await supabase.functions.invoke('delete-user-account', {
+    //   body: { userId: user.value?.id },
+    // });
+    // if (error) throw error;
+    // await navigateTo('/register'); // Redirect after successful deletion
+  } catch (error: any) {
+        toast.error('Error deleting account', {
+      description: error.message,
+    })
+  }
 }
 </script>
 
 <template>
   <div>
     <div>
-      <h2 class="text-2xl font-bold tracking-tight">Public profile</h2>
+      <h2 class="text-2xl font-bold tracking-tight">Profile Settings</h2>
       <p class="text-muted-foreground mt-2">
-        This information will be displayed publicly so be careful what you share.
+        Manage your public profile information and account settings.
       </p>
     </div>
 
     <Separator class="my-6" />
 
     <div class="space-y-6">
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="space-y-2">
-          <Label for="name">Name</Label>
-          <Input
-            id="name"
-            :model-value="formData.name"
-            @update:model-value="(value) => handleInputChange('name', value)"
-            placeholder="Your full name"
-          />
-        </div>
-        <div class="space-y-2">
-          <Label for="email">Email</Label>
-          <Input
-            id="email"
-            type="email"
-            :model-value="formData.email"
-            @update:model-value="(value) => handleInputChange('email', value)"
-            placeholder="your.email@example.com"
-          />
-        </div>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>Public Profile</CardTitle>
+          <CardDescription>
+            This information will be displayed publicly.
+          </CardDescription>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          <div class="space-y-2">
+            <Label for="displayName">Display Name</Label>
+            <Input
+              id="displayName"
+              v-model="displayName"
+              placeholder="Your display name"
+            />
+          </div>
+          <div class="space-y-2">
+            <Label for="email">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              v-model="email"
+              disabled
+              placeholder="Your email address"
+            />
+            <p class="text-sm text-muted-foreground">
+              Email cannot be changed here.
+            </p>
+          </div>
+          <div class="flex justify-end">
+            <Button @click="updateDisplayName">Save changes</Button>
+          </div>
+        </CardContent>
+      </Card>
 
-      <div class="space-y-2">
-        <Label for="bio">Bio</Label>
-        <Textarea
-          id="bio"
-          :model-value="formData.bio"
-          @update:model-value="(value) => handleInputChange('bio', value)"
-          placeholder="Tell us a little bit about yourself"
-          rows="3"
-        />
-        <p class="text-sm text-muted-foreground">
-          Brief description for your profile. URLs are hyperlinked.
-        </p>
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle class="flex items-center gap-2">
+            Account Management
+          </CardTitle>
+          <CardDescription>
+            Manage your account actions.
+          </CardDescription>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="space-y-0.5">
+              <Label>Logout</Label>
+              <p class="text-sm text-muted-foreground">
+                Log out from your account.
+              </p>
+            </div>
+            <Button variant="outline" @click="logout">
+              <LogOut class="h-4 w-4 mr-2" />
+              Logout
+            </Button>
+          </div>
 
-      <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="space-y-2">
-          <Label for="location">Location</Label>
-          <Input
-            id="location"
-            :model-value="formData.location"
-            @update:model-value="(value) => handleInputChange('location', value)"
-            placeholder="City, Country"
-          />
-        </div>
-        <div class="space-y-2">
-          <Label for="website">Website</Label>
-          <Input
-            id="website"
-            :model-value="formData.website"
-            @update:model-value="(value) => handleInputChange('website', value)"
-            placeholder="https://yourwebsite.com"
-          />
-        </div>
-      </div>
+          <Separator />
 
-      <div class="space-y-2">
-        <Label for="company">Company</Label>
-        <Input
-          id="company"
-          :model-value="formData.company"
-          @update:model-value="(value) => handleInputChange('company', value)"
-          placeholder="Your company or organization"
-        />
-      </div>
-
-      <div class="flex items-center justify-between">
-        <div class="space-y-0.5">
-          <Label>Public profile</Label>
-          <p class="text-sm text-muted-foreground">
-            Make your profile visible to everyone
-          </p>
-        </div>
-        <Switch
-          :checked="formData.publicProfile"
-          @update:checked="(checked) => handleInputChange('publicProfile', checked)"
-        />
-      </div>
-
-      <Separator />
-
-      <div class="flex justify-end space-x-2">
-        <Button variant="outline">Cancel</Button>
-        <Button>Save changes</Button>
-      </div>
+          <div class="flex items-center justify-between">
+            <div class="space-y-0.5">
+              <Label class="text-red-500">Delete Account</Label>
+              <p class="text-sm text-muted-foreground">
+                Permanently delete your account and all associated data. This action cannot be undone.
+              </p>
+            </div>
+            <Button variant="destructive" @click="deleteAccount">
+              <Trash2 class="h-4 w-4 mr-2" />
+              Delete Account
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   </div>
 </template>

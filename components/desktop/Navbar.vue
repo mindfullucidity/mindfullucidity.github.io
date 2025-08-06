@@ -1,9 +1,39 @@
 <script setup lang="ts">
-import { Home, Book, Settings } from 'lucide-vue-next'
+import { Home, Book, Settings, LogOut, User, ChevronDown, ChevronUp } from 'lucide-vue-next'
+import { useSupabaseClient, useSupabaseUser } from '#imports'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu'
 
 const route = useRoute()
 const hoveredItem = ref<string | null>(null)
 const isHoveringNavbar = ref(false)
+const isDropdownOpen = ref(false)
+
+watch(isDropdownOpen, (newVal) => {
+  if (!newVal) {
+    isHoveringNavbar.value = false;
+    hoveredItem.value = null;
+  }
+});
+
+const user = useSupabaseUser()
+const supabase = useSupabaseClient()
+
+async function logout() {
+  try {
+    const { error } = await supabase.auth.signOut()
+    if (error) throw error
+    await navigateTo('/login')
+  } catch (error) {
+    console.error('Error logging out:', error.message)
+  }
+}
 </script>
 
 <template>
@@ -14,47 +44,73 @@ const isHoveringNavbar = ref(false)
           MindfulLucidity
         </NuxtLink>
       </div>
-      <div
-        class="flex items-center gap-x-4"
-        @mouseover="isHoveringNavbar = true"
-        @mouseleave="isHoveringNavbar = false; hoveredItem = null"
-      >
-        <NuxtLink
-          to="/home"
-          class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
-          :class="{
-            'bg-primary/30': hoveredItem === 'home' || (hoveredItem === null && !isHoveringNavbar && route.path === '/home'),
-            'text-primary-selected': route.path === '/home'
-          }"
-          @mouseover="hoveredItem = 'home'"
+      <div class="flex items-center gap-x-4">
+        <div
+          class="flex items-center gap-x-4"
+          @mouseover="isHoveringNavbar = true"
+          @mouseleave="if (!isDropdownOpen) { isHoveringNavbar = false; hoveredItem = null }"
         >
-          <Home v-if="route.path === '/home'" class="w-5 h-5 mr-2" />
-          <span class="text-sm">Home</span>
-        </NuxtLink>
-        <NuxtLink
-          to="/journal"
-          class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
-          :class="{
-            'bg-primary/30': hoveredItem === 'journal' || (hoveredItem === null && !isHoveringNavbar && route.path.startsWith('/journal')),
-            'text-primary-selected': route.path.startsWith('/journal')
-          }"
-          @mouseover="hoveredItem = 'journal'"
-        >
-          <Book v-if="route.path.startsWith('/journal')" class="w-5 h-5 mr-2" />
-          <span class="text-sm">Journal</span>
-        </NuxtLink>
-        <NuxtLink
-          to="/settings"
-          class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
-          :class="{
-            'bg-primary/30': hoveredItem === 'settings' || (hoveredItem === null && !isHoveringNavbar && route.path.startsWith('/settings')),
-            'text-primary-selected': route.path.startsWith('/settings')
-          }"
-          @mouseover="hoveredItem = 'settings'"
-        >
-          <Settings v-if="route.path.startsWith('/settings')" class="w-5 h-5 mr-2" />
-          <span class="text-sm">Settings</span>
-        </NuxtLink>
+          <NuxtLink
+            to="/home"
+            class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
+            :class="{
+              'bg-primary/30': hoveredItem === 'home' || (hoveredItem === null && !isHoveringNavbar && route.path === '/home'),
+              'text-primary-selected': route.path === '/home'
+            }"
+            @mouseover="hoveredItem = 'home'"
+          >
+            <Home v-if="route.path === '/home'" class="w-5 h-5 mr-2" />
+            <span class="text-sm">Home</span>
+          </NuxtLink>
+          <NuxtLink
+            to="/journal"
+            class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
+            :class="{
+              'bg-primary/30': hoveredItem === 'journal' || (hoveredItem === null && !isHoveringNavbar && route.path.startsWith('/journal')),
+              'text-primary-selected': route.path.startsWith('/journal')
+            }"
+            @mouseover="hoveredItem = 'journal'"
+          >
+            <Book v-if="route.path.startsWith('/journal')" class="w-5 h-5 mr-2" />
+            <span class="text-sm">Journal</span>
+          </NuxtLink>
+          <NuxtLink
+            to="/settings"
+            class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
+            :class="{
+              'bg-primary/30': hoveredItem === 'settings' || (hoveredItem === null && !isHoveringNavbar && route.path.startsWith('/settings')),
+              'text-primary-selected': route.path.startsWith('/settings')
+            }"
+            @mouseover="hoveredItem = 'settings'"
+          >
+            <Settings v-if="route.path.startsWith('/settings')" class="w-5 h-5 mr-2" />
+            <span class="text-sm">Settings</span>
+          </NuxtLink>
+        </div>
+        <DropdownMenu v-if="user" v-model:open="isDropdownOpen">
+          <DropdownMenuTrigger class="flex items-center gap-2 focus:outline-none hover:opacity-75 transition-opacity duration-200">
+            <Avatar class="w-8 h-8">
+              <AvatarImage :src="user.user_metadata?.avatar_url || ''" />
+              <AvatarFallback>
+                <User class="w-5 h-5" />
+              </AvatarFallback>
+            </Avatar>
+            <ChevronDown v-if="!isDropdownOpen" class="w-4 h-4 transition-transform duration-200 hover:text-primary" />
+            <ChevronUp v-else class="w-4 h-4 transition-transform duration-200" />
+          </DropdownMenuTrigger>
+          <DropdownMenuContent align="end">
+            
+            <DropdownMenuItem class="flex items-center gap-2" @click="navigateTo('/settings')">
+              <Settings class="w-4 h-4" />
+              Settings
+            </DropdownMenuItem>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem class="flex items-center gap-2 text-red-500" @click="logout">
+              <LogOut class="w-4 h-4" />
+              Logout
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
       </div>
     </div>
   </div>
