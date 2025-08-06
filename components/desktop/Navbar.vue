@@ -29,7 +29,7 @@ async function logout() {
   try {
     const { error } = await supabase.auth.signOut()
     if (error) throw error
-    await navigateTo('/')
+    await navigateTo('/redirect?to=/&logout=true')
   } catch (error) {
     console.error('Error logging out:', error.message)
   }
@@ -84,17 +84,17 @@ async function logout() {
                 <User class="w-5 h-5" />
               </AvatarFallback>
             </Avatar>
-            <ChevronDown v-if="!isDropdownOpen" class="w-4 h-4 transition-transform duration-200 hover:text-primary" />
+            <ChevronDown v-if="!isDropdownOpen" class="w-4 h-4 transition-transform duration-200" />
             <ChevronUp v-else class="w-4 h-4 transition-transform duration-200" />
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             
-            <DropdownMenuItem class="flex items-center gap-2 hover:text-gray-300" @click="navigateTo('/settings')">
+            <DropdownMenuItem class="flex items-center gap-2 text-gray-100/50 hover:text-foreground" @click="navigateTo('/settings')">
               <Settings class="w-4 h-4 text-foreground" />
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem class="flex items-center gap-2 text-red-500 hover:text-red-300" @click="logout">
+            <DropdownMenuItem class="flex items-center gap-2 text-red-500/50 hover:text-red-500" @click="logout">
               <LogOut class="w-4 h-4 text-red-500" />
               Logout
             </DropdownMenuItem>
