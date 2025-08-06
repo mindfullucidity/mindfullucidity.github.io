@@ -15,3 +15,4 @@
 8. use nuxt varients/modules of vueuse/core modules
 9. When using `vue-sonner` for toasts, always use `toast.success('message')`, `toast.error('message')`, or `toast.info('message')` directly, instead of `toast({ title: 'message', description: '...' })`.
 --- End of Context from: GEMINI.md ---
+10. don't do git commands without expliclity being told

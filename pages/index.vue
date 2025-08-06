@@ -11,6 +11,7 @@ definePageMeta({
 </script>
 
 <template>
+  <Title>MindfulLucidity</Title>
   <div class="min-h-screen flex flex-col items-center justify-center text-foreground relative mt-20">
     
     <div class="relative z-10 w-full">

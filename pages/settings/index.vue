@@ -98,9 +98,9 @@ async function deleteAccount() {
     <div class="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Public Profile</CardTitle>
+          <CardTitle>Profile</CardTitle>
           <CardDescription>
-            This information will be displayed publicly.
+            Manage your profile information.
           </CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">

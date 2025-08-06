@@ -39,6 +39,7 @@ const getTextColorClass = (item: SidebarItem) => {
 
 <template>
   <NuxtLayout name="default">
+    <Title>Settings | MindfulLucidity</Title>
     <div class="flex flex-col flex-grow">
       <!-- Header -->
       <div class="border-b border-border backdrop-blur">
