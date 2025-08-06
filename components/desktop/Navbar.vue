@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Home, Book, Settings, LogOut, User, ChevronDown, ChevronUp } from 'lucide-vue-next'
+import { Home, Book, Settings, LogOut, User, ChevronDown, ChevronUp, SunMoon } from 'lucide-vue-next'
 import { useSupabaseClient, useSupabaseUser } from '#imports'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -40,7 +40,8 @@ async function logout() {
   <div class="hidden md:block fixed top-0 left-0 z-50 w-full h-16 bg-black/50">
     <div class="flex justify-between items-center h-full mx-auto px-4 font-medium">
       <div class="flex items-center gap-x-4">
-        <NuxtLink to="/" class="text-lg font-bold ml-5">
+        <NuxtLink to="/" class="text-lg font-bold ml-5 inline-flex items-center justify-center gap-2">
+          <SunMoon class="w-5 h-5 mb-1"/>
           MindfulLucidity
         </NuxtLink>
       </div>
@@ -100,13 +101,13 @@ async function logout() {
           </DropdownMenuTrigger>
           <DropdownMenuContent align="end">
             
-            <DropdownMenuItem class="flex items-center gap-2" @click="navigateTo('/settings')">
-              <Settings class="w-4 h-4" />
+            <DropdownMenuItem class="flex items-center gap-2 hover:text-gray-300" @click="navigateTo('/settings')">
+              <Settings class="w-4 h-4 text-foreground" />
               Settings
             </DropdownMenuItem>
             <DropdownMenuSeparator />
-            <DropdownMenuItem class="flex items-center gap-2 text-red-500" @click="logout">
-              <LogOut class="w-4 h-4" />
+            <DropdownMenuItem class="flex items-center gap-2 text-red-500 hover:text-red-300" @click="logout">
+              <LogOut class="w-4 h-4 text-red-500" />
               Logout
             </DropdownMenuItem>
           </DropdownMenuContent>

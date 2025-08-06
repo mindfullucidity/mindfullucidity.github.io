@@ -22,7 +22,8 @@ import {
   Calendar,
   Moon,
   Brain,
-  Sparkles
+  Sparkles,
+  FileText
 } from 'lucide-vue-next';
 
 interface JournalEntry {
@@ -42,7 +43,7 @@ interface InsightCard {
 }
 
 const user = useSupabaseUser();
-const username = computed(() => user.value?.user_metadata?.name || user.value?.email || "Dreamer");
+const username = computed(() => user.value?.user_metadata?.full_name || user.value?.email || "Dreamer");
 const { streakInfo, journalEntries, getDreamStreakInfo, getRecentJournalEntries } = useHome();
 const isLoadingEntries = ref(true);
 
@@ -110,7 +111,7 @@ const getLucidityColor = (level: number) => {
 };
 
 const streakTextColorClass = computed(() => {
-  if (streakInfo.value.days_since_last_entry <= 1) {
+  if (streakInfo.value.days_since_last_entry <= 1 && streakInfo.value.streak_length > 0) {
     return 'text-destructive';
   } else {
     return 'text-primary';
@@ -118,7 +119,7 @@ const streakTextColorClass = computed(() => {
 });
 
 const streakMessage = computed(() => {
-  if (streakInfo.value.days_since_last_entry <= 1) {
+  if (streakInfo.value.days_since_last_entry <= 1 && streakInfo.value.streak_length > 0) {
     return 'Keep the momentum going!';
   } else if (streakInfo.value.streak_length === 0) {
     return 'Start your dream streak today!';
@@ -129,6 +130,7 @@ const streakMessage = computed(() => {
 </script>
 
 <template>
+  <Title>Home | MindfulLucidity</Title>
   <div class="relative min-h-screen overflow-hidden">
     
     <div class="relative z-10 min-h-screen text-foreground p-6">
@@ -187,17 +189,21 @@ const streakMessage = computed(() => {
               </CardHeader>
               <CardContent>
                 <ScrollArea class="h-96">
-                  <div class="space-y-4 pr-4">
-                    <div v-if="isLoadingEntries">
-                      <JournalEntryCardExpandedSkeleton v-for="i in 5" :key="i" />
+                  <div v-if="isLoadingEntries" class="space-y-4 pr-4">
+                    <JournalEntryCardExpandedSkeleton v-for="i in 5" :key="i" />
+                  </div>
+                  <div v-else-if="journalEntries.length === 0">
+                    <div class="flex flex-col items-center justify-center py-8 text-muted-foreground">
+                      <FileText class="h-8 w-8 mb-2" />
+                      <p>No recent entries yet. Start by creating a new one!</p>
                     </div>
-                    <div v-else>
-                      <JournalEntryCardExpanded
-                        v-for="entry in journalEntries"
-                        :key="entry.id"
-                        :entry="entry"
-                      />
-                    </div>
+                  </div>
+                  <div v-else class="space-y-4 pr-4">
+                    <JournalEntryCardExpanded
+                      v-for="entry in journalEntries"
+                      :key="entry.id"
+                      :entry="entry"
+                    />
                   </div>
                 </ScrollArea>
               </CardContent>
@@ -210,7 +216,7 @@ const streakMessage = computed(() => {
             <Card class="bg-card border-border">
               <CardHeader class="pb-3">
                 <CardTitle class="flex items-center gap-2 text-foreground">
-                  <Flame :class="streakTextColorClass" />
+                  <Flame class="text-destructive" />
                   Dream Streak
                 </CardTitle>
               </CardHeader>

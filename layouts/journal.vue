@@ -1,5 +1,6 @@
 <template>
   <NuxtLayout name="default">
+    <Title>Journal | MindfulLucidity</Title>
     <div class="relative flex h-full">
       <div class="relative z-10 border-r overflow-y-auto w-[24rem]">
         <JournalSidebar />

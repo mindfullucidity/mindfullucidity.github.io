@@ -3,7 +3,7 @@ import { ref, computed } from 'vue'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
-import { Zap, ExternalLink } from 'lucide-vue-next'
+import { Crown, ExternalLink } from 'lucide-vue-next'
 import { Lightbulb } from 'lucide-vue-next'
 import { toast } from 'vue-sonner'
 
@@ -86,7 +86,7 @@ function handleManagePayment() {
       <Card v-if="!isPlusSubscriber">
         <CardHeader>
           <CardTitle class="flex items-center gap-2 text-plus-gold">
-            <Zap class="h-5 w-5 text-plus-gold" />
+            <Crown class="h-5 w-5 text-plus-gold" />
             Go Plus
           </CardTitle>
           <CardDescription>
@@ -110,7 +110,7 @@ function handleManagePayment() {
       <Card v-else>
         <CardHeader>
           <CardTitle class="flex items-center gap-2 text-plus-gold">
-            <Zap class="h-5 w-5 text-plus-gold" />
+            <Crown class="h-5 w-5 text-plus-gold" />
             MindfulLucidity Plus Subscriber
           </CardTitle>
           <CardDescription>
@@ -122,7 +122,7 @@ function handleManagePayment() {
             Your subscription is active. You can manage your subscription or unsubscribe below.
           </p>
           <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <Card class="p-4">
+            <Card class="p-4 bg-transparent">
               <CardHeader class="gap-0 p-0">
                 <CardTitle class="text-sm text-muted-foreground font-normal">Current Plan</CardTitle>
                 <CardDescription class="text-lg font-bold text-white">
@@ -130,7 +130,7 @@ function handleManagePayment() {
                 </CardDescription>
               </CardHeader>
             </Card>
-            <Card class="p-4">
+            <Card class="p-4 bg-transparent">
               <CardHeader class="gap-0 p-0">
                 <CardTitle class="text-sm text-muted-foreground font-normal">Renew at</CardTitle>
                 <CardDescription class="text-lg font-bold text-white">

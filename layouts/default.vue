@@ -6,6 +6,7 @@ const { isMobile } = useDevice()
 </script>
 
 <template>
+  <Title>MindfulLucidity | MindfulLucidity</Title>
   <div class="h-screen flex flex-col">
     <nav v-if="isMobile">
       <MobileNavbar />
