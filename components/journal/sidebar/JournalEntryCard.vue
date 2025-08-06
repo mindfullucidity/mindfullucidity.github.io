@@ -1,6 +1,6 @@
 <template>
   <button 
-    class="w-full flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent"
+    class="w-full flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all hover:bg-accent hover:border-white"
     :class="{ 'bg-card': selected }"
   >
     <div class="flex w-full flex-col gap-1">

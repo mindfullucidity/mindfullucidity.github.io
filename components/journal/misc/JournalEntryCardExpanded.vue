@@ -1,0 +1,105 @@
+<script setup lang="ts">
+import { computed } from 'vue';
+import { Calendar, Eye, RotateCcw, AlertTriangle, Brain, Sun } from 'lucide-vue-next';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+
+interface JournalEntry {
+  id: string;
+  title?: string;
+  content: string;
+  date: string;
+  lucidityLevel: number;
+  characteristics: string[];
+}
+
+const props = defineProps<{
+  entry: JournalEntry;
+}>();
+
+const displayTitle = computed(() => {
+  return props.entry.title || new Date(props.entry.date).toLocaleDateString();
+});
+
+const truncatedContent = computed(() => {
+  const maxLength = 300;
+  if (props.entry.content.length > maxLength) {
+    return props.entry.content.substring(0, maxLength) + '...';
+  }
+  return props.entry.content;
+});
+
+const formattedDate = computed(() => {
+  return new Date(props.entry.date).toLocaleDateString();
+});
+
+// Characteristics data from JournalEntryViewDetails.vue
+const characteristicsData = [
+  {
+    id: 'recurrent',
+    label: 'Recurrent',
+    icon: RotateCcw,
+    color: 'bg-[#50FA7B]/40' // Dracula green
+  },
+  {
+    id: 'nightmare',
+    label: 'Nightmare',
+    icon: AlertTriangle,
+    color: 'bg-[#FF5555]/40' // Dracula red
+  },
+  {
+    id: 'sleep_paralysis',
+    label: 'Sleep Paralysis',
+    icon: Brain,
+    color: 'bg-[#BD93F9]/40' // Dracula purple
+  },
+  {
+    id: 'false_awakening',
+    label: 'False Awakening',
+    icon: Sun,
+    color: 'bg-[#FFB86C]/40' // Dracula orange
+  }
+];
+
+const activeCharacteristics = computed(() => {
+  return props.entry.characteristics.map(charId => {
+    return characteristicsData.find(char => char.id === charId);
+  }).filter(Boolean); // Filter out undefined in case of unknown charId
+});
+</script>
+
+<template>
+  <Card class="w-full bg-transparent border-border hover:bg-card hover:border-white transition-colors cursor-pointer">
+    <CardHeader class="flex flex-row items-center justify-between pb-2">
+      <CardTitle class="text-2xl font-bold">
+        {{ displayTitle }}
+      </CardTitle>
+      <div v-if="entry.title" class="flex items-center text-sm text-muted-foreground">
+        <Calendar class="w-4 h-4 mr-1" />
+        <span>{{ formattedDate }}</span>
+      </div>
+    </CardHeader>
+    <CardContent>
+      <p class="text-muted-foreground mb-4">
+        {{ truncatedContent }}
+      </p>
+      <div class="flex justify-between items-end">
+        <div class="flex flex-wrap gap-2">
+          <Badge
+            v-for="char in activeCharacteristics"
+            :key="char.id"
+            :class="char.color"
+            class="text-white"
+          >
+            <component :is="char.icon" class="w-3 h-3 mr-1" />
+            {{ char.label }}
+          </Badge>
+        </div>
+        <div class="flex items-center text-sm font-semibold text-foreground">
+          <Eye class="w-4 h-4 mr-1" />
+          <span>{{ entry.lucidityLevel }}/3</span>
+        </div>
+      </div>
+    </CardContent>
+  </Card>
+</template>
