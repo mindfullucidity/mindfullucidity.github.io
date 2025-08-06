@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { cn } from '@/lib/utils'
-import { User, Bot, Search, Bell, ChevronRight, Zap } from 'lucide-vue-next'
+import { User, Bot, Search, Bell, ChevronRight, Crown } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 
@@ -15,7 +15,7 @@ interface SidebarItem {
 const sidebarItems: SidebarItem[] = [
   { id: 'profile', label: 'Profile', icon: User, to: '/settings' },
   { id: 'ai', label: 'AI', icon: Bot, to: '/settings/ai' },
-  { id: 'plus', label: 'Plus', icon: Zap, to: '/settings/plus' },
+  { id: 'plus', label: 'Plus', icon: Crown, to: '/settings/plus' },
 ]
 
 const route = useRoute()
