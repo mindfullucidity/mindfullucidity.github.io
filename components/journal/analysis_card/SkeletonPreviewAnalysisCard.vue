@@ -10,6 +10,10 @@ const props = defineProps({
   type: {
     type: String as PropType<'ai' | 'personal' | null>,
     default: null
+  },
+  title: {
+    type: String,
+    default: null
   }
 });
 
@@ -45,7 +49,12 @@ const handleCancel = () => {
               </template>
             </div>
             <CardTitle class="font-medium">
-                <Skeleton class="h-5 w-[150px]" />
+                <template v-if="props.title">
+                  {{ props.title }}
+                </template>
+                <template v-else>
+                  <Skeleton class="h-5 w-[150px]" />
+                </template>
             </CardTitle>
           </div>
           <div class="flex items-center gap-2">

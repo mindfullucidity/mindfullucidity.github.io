@@ -46,7 +46,7 @@ definePageMeta({
           Key Features
         </h2>
         <div class="mt-14 grid gap-6 lg:mt-20 lg:grid-cols-3">
-          <div class="rounded-lg bg-card p-5">
+          <div class="rounded-lg bg-card p-5 border">
             <span class="mb-4 flex size-12 items-center justify-center rounded-full bg-primary">
               <Timer class="size-6" />
             </span>
@@ -55,7 +55,7 @@ definePageMeta({
               Easily record your dreams with a user-friendly interface. Capture every detail of your dreams, from vivid imagery to subtle emotions, with our streamlined entry system.
             </p>
           </div>
-          <div class="rounded-lg bg-card p-5">
+          <div class="rounded-lg bg-card p-5 border">
             <span class="mb-4 flex size-12 items-center justify-center rounded-full bg-primary">
               <Zap class="size-6" />
             </span>
@@ -64,7 +64,7 @@ definePageMeta({
               Gain deeper insights with AI-powered interpretations (Jungian, Symbolic, and more). Our intelligent AI helps you uncover hidden meanings and patterns in your dreams, offering unique perspectives.
             </p>
           </div>
-          <div class="rounded-lg bg-card p-5">
+          <div class="rounded-lg bg-card p-5 border">
             <span class="mb-4 flex size-12 items-center justify-center rounded-full bg-primary">
               <ZoomIn class="size-6" />
             </span>
@@ -91,7 +91,7 @@ definePageMeta({
             <h3 class="text-xl font-semibold">Record Your Dream</h3>
             <p class="text-muted-foreground">Quickly jot down your dream details as soon as you wake up.</p>
           </div>
-          <div class="hidden md:block absolute top-1/4 left-1/3 w-1/6 h-0.5 bg-muted -translate-x-1/2 z-0"></div>
+          <div class="hidden md:block absolute top-1/4 left-1/3 w-1/6 h-0.5 bg-primary -translate-x-1/2 z-0"></div>
           <div class="flex flex-col items-center text-center space-y-4 md:w-1/3 relative z-10">
             <div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground text-xl font-bold">
               2
@@ -99,7 +99,7 @@ definePageMeta({
             <h3 class="text-xl font-semibold">Get AI Analysis</h3>
             <p class="text-muted-foreground">Receive instant, in-depth analysis tailored to your dream.</p>
           </div>
-          <div class="hidden md:block absolute top-1/4 left-2/3 w-1/6 h-0.5 bg-muted -translate-x-1/2 z-0"></div>
+          <div class="hidden md:block absolute top-1/4 left-2/3 w-1/6 h-0.5 bg-primary -translate-x-1/2 z-0"></div>
           <div class="flex flex-col items-center text-center space-y-4 md:w-1/3 relative z-10">
             <div class="flex h-12 w-12 items-center justify-center rounded-full bg-primary text-primary-foreground text-xl font-bold">
               3
