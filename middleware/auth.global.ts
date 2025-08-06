@@ -13,7 +13,12 @@ export default defineNuxtRouteMiddleware((to, from) => {
   if (!user.value) {
     // And the current path is NOT a public route, redirect to login
     if (!publicRoutes.some(route => route === to.path)) {
-      return navigateTo(`/login?to=${to.path}`)
+      // If coming from the login page, don't set the 'to' parameter
+      if (from.path === '/login') {
+        return navigateTo('/login')
+      } else {
+        return navigateTo(`/login?to=${to.path}`)
+      }
     }
   }
   // If there IS a current user
