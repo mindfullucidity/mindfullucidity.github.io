@@ -1,6 +1,6 @@
 <template>
   <Title>Register | MindfulLucidity</Title>
-  <div class="flex items-center justify-center min-h-screen bg-background">
+  <div class="flex items-center justify-center min-h-screen bg-background ">
     <div class="w-full max-w-md p-8 space-y-6 bg-card rounded-lg border border-border shadow-xl shadow-black/50">
       <h2 class="text-2xl font-bold text-center text-foreground">Register</h2>
       <form @submit.prevent="handleRegister" class="space-y-4">
