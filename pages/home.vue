@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { useHome } from '@/composables/useHome';
 
 
 import {
@@ -43,7 +44,7 @@ const journalEntries = ref<JournalEntry[]>([
     id: "1",
     title: "Flying Over Mountains",
     date: "2024-01-15",
-    description: "Had an incredible lucid dream where I was soaring over snow-capped mountains...",
+    description: "Had an incredible lucid dream where I was soaring over snow-capped mountains…",
     lucidityLevel: 8,
     mood: "Euphoric"
   },
@@ -51,7 +52,7 @@ const journalEntries = ref<JournalEntry[]>([
     id: "2",
     title: "Underwater Adventure",
     date: "2024-01-14",
-    description: "Dreamed I could breathe underwater and explored a coral reef city...",
+    description: "Dreamed I could breathe underwater and explored a coral reef city…",
     lucidityLevel: 6,
     mood: "Curious"
   },
@@ -59,7 +60,7 @@ const journalEntries = ref<JournalEntry[]>([
     id: "3",
     title: "Meeting My Future Self",
     date: "2024-01-13",
-    description: "A profound dream where I had a conversation with an older version of myself...",
+    description: "A profound dream where I had a conversation with an older version of myself…",
     lucidityLevel: 9,
     mood: "Reflective"
   },
@@ -67,18 +68,29 @@ const journalEntries = ref<JournalEntry[]>([
     id: "4",
     title: "Shapeshifting Animals",
     date: "2024-01-12",
-    description: "Witnessed animals transforming into different creatures in a magical forest...",
+    description: "Witnessed animals transforming into different creatures in a magical forest…",
     lucidityLevel: 4,
     mood: "Wonder"
   }
 ]);
-const currentStreak = ref(7);
+const streakInfo = ref({
+  streak_length: 0,
+  last_entry_date: null,
+  days_since_last_entry: null,
+  has_logged_today: false,
+});
 const isSubscribed = ref(false); // Set to true to hide the upgrade card
 const insights = ref({
   topThemes: ["Flying", "Water", "Animals", "Transformation"],
   lucidityTrend: 75,
   averageMood: "Positive",
   tipOfDay: "Try reality checks throughout the day to increase lucid dreaming frequency."
+});
+
+const { getDreamStreakInfo } = useHome();
+
+onMounted(async () => {
+  streakInfo.value = await getDreamStreakInfo();
 });
 
 const insightCards = computed<InsightCard[]>(() => [
@@ -125,6 +137,24 @@ const getLucidityColor = (level: number) => {
   if (level >= 4) return "text-destructive";
   return "text-muted-foreground";
 };
+
+const streakTextColorClass = computed(() => {
+  if (streakInfo.value.days_since_last_entry <= 1) {
+    return 'text-destructive';
+  } else {
+    return 'text-primary';
+  }
+});
+
+const streakMessage = computed(() => {
+  if (streakInfo.value.days_since_last_entry <= 1) {
+    return 'Keep the momentum going!';
+  } else if (streakInfo.value.streak_length === 0) {
+    return 'Start your dream streak today!';
+  } else {
+    return 'Log a journal today to keep streak';
+  }
+});
 </script>
 
 <template>
@@ -234,24 +264,24 @@ const getLucidityColor = (level: number) => {
             <Card class="bg-card border-border">
               <CardHeader class="pb-3">
                 <CardTitle class="flex items-center gap-2 text-foreground">
-                  <Flame class="h-5 w-5 text-destructive" />
+                  <Flame :class="streakTextColorClass" />
                   Dream Streak
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div class="text-center space-y-3">
-                  <div class="text-3xl font-bold text-destructive">
-                    {{ currentStreak }} Days
+                  <div :class="streakTextColorClass" class="text-3xl font-bold">
+                    {{ streakInfo.streak_length }} Day{{ streakInfo.streak_length === 1 ? '' : 's' }}
                   </div>
                   <p class="text-muted-foreground text-sm">
-                    Keep the momentum going!
+                    {{ streakMessage }}
                   </p>
                   <Progress
-                    :model-value="(currentStreak % 30) * (100/30)"
+                    :model-value="(streakInfo.streak_length % 30) * (100/30)"
                     class="h-2 bg-background"
                   />
                   <p class="text-xs text-muted-foreground">
-                    {{ 30 - (currentStreak % 30) }} days to next milestone
+                    {{ 30 - (streakInfo.streak_length % 30) }} days to next milestone
                   </p>
                 </div>
               </CardContent>
