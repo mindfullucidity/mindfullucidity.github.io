@@ -9,6 +9,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useHome } from '@/composables/useHome';
 import JournalEntryCardExpanded from '~/components/journal/misc/JournalEntryCardExpanded.vue';
 import JournalEntryCardExpandedSkeleton from '~/components/journal/misc/JournalEntryCardExpandedSkeleton.vue';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 import {
@@ -46,9 +47,15 @@ const user = useSupabaseUser();
 const username = computed(() => user.value?.user_metadata?.full_name || user.value?.email || "Dreamer");
 const { streakInfo, journalEntries, getDreamStreakInfo, getRecentJournalEntries } = useHome();
 const isLoadingEntries = ref(true);
+const isLoadingStreakInfo = ref(true);
 
 onMounted(async () => {
-  await getDreamStreakInfo();
+  try {
+    isLoadingStreakInfo.value = true;
+    await getDreamStreakInfo();
+  } finally {
+    isLoadingStreakInfo.value = false;
+  }
   try {
     isLoadingEntries.value = true;
     await getRecentJournalEntries();
@@ -221,7 +228,16 @@ const streakMessage = computed(() => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                <div class="text-center space-y-3">
+                <div v-if="isLoadingStreakInfo" class="text-center space-y-3">
+                  <Skeleton class="h-8 w-32 mx-auto" />
+                  <Skeleton class="h-4 w-48 mx-auto" />
+                  <Progress
+                    :model-value="0"
+                    class="h-2 bg-background"
+                  />
+                  <Skeleton class="h-3 w-40 mx-auto" />
+                </div>
+                <div v-else class="text-center space-y-3">
                   <div :class="streakTextColorClass" class="text-3xl font-bold">
                     {{ streakInfo.streak_length }} Day{{ streakInfo.streak_length === 1 ? '' : 's' }}
                   </div>
