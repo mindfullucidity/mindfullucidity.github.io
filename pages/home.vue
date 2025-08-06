@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { useSupabaseUser } from '#imports';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -40,7 +41,8 @@ interface InsightCard {
   description: string;
 }
 
-const username = ref("Alex");
+const user = useSupabaseUser();
+const username = computed(() => user.value?.user_metadata?.name || user.value?.email || "Dreamer");
 const journalEntries = ref<JournalEntry[]>([]);
 const isLoadingEntries = ref(true);
 
