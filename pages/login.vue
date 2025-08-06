@@ -15,7 +15,7 @@
         <Button type="submit" class="w-full">Login</Button>
       </form>
       <div class="relative flex justify-center text-xs uppercase">
-        <span class="bg-card px-2 text-muted-foreground">Or continue with</span>
+        <span class="px-2 text-muted-foreground bg-transparent">Or Continue With</span>
       </div>
       <GoogleButton type="Log In" :on-click="signInWithGoogle" />
       <p class="text-center text-sm text-muted-foreground">

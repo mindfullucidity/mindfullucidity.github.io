@@ -5,8 +5,8 @@
       <h2 class="text-2xl font-bold text-center text-foreground">Register</h2>
       <form @submit.prevent="handleRegister" class="space-y-4">
         <div>
-          <label for="username" class="block text-sm font-medium text-muted-foreground">Username</label>
-          <Input id="username" v-model="username" type="text" required class="mt-1 block w-full" />
+          <label for="displayName" class="block text-sm font-medium text-muted-foreground">Display Name</label>
+          <Input id="displayName" v-model="displayName" type="text" required class="mt-1 block w-full" />
         </div>
         <div>
           <label for="email" class="block text-sm font-medium text-muted-foreground">Email</label>
@@ -16,10 +16,14 @@
           <label for="password" class="block text-sm font-medium text-muted-foreground">Password</label>
           <Input id="password" v-model="password" type="password" required class="mt-1 block w-full" />
         </div>
+        <div>
+          <label for="confirmPassword" class="block text-sm font-medium text-muted-foreground">Confirm Password</label>
+          <Input id="confirmPassword" v-model="confirmPassword" type="password" required class="mt-1 block w-full" />
+        </div>
         <Button type="submit" class="w-full">Register</Button>
       </form>
       <div class="relative flex justify-center text-xs uppercase">
-        <span class="bg-card px-2 text-muted-foreground">Or continue with</span>
+        <span class="px-2 text-muted-foreground bg-transparent">Or Continue With</span>
       </div>
       <GoogleButton type="Register" :on-click="signInWithGoogle" />
       <p class="text-center text-sm text-muted-foreground">
@@ -41,20 +45,25 @@ import { useRouter } from 'vue-router'
 import { Button } from '~/components/ui/button'
 import GoogleButton from '~/components/GoogleButton.vue'
 
-const username = ref('')
+const displayName = ref('')
 const email = ref('')
 const password = ref('')
+const confirmPassword = ref('')
 const supabase = useSupabaseClient()
 const router = useRouter()
 
 const handleRegister = async () => {
+  if (password.value !== confirmPassword.value) {
+    alert('Passwords do not match!');
+    return;
+  }
   try {
     const { error } = await supabase.auth.signUp({
       email: email.value,
       password: password.value,
       options: {
         data: {
-          username: username.value,
+          full_name: displayName.value,
         },
       },
     })
