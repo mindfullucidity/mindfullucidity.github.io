@@ -43,33 +43,25 @@ interface InsightCard {
 
 const user = useSupabaseUser();
 const username = computed(() => user.value?.user_metadata?.name || user.value?.email || "Dreamer");
-const journalEntries = ref<JournalEntry[]>([]);
+const { streakInfo, journalEntries, getDreamStreakInfo, getRecentJournalEntries } = useHome();
 const isLoadingEntries = ref(true);
 
-const streakInfo = ref({
-  streak_length: 0,
-  last_entry_date: null,
-  days_since_last_entry: null,
-  has_logged_today: false,
+onMounted(async () => {
+  await getDreamStreakInfo();
+  try {
+    isLoadingEntries.value = true;
+    await getRecentJournalEntries();
+  } finally {
+    isLoadingEntries.value = false;
+  }
 });
+
 const isSubscribed = ref(false); // Set to true to hide the upgrade card
 const insights = ref({
   topThemes: ["Flying", "Water", "Animals", "Transformation"],
   lucidityTrend: 75,
   averageMood: "Positive",
   tipOfDay: "Try reality checks throughout the day to increase lucid dreaming frequency."
-});
-
-const { getDreamStreakInfo, getRecentJournalEntries } = useHome();
-
-onMounted(async () => {
-  streakInfo.value = await getDreamStreakInfo();
-  try {
-    isLoadingEntries.value = true;
-    journalEntries.value = await getRecentJournalEntries();
-  } finally {
-    isLoadingEntries.value = false;
-  }
 });
 
 const insightCards = computed<InsightCard[]>(() => [

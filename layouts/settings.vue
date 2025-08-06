@@ -32,7 +32,7 @@ const getTextColorClass = (item: SidebarItem) => {
   if (item.id === 'plus') {
     return 'text-plus-gold';
   } else {
-    return activeSection.value === item.id ? 'text-primary' : 'text-foreground';
+    return activeSection.value === item.id ? 'text-primary-selected' : 'text-foreground';
   }
 };
 </script>
@@ -74,7 +74,7 @@ const getTextColorClass = (item: SidebarItem) => {
                 class="w-full inline-flex items-center justify-between px-3 py-1 rounded-lg text-sm font-medium transition-colors"
                 :class="[
                   {
-                    'bg-primary/10': hoveredItem === item.id || (hoveredItem === null && activeSection === item.id),
+                    'bg-primary/30': hoveredItem === item.id || (hoveredItem === null && activeSection === item.id),
                   },
                   item.id === 'plus' ? 'text-plus-gold' : getTextColorClass(item)
                 ]"
