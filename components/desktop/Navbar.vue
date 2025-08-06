@@ -23,8 +23,8 @@ const isHoveringNavbar = ref(false)
           to="/home"
           class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
           :class="{
-            'bg-primary/10': hoveredItem === 'home' || (hoveredItem === null && !isHoveringNavbar && route.path === '/home'),
-            'text-primary': route.path === '/home'
+            'bg-primary/30': hoveredItem === 'home' || (hoveredItem === null && !isHoveringNavbar && route.path === '/home'),
+            'text-primary-selected': route.path === '/home'
           }"
           @mouseover="hoveredItem = 'home'"
         >
@@ -35,8 +35,8 @@ const isHoveringNavbar = ref(false)
           to="/journal"
           class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
           :class="{
-            'bg-primary/10': hoveredItem === 'journal' || (hoveredItem === null && !isHoveringNavbar && route.path.startsWith('/journal')),
-            'text-primary': route.path.startsWith('/journal')
+            'bg-primary/30': hoveredItem === 'journal' || (hoveredItem === null && !isHoveringNavbar && route.path.startsWith('/journal')),
+            'text-primary-selected': route.path.startsWith('/journal')
           }"
           @mouseover="hoveredItem = 'journal'"
         >
@@ -47,8 +47,8 @@ const isHoveringNavbar = ref(false)
           to="/settings"
           class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
           :class="{
-            'bg-primary/10': hoveredItem === 'settings' || (hoveredItem === null && !isHoveringNavbar && route.path.startsWith('/settings')),
-            'text-primary': route.path.startsWith('/settings')
+            'bg-primary/30': hoveredItem === 'settings' || (hoveredItem === null && !isHoveringNavbar && route.path.startsWith('/settings')),
+            'text-primary-selected': route.path.startsWith('/settings')
           }"
           @mouseover="hoveredItem = 'settings'"
         >

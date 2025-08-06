@@ -52,6 +52,7 @@ export default defineNuxtConfig({
     config: {
       safelist: [
         'text-plus-gold',
+        'text-primary-selected',
       ],
     },
   },
