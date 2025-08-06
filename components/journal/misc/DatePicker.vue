@@ -22,7 +22,7 @@
         {{ formattedDate || "Pick a date" }}
       </Button>
     </PopoverTrigger>
-    <PopoverContent class="w-auto p-0" align="start">
+    <PopoverContent class="w-auto p bg-black/90 border" align="start">
       <Calendar v-model="date" />
     </PopoverContent>
   </Popover>

@@ -13,7 +13,7 @@ const { isMobile } = useDevice()
     <nav v-else>
       <DesktopNavbar />
     </nav>
-    <main class="flex-grow overflow-y-auto pt-16 pb-16">
+    <main class="flex-grow overflow-y-auto pt-16">
       <slot />
     </main>
   </div>

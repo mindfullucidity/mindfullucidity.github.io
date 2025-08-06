@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { Timer, Zap, ZoomIn } from 'lucide-vue-next'
+import { Timer, Crown, ZoomIn } from 'lucide-vue-next'
 
 
 definePageMeta({
@@ -57,7 +57,7 @@ definePageMeta({
           </div>
           <div class="rounded-lg bg-card p-5 border">
             <span class="mb-4 flex size-12 items-center justify-center rounded-full bg-primary">
-              <Zap class="size-6" />
+              <Crown class="size-6" />
             </span>
             <h3 class="mb-2 text-xl font-medium">Advanced AI Analysis</h3>
             <p class="leading-7 text-muted-foreground">
@@ -115,7 +115,7 @@ definePageMeta({
     <section class="w-full py-12 md:py-24 lg:py-32 bg-card">
       <div class="container mx-auto px-4 md:px-6 text-center">
         <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl mb-4 text-plus-gold flex items-center justify-center gap-2">
-          <Zap class="h-10 w-10 text-plus-gold" />
+          <Crown class="h-10 w-10 text-plus-gold" />
           MindfulLucidity Plus
         </h2>
         <p class="mx-auto max-w-[700px] md:text-xl mb-8">

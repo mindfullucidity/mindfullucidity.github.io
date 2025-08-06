@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { Zap, Lightbulb, Bot } from 'lucide-vue-next'
+import { Crown, Lightbulb, Bot } from 'lucide-vue-next'
 
 defineProps({
   description: {
@@ -23,7 +23,7 @@ defineProps({
       <div class="flex flex-col space-y-4">
         <NuxtLink to="/plus">
           <Button variant="default" class="w-full bg-plus-gold/60 hover:bg-plus-gold/40">
-            <Zap class="mr-2 h-4 w-4" />
+            <Crown class="mr-2 h-4 w-4" />
             Upgrade to Plus
           </Button>
         </NuxtLink>
@@ -33,7 +33,7 @@ defineProps({
             Enable Custom AI Model
           </Button>
         </NuxtLink>
-        <div class="flex items-Zapt space-x-2 text-sm text-muted-foreground">
+        <div class="flex items-Crownt space-x-2 text-sm text-muted-foreground">
           <Lightbulb class="h-4 w-4 flex-shrink-0 mt-1" />
           <p>
             You can get a free <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-500 hover:underline">Google Gemini API key</a> to enable full access completely free!

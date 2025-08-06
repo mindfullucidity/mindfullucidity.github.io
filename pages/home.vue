@@ -266,8 +266,8 @@ const streakMessage = computed(() => {
           </div>
         </div>
 
-        <!-- AI Insights Grid -->
-        <div>
+        <!-- AI Insights Grid TODO-->
+        <!-- <div>
           <h2 class="text-2xl font-bold text-foreground mb-6 flex items-center gap-2">
             <Brain class="h-6 w-6 text-primary" />
             AI-Powered Insights
@@ -300,7 +300,7 @@ const streakMessage = computed(() => {
               </CardContent>
             </Card>
           </div>
-        </div>
+        </div> -->
       </div>
     </div>
   </div>
