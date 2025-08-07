@@ -2,21 +2,21 @@ import { defineNuxtRouteMiddleware, navigateTo } from '#app'
 
 export default defineNuxtRouteMiddleware((to, from) => {
   // If the target route is the redirect page, let it handle its own logic
-  if (to.path === '/redirect') {
+  if (to.path.startsWith('/redirect')) {
     return
   }
 
   const user = useSupabaseUser()
-  const publicRoutes = ['/', '/login', '/register']
 
   // If there's no current user
   if (!user.value) {
+    const publicRoutes = ['/', '/login', '/register']
     // And the current path is NOT a public route, redirect to login
-    if (!publicRoutes.some(route => route === to.path)) {
+    if (!publicRoutes.some(route => route.startsWith(to.path))) {
       // If coming from the login page, don't set the 'to' parameter
       if (process.client) {
-        if (from.path === '/login') {
-          return navigateTo('/login')
+        if (from.path.startsWith('/login')) {
+          return
         } else {
           return navigateTo(`/login?to=${to.path}`)
         }
@@ -25,8 +25,9 @@ export default defineNuxtRouteMiddleware((to, from) => {
   }
   // If there IS a current user
   else {
+    const routes = ['/login', '/register']
     // And they are on a login/register page, redirect to home
-    if (to.path === '/login' || to.path === '/register') {
+    if (routes.some(route => route.startsWith(to.path))) {
       if (process.client) {
         return navigateTo('/home')
       }
