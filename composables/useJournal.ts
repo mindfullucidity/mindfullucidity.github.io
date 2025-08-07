@@ -1,5 +1,6 @@
 import { ref } from 'vue';
 import { useSupabaseClient, useSupabaseUser } from '#imports';
+import { useHome } from './useHome';
 
 interface JournalEntryOverview {
   journal_id: number;
@@ -51,6 +52,7 @@ const generateDescription = (content: string): string => {
 export const useJournal = () => {
   const supabase = useSupabaseClient();
   const user = useSupabaseUser();
+  const { clearCache: clearHomeCache } = useHome();
 
   const loadEntriesOverview = async () => {
     if (entriesOverview.value !== null && entriesOverview.value.length > 0 && !isLoadingOverview.value) {
@@ -156,6 +158,7 @@ export const useJournal = () => {
         };
         entriesOverview.value.unshift(newOverviewEntry); // Add to the beginning
         entriesOverview.value.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Re-sort
+        clearHomeCache();
         return data;
       }
       return null;
@@ -200,6 +203,7 @@ export const useJournal = () => {
           };
           entriesOverview.value.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Re-sort
         }
+        clearHomeCache();
         return data;
       }
       return null;
@@ -258,6 +262,7 @@ export const useJournal = () => {
       if (selectedEntry.value?.journal_id === journal_id) {
         selectedEntry.value = null;
       }
+      clearHomeCache();
       return true;
     } finally {
       isSavingEntry.value = false;
@@ -322,6 +327,7 @@ export const useJournal = () => {
           }
           cachedEntry.analyses.push(data);
         }
+        clearHomeCache();
       }
       return data;
     } finally {
@@ -355,6 +361,7 @@ export const useJournal = () => {
             cachedEntry.analyses[index] = data;
           }
         }
+        clearHomeCache();
       }
       return data;
     } finally {
@@ -379,6 +386,7 @@ export const useJournal = () => {
       if (cachedEntry && cachedEntry.analyses) {
         cachedEntry.analyses = cachedEntry.analyses.filter(a => a.journal_analysis_id !== analysisId);
       }
+      clearHomeCache();
       return true;
     } finally {
       isSavingEntry.value = false;
