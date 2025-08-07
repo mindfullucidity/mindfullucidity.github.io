@@ -12,7 +12,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   if (!user.value) {
     const publicRoutes = ['/', '/login', '/register']
     // And the current path is NOT a public route, redirect to login
-    if (!publicRoutes.some(route => route.startsWith(to.path))) {
+    if (!publicRoutes.some(route => to.path.startsWith(route))) {
       // If coming from the login page, don't set the 'to' parameter
       if (process.client) {
         if (from.path.startsWith('/login')) {
@@ -27,7 +27,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   else {
     const routes = ['/login', '/register']
     // And they are on a login/register page, redirect to home
-    if (routes.some(route => route.startsWith(to.path))) {
+    if (routes.some(route => to.path.startsWith(route))) {
       if (process.client) {
         return navigateTo('/home')
       }
