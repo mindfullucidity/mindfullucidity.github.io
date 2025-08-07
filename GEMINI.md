@@ -16,3 +16,4 @@
 9. When using `vue-sonner` for toasts, always use `toast.success('message')`, `toast.error('message')`, or `toast.info('message')` directly, instead of `toast({ title: 'message', description: '...' })`.
 --- End of Context from: GEMINI.md ---
 10. don't do git commands without expliclity being told
+11. in production this site is a statically server ssr generated site (with no running server (just supabase backend))

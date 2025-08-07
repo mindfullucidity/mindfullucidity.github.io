@@ -16,24 +16,38 @@ const redirectTo = computed(() => route.query.to?.toString() || '/home')
 const hasCodeArg = computed(() => typeof route.query.code !== 'undefined')
 const isLogoutRedirect = computed(() => route.query.logout === 'true')
 
-watch(user, (currentUser) => {
+const supabase = useSupabaseClient()
+const isLoading = ref(true)
+
+onMounted(async () => {
+  const { data: { session } } = await supabase.auth.getSession()
+
   if (hasCodeArg.value) {
     // If 'code' argument is present, wait for session to exist (login flow)
-    if (currentUser) {
+    if (session?.user) {
       router.replace(redirectTo.value)
+    } else {
+      // If no session after code, it might be an error or not fully processed yet
+      // We can add a timeout or retry mechanism here if needed, or redirect to login
+      router.replace('/login')
     }
   } else if (isLogoutRedirect.value) {
     // If 'logout=true' argument is present, wait for session to be null (logout flow)
-    if (!currentUser) {
+    if (!session?.user) {
       clearCache()
       router.replace(redirectTo.value)
+    } else {
+      // If session still exists after logout, something went wrong
+      router.replace('/home') // Or a more appropriate error page
     }
   } else {
     // Default behavior if no specific arguments are given
     // This might be for cases where the redirect page is visited directly without specific intent
     router.replace(redirectTo.value)
   }
-}, { immediate: true })
+  isLoading.value = false
+})
+
 </script>
 
 <template>
