@@ -3,11 +3,16 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
 import { Timer, Crown, ZoomIn } from 'lucide-vue-next'
+import { onMounted } from 'vue'
 
 
 definePageMeta({
   layout: 'default',
 })
+
+onMounted(() => {
+  window.scrollTo(0, 0);
+});
 </script>
 
 <template>
@@ -122,9 +127,20 @@ definePageMeta({
         <p class="mx-auto max-w-[700px] md:text-xl mb-8">
           MindfulLucidity Plus offers enhanced features and directly supports our development. You can still unlock full functionality for free by using your own API key with our Custom AI Model feature!
         </p>
-        <Button as-child>
-          <NuxtLink to="/settings/plus">Learn More</NuxtLink>
-        </Button>
+        <p class="mx-auto max-w-[700px] md:text-lg mb-8 text-muted-foreground">
+          Join our community on Patreon to get exclusive access to new features, behind-the-scenes content, and directly contribute to the future of MindfulLucidity. Your support helps us continue to innovate and provide the best dream journaling experience.
+        </p>
+        <div class="flex justify-center space-x-4">
+          <Button as-child>
+            <NuxtLink to="/plus">Learn More</NuxtLink>
+          </Button>
+          <Button as-child class="bg-black hover:bg-black/50 text-white">
+            <a href="https://patreon.com/MindfulLucidity" target="_blank" rel="noopener noreferrer">
+              <font-awesome :icon="['fab', 'patreon']" class="h-5 w-5 mr-2" />
+              Support on Patreon
+            </a>
+          </Button>
+        </div>
       </div>
     </section>
 

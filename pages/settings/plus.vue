@@ -87,7 +87,7 @@ function handleManagePayment() {
         <CardHeader>
           <CardTitle class="flex items-center gap-2 text-plus-gold">
             <Crown class="h-5 w-5 text-plus-gold" />
-            Go Plus
+            MindfulLucidity Plus
           </CardTitle>
           <CardDescription>
             Unlock full functionality and enhance your dream journaling experience with MindfulLucidity Plus.
@@ -95,9 +95,19 @@ function handleManagePayment() {
         </CardHeader>
         <CardContent class="space-y-4">
           <p>
-            You may experience the full capabilities without Plus, through the use of your own API keys with our Custom AI Model feature. Plus users do not need to add their own API keys, as they get full access regardless. Plus is mostly for people who want to support this project.
+            MindfulLucidity Plus is our way of saying thank you to our dedicated supporters on Patreon. By becoming a patron, you gain access to all premium features, ensuring you have the best possible experience while directly contributing to the growth and development of MindfulLucidity.
           </p>
-          <Button @click="handleUpgrade">Upgrade to Plus ($5/month)</Button>
+          <div class="flex flex-wrap gap-2">
+            <Button as-child class="bg-black hover:bg-black/50 text-white">
+              <a href="https://patreon.com/MindfulLucidity" target="_blank" rel="noopener noreferrer">
+                <font-awesome :icon="['fab', 'patreon']" class="h-5 w-5 mr-2" />
+                Support on Patreon
+              </a>
+            </Button>
+            <Button as-child variant="default">
+              <NuxtLink to="/plus">Learn More</NuxtLink>
+            </Button>
+          </div>
           <div class="flex items-start space-x-2 text-sm text-muted-foreground">
             <Lightbulb class="h-4 w-4 flex-shrink-0 mt-1" />
             <p>
