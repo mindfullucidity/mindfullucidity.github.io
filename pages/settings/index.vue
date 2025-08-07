@@ -22,6 +22,12 @@ const user = useSupabaseUser()
 const displayName = ref('')
 const email = ref('')
 
+const isPatreonLinked = ref(false)
+
+function togglePatreonLink() {
+  isPatreonLinked.value = !isPatreonLinked.value
+}
+
 watch(user, (newUser) => {
   if (newUser) {
     displayName.value = newUser.user_metadata?.full_name || newUser.email || ''
@@ -127,6 +133,28 @@ async function deleteAccount() {
           </div>
           <div class="flex justify-end">
             <Button @click="updateDisplayName">Save changes</Button>
+          </div>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle class="flex items-center gap-2">
+            Linked Accounts
+          </CardTitle>
+          <CardDescription>
+            Manage your linked third-party accounts.
+          </CardDescription>
+        </CardHeader>
+        <CardContent class="space-y-4">
+          <div class="flex items-center justify-between">
+            <div class="space-y-0.5 flex items-center gap-2">
+              <font-awesome :icon="['fab', 'patreon']" class="h-5 w-5" />
+              <Label>Patreon</Label>
+            </div>
+            <Button :variant="isPatreonLinked ? 'destructive' : 'outline'" @click="togglePatreonLink">
+              {{ isPatreonLinked ? 'Unlink' : 'Link' }}
+            </Button>
           </div>
         </CardContent>
       </Card>

@@ -17,3 +17,4 @@
 --- End of Context from: GEMINI.md ---
 10. don't do git commands without expliclity being told
 11. in production this site is a statically server ssr generated site (with no running server (just supabase backend))
+12. When using Font Awesome icons, use the `<font-awesome :icon="['fab', 'patreon']" class="h-5 w-5 mr-2" />` variant directly in the template, and do not import it in the script section.

@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils'
 import { User, Bot, Search, Bell, ChevronRight, Crown } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
+import { ScrollArea } from '@/components/ui/scroll-area';
 
 interface SidebarItem {
   id: string
@@ -62,7 +63,7 @@ const getTextColorClass = (item: SidebarItem) => {
       <div class="flex h-full flex-grow">
         <!-- Sidebar -->
         <div
-          class="w-64 border-r border-border min-h-full overflow-y-auto"
+          class="w-64 border-r border-border min-h-full"
           @mouseover="isHoveringNavbar = true"
           @mouseleave="isHoveringNavbar = false; hoveredItem = null"
         >
@@ -95,13 +96,13 @@ const getTextColorClass = (item: SidebarItem) => {
         </div>
 
         <!-- Main Content -->
-        <div class="flex-1 h-full overflow-y-auto">
+        <ScrollArea class="flex-1 h-full overflow-y-auto">
           <div class="max-w-4xl mx-auto p-6 min-h-full">
             <div class="space-y-6">
               <slot />
             </div>
           </div>
-        </div>
+        </ScrollArea>
       </div>
     </div>
   </NuxtLayout>
