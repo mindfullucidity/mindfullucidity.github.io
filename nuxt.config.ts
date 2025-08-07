@@ -29,7 +29,7 @@ export default defineNuxtConfig({
   modules: ['shadcn-nuxt', '@nuxtjs/device', '@nuxtjs/supabase', 'vue-sonner/nuxt', '@vesp/nuxt-fontawesome'],
   fontawesome: {
     icons: {
-      brands: ['github']
+      brands: ['github', 'patreon']
     }
   },
   supabase: {
