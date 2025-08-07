@@ -48,6 +48,7 @@ export const useHome = () => {
         .from('journals')
         .select('journal_id, title, content, date, lucidity_level, characteristics')
         .order('date', { ascending: false })
+        .order('journal_id', { ascending: false })
         .limit(5);
 
       if (error) {

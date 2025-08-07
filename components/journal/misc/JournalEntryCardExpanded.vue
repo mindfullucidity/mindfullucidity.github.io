@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { Calendar, Eye, RotateCcw, AlertTriangle, Brain, Sun } from 'lucide-vue-next';
+import { formatDate } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { navigateTo } from '#app';
@@ -31,7 +32,7 @@ const truncatedContent = computed(() => {
 });
 
 const formattedDate = computed(() => {
-  return new Date(props.entry.date).toLocaleDateString();
+  return formatDate(props.entry.date);
 });
 
 // Characteristics data from JournalEntryViewDetails.vue
@@ -80,8 +81,8 @@ const goToJournalEntry = () => {
         {{ displayTitle }}
       </CardTitle>
       <div v-if="entry.title" class="flex items-center text-sm text-muted-foreground">
-        <Calendar class="w-4 h-4 mr-1" />
-        <span>{{ formattedDate }}</span>
+        <Calendar class="w-4 h-4 mr-1 mb-1" />
+        <span class="whitespace-nowrap">{{ formattedDate }}</span>
       </div>
     </CardHeader>
     <CardContent>
