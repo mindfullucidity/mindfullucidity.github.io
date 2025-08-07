@@ -62,4 +62,11 @@ export default defineNuxtConfig({
       ],
     },
   },
+
+  runtimeConfig: {
+    public: {
+      patreonClientId: process.env.PATREON_CLIENT_ID,
+      patreonRedirectUri: process.env.PATREON_REDIRECT_URI,
+    },
+  },
 })

@@ -1,0 +1,2 @@
+name = "patreon_oauth_callback"
+entrypoint = "index.ts"
