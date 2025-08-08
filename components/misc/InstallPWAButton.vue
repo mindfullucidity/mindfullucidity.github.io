@@ -71,7 +71,7 @@ const getInstructions = () => {
 </script>
 
 <template>
-  <Button class="bg-gradient-to-r from-[#a78bfa]/50 to-[#60a5fa]/50 hover:from-[#a78bfa] hover:to-[#60a5fa]" @click="installPWA" v-if="deferredPrompt !== null || os !== ''">
+  <Button class="bg-gradient-to-r from-[#a78bfa]/50 to-[#60a5fa]/50 hover:from-[#a78bfa] hover:to-[#60a5fa]" @click="installPWA" v-if="os !== ''">
     Install App
   </Button>
 
