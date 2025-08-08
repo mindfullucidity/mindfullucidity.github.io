@@ -5,6 +5,7 @@ import { User, Bot, Search, Bell, ChevronRight, Crown } from 'lucide-vue-next'
 import { Button } from '@/components/ui/button'
 import { Separator } from '@/components/ui/separator'
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Sidebar, SidebarProvider, SidebarContent, SidebarGroup, SidebarMenu, SidebarMenuItem, SidebarMenuButton, SidebarHeader } from '@/components/ui/sidebar';
 
 interface SidebarItem {
   id: string
@@ -22,88 +23,73 @@ const sidebarItems: SidebarItem[] = [
 const route = useRoute()
 const activeSection = ref(route.path.split('/').pop() === 'settings' ? 'profile' : route.path.split('/').pop())
 
-const isHoveringNavbar = ref(false)
-const hoveredItem = ref<string | null>(null)
-
 watch(() => route.path, (newPath) => {
   activeSection.value = newPath.split('/').pop() === 'settings' ? 'profile' : newPath.split('/').pop()
 })
-
-const getTextColorClass = (item: SidebarItem) => {
-  if (item.id === 'plus') {
-    return 'text-plus-gold';
-  } else {
-    return activeSection.value === item.id ? 'text-primary-selected' : 'text-foreground';
-  }
-};
 </script>
 
 <template>
   <NuxtLayout name="default">
     <Title>Settings | MindfulLucidity</Title>
-    <div class="flex flex-col flex-grow">
-      <!-- Header -->
-      <div class="border-b border-border backdrop-blur">
-        <div class="flex h-12 items-center px-4">
-          <div class="flex items-center space-x-4">
-            <div class="flex items-center space-x-2">
-              <div>
-                <h1 class="text-lg font-semibold">Settings</h1>
-              </div>
-            </div>
-          </div>
-          <div class="ml-auto flex items-center space-x-4">
-            <Button variant="ghost" size="icon">
-              <Bell class="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
+    <SidebarProvider>
+      <div class="flex flex-col w-full">
+      
 
-      <div class="flex h-full flex-grow">
+      <!-- Main Content Area (Sidebar + Slot) -->
+      <div class="flex">
         <!-- Sidebar -->
-        <div
-          class="w-64 border-r border-border min-h-full"
+        <Sidebar
+          class="w-64 border-r border-border  mt-16"
           @mouseover="isHoveringNavbar = true"
           @mouseleave="isHoveringNavbar = false; hoveredItem = null"
         >
-          <div class="p-6">
-            <nav class="space-y-1">
-              <NuxtLink
-                v-for="item in sidebarItems"
-                :key="item.id"
-                :to="item.to"
-                class="w-full inline-flex items-center justify-between px-3 py-1 rounded-lg text-sm font-medium transition-colors"
-                :class="[
-                  {
-                    'bg-primary/30': hoveredItem === item.id || (hoveredItem === null && activeSection === item.id),
-                  },
-                  item.id === 'plus' ? 'text-plus-gold' : getTextColorClass(item)
-                ]"
-                @mouseover="hoveredItem = item.id"
-                @mouseleave="hoveredItem = null"
-              >
-                <div class="flex items-center space-x-3">
-                  <component :is="item.icon" class="h-4 w-4" />
-                  <span>{{ item.label }}</span>
-                </div>
-                <div class="flex items-center space-x-2">
-                  <ChevronRight class="h-3 w-3" />
-                </div>
-              </NuxtLink>
-            </nav>
+          <SidebarHeader class="border-b border-r border-border">
+            <div class="flex h-8 items-center px-4">
+              <h1 class="text-lg font-semibold">Settings</h1>
+            </div>
+          </SidebarHeader>
+          <SidebarContent class="p-6">
+            <SidebarGroup>
+              <SidebarMenu>
+                <SidebarMenuItem
+                  v-for="item in sidebarItems"
+                  :key="item.id"
+                >
+                  <SidebarMenuButton
+                    asChild
+                    :is-active="activeSection === item.id"
+                  >
+                              <NuxtLink
+                      :to="item.to"
+                      class="w-full inline-flex items-center justify-between px-3 py-1 rounded-lg text-sm font-medium transition-colors"
+                      :class="[
+                        activeSection === item.id && item.id !== 'plus' ? 'text-primary' : '',
+                        item.id === 'plus' ? '!text-plus-gold' : '',
+                      ]"
+                    >
+                      <div class="flex items-center space-x-3">
+                        <component :is="item.icon" class="h-4 w-4" />
+                        <span>{{ item.label }}</span>
+                      </div>
+                      <div class="flex items-center space-x-2">
+                        <ChevronRight class="h-3 w-3" />
+                      </div>
+                    </NuxtLink>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroup>
+          </SidebarContent>
+        </Sidebar>
+
+        <!-- Main Content Slot Area -->
+        <div class="flex-grow">
+          <div class="space-y-6 w-full max-w-4xl mx-auto p-6">
+            <slot />
           </div>
         </div>
-
-        <!-- Main Content -->
-        <ScrollArea class="flex-1 h-full overflow-y-auto">
-          <div class="max-w-4xl mx-auto p-6 min-h-full">
-            <div class="space-y-6">
-              <slot />
-            </div>
-          </div>
-        </ScrollArea>
       </div>
     </div>
+    </SidebarProvider>
   </NuxtLayout>
 </template>
