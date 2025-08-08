@@ -82,6 +82,13 @@ function handleManagePayment() {
 
     <Separator class="my-6" />
 
+    <!-- Debug Toggle Button -->
+    <div class="mb-4">
+      <Button @click="callSetUserRole(isPlusSubscriber ? 'normal' : 'plus')" variant="outline">
+        {{ isPlusSubscriber ? 'Set to Normal' : 'Set to Plus' }} (Debug Toggle)
+      </Button>
+    </div>
+
     <div class="space-y-6">
       <Card v-if="!isPlusSubscriber">
         <CardHeader>

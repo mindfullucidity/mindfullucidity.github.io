@@ -49,7 +49,7 @@ export const useHome = () => {
         .select('journal_id, title, content, date, lucidity_level, characteristics')
         .order('date', { ascending: false })
         .order('journal_id', { ascending: false })
-        .limit(5);
+        .limit(3);
 
       if (error) {
         console.error('Error fetching recent journal entries:', error);
