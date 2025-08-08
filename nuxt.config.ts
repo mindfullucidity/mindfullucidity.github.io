@@ -85,6 +85,7 @@ export default defineNuxtConfig({
           purpose: 'any maskable',
         },
       ],
+      start_url: '/home',
     },
     workbox: {
       globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
