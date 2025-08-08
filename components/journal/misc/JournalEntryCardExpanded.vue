@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue';
+import { useMediaQuery } from '@vueuse/core';
 import { Calendar, Eye, RotateCcw, AlertTriangle, Brain, Sun } from 'lucide-vue-next';
 import { formatDate } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -23,8 +24,12 @@ const displayTitle = computed(() => {
   return props.entry.title || new Date(props.entry.date).toLocaleDateString();
 });
 
+const isLargeScreen = useMediaQuery('(min-width: 768px)');
+const isSmallScreen = useMediaQuery('(max-width: 640px)');
+
 const truncatedContent = computed(() => {
-  const maxLength = 300;
+  let maxLength = isLargeScreen.value ? 300 : 150;
+  maxLength = isSmallScreen.value ? 75 : maxLength;
   if (props.entry.content.length > maxLength) {
     return props.entry.content.substring(0, maxLength) + '...';
   }
@@ -77,16 +82,16 @@ const goToJournalEntry = () => {
 <template>
   <Card class="w-full bg-transparent border-border hover:bg-card hover:border-gray-500/50 transition-colors cursor-pointer mb-4" @click="goToJournalEntry">
     <CardHeader class="flex flex-row items-center justify-between pb-2">
-      <CardTitle class="text-2xl font-bold">
+      <CardTitle class="text-base md:text-2xl font-bold">
         {{ displayTitle }}
       </CardTitle>
-      <div v-if="entry.title" class="flex items-center text-sm text-muted-foreground">
-        <Calendar class="w-4 h-4 mr-1 mb-1" />
+      <div v-if="entry.title" class="flex items-center text-muted-foreground text-xs md:text-sm">
+        <Calendar class="w-4 h-4 mr-1 mb-1 text-xs" />
         <span class="whitespace-nowrap">{{ formattedDate }}</span>
       </div>
     </CardHeader>
     <CardContent>
-      <p class="text-muted-foreground mb-4">
+      <p class="text-muted-foreground mb-4  text-sm  md:text-md">
         {{ truncatedContent }}
       </p>
       <div class="flex justify-between items-end">
@@ -101,7 +106,7 @@ const goToJournalEntry = () => {
             {{ char.label }}
           </Badge>
         </div>
-        <div class="flex items-center text-sm font-semibold text-foreground">
+        <div class="flex items-center text-xs md:text-sm font-semibold text-foreground">
           <Eye class="w-4 h-4 mr-1" />
           <span>{{ entry.lucidityLevel }}/3</span>
         </div>

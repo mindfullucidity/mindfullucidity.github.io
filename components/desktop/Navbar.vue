@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Home, Book, Settings, LogOut, User, ChevronDown, ChevronUp, SunMoon, Crown } from 'lucide-vue-next'
+import { Home, Book, Settings, LogOut, User, ChevronDown, ChevronUp, SunMoon, Crown, LogIn } from 'lucide-vue-next'
 import { useSupabaseClient, useSupabaseUser } from '#imports'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -116,6 +116,7 @@ async function logout() {
           </DropdownMenuContent>
         </DropdownMenu>
         <Button v-else @click="navigateTo('/login')" class="ml-4">
+          <LogIn class="w-4 h-4 mr-2" />
           Login
         </Button>
       </div>

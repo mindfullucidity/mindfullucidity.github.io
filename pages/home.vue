@@ -65,7 +65,7 @@ onMounted(async () => {
   }
 });
 
-const isSubscribed = ref(false); // Set to true to hide the upgrade card
+const isSubscribed = computed(() => user.value?.app_metadata?.user_role === 'plus');
 const insights = ref({
   topThemes: ["Flying", "Water", "Animals", "Transformation"],
   lucidityTrend: 75,
@@ -182,9 +182,9 @@ const streakMessage = computed(() => {
           </CardContent>
         </Card>
 
-        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-8">
           <!-- Recent Entries -->
-          <div class="lg:col-span-2">
+          <div class="sm:col-span-1 lg:col-span-2">
             <Card class="bg-card border-border h-full">
               <CardHeader>
                 <CardTitle class="flex items-center gap-2 text-foreground">
@@ -196,7 +196,7 @@ const streakMessage = computed(() => {
                 </CardDescription>
               </CardHeader>
               <CardContent>
-                <ScrollArea class="h-96">
+                <ScrollArea class="lg:h-96">
                   <div v-if="isLoadingEntries" class="space-y-4 pr-4">
                     <JournalEntryCardExpandedSkeleton v-for="i in 5" :key="i" />
                   </div>
@@ -219,7 +219,7 @@ const streakMessage = computed(() => {
           </div>
 
           <!-- Right Sidebar -->
-          <div class="space-y-6">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
             <!-- Journaling Streak -->
             <Card class="bg-card border-border">
               <CardHeader class="pb-3">
@@ -257,34 +257,72 @@ const streakMessage = computed(() => {
             </Card>
 
             <!-- Subscription Status -->
-            <Card v-if="!isSubscribed" class="bg-card border-warning">
-              <CardHeader class="pb-3">
-                <CardTitle class="flex items-center gap-2 text-foreground">
-                  <Crown class="h-5 w-5 text-warning" />
-                  Upgrade to Plus
+            <Card v-if="!isSubscribed" class="bg-card border-plus-gold grid-cols-1">
+              <CardHeader>
+                <CardTitle class="flex items-center gap-2 text-plus-gold">
+                  <Crown class="h-5 w-5" />
+                  MindfulLucidity Plus
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 <div class="space-y-3">
                   <p class="text-muted-foreground text-sm">
-                    Unlock AI-powered insights and unlimited entries
+                    Gain unlimited access to advanced AI analysis, exclusive features, and directly support the future of MindfulLucidity.
                   </p>
-                  <ul class="text-xs text-muted-foreground space-y-1">
-                    <li>• Advanced dream analysis</li>
-                    <li>• Pattern recognition</li>
-                    <li>• Personalized tips</li>
-                  </ul>
-                  <Button
-                    size="sm"
-                    class="w-full bg-warning hover:bg-warning/80 text-primary-foreground"
-                    as-child
-                  >
-                    <NuxtLink to="/plus">
-                      Learn More
-                    </NuxtLink>
-                  </Button>
+                  <!-- <div class="flex items-start space-x-2 text-sm text-muted-foreground">
+                    <Lightbulb class="h-4 w-4 flex-shrink-0 mt-1" />
+                    <p>
+                      You can get a free <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-500 hover:underline">Google Gemini API key</a> to enable full access completely free, by enabling Custom AI Model in <NuxtLink to="/settings/ai" class="text-blue-500 hover:underline">Settings</NuxtLink>!
+                    </p>
+                  </div> -->
+                  <div class="flex flex-col gap-2">
+                    <Button
+                      class="w-full"
+                      as-child
+                    >
+                      <NuxtLink to="/plus">
+                        Learn More
+                      </NuxtLink>
+                    </Button>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      class="w-full"
+                      as-child
+                    >
+                      <NuxtLink to="/settings/ai">
+                        Use Your Own API Key
+                      </NuxtLink>
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
+            </Card>
+            <Card v-else class="bg-card border-plus-gold sm:flex flex-col justify-between hidden">
+              <CardHeader>
+                <CardTitle class="flex items-center gap-2 text-plus-gold">
+                  <Crown class="h-5 w-5" />
+                  MindfulLucidity Plus 
+                </CardTitle>
+                <CardDescription class="text-muted-foreground text-sm">
+                  Thank you for being a Plus Subscriber! You have full access to all MindfulLucidity Plus features.
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div class="space-y-3">
+                </div>
+              </CardContent>
+              <CardFooter>
+                <Button
+                  size="sm"
+                  class="w-full"
+                  as-child
+                >
+                  <NuxtLink to="/settings/plus">
+                    Manage Subscription
+                  </NuxtLink>
+                </Button>
+              </CardFooter>
             </Card>
           </div>
         </div>

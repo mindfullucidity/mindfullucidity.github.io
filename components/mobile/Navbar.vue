@@ -27,7 +27,7 @@ async function logout() {
 </script>
 
 <template>
-  <div class="fixed bottom-0 left-0 z-50 w-full h-16 bg-background border-t bg-card">
+  <div class="fixed bottom-0 left-0 z-50 w-full h-16 bg-black/90">
     <div class="flex h-full w-full justify-evenly items-center px-4 font-medium">
       <NuxtLink
         to="/journal"
