@@ -77,9 +77,13 @@ export default defineNuxtConfig({
       short_name: 'MindfulLucidity',
       description: 'A journal for lucid dreaming',
       theme_color: '#1a1a1a',
+      background_color: '#1a1a1a',
+      display: 'standalone',
+      display_override: ['standalone', 'minimal-ui'],
+      scope: '/',
       icons: [
         {
-          src: 'favicon.svg',
+          src: 'pwa.svg',
           sizes: 'any',
           type: 'image/svg+xml',
           purpose: 'any maskable',
