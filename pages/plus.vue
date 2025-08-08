@@ -21,7 +21,7 @@ onMounted(() => {
         <div class="container mx-auto px-4 md:px-6">
           <div class="flex flex-col items-center space-y-4">
             <h1 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none flex items-center justify-center gap-2  text-plus-gold">
-              <Crown class="h-14 w-14 mb-2" />
+              <Crown class="w-7 h-7 md:h-14 md:w-14 mb-2" />
               MindfulLucidity Plus
             </h1>
             <p class="mx-auto max-w-[700px] text-muted-foreground md:text-xl">

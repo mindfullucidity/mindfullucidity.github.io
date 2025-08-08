@@ -10,6 +10,10 @@ const route = useRoute();
 const user = useSupabaseUser();
 
 const pageTitle = computed(() => {
+  if (route.path.startsWith('/settings')) {
+    return 'Settings';
+  }
+
   const head = useHead();
   if (head.title && head.title.value) {
     const match = head.title.value.match(/^(.*?)(?: \| MindfulLucidity)?$/);
