@@ -42,6 +42,7 @@
   --color-sidebar-ring: var(--sidebar-ring);
   --color-plus-gold: #FFEA00;
   --color-primary-selected: #bd93f9;
+  --color-border-100: rgba(98, 114, 164);
 }
 
 :root {

@@ -59,6 +59,7 @@ export default defineNuxtConfig({
       safelist: [
         'text-plus-gold',
         'text-primary-selected',
+        'bg-border-100',
       ],
     },
   },

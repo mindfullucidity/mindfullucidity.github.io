@@ -81,17 +81,17 @@ const goToJournalEntry = () => {
 
 <template>
   <Card class="w-full bg-transparent border-border hover:bg-card hover:border-gray-500/50 transition-colors cursor-pointer mb-4" @click="goToJournalEntry">
-    <CardHeader class="flex flex-row items-center justify-between pb-2">
-      <CardTitle class="text-base md:text-2xl font-bold">
+    <CardHeader class="flex flex-row items-center justify-between md:pb-2">
+      <CardTitle class="text-xs md:text-lg lg:text-2xl font-bold">
         {{ displayTitle }}
       </CardTitle>
       <div v-if="entry.title" class="flex items-center text-muted-foreground text-xs md:text-sm">
-        <Calendar class="w-4 h-4 mr-1 mb-1 text-xs" />
+        <Calendar class="w-4 h-4 mr-1 md:mb-1" />
         <span class="whitespace-nowrap">{{ formattedDate }}</span>
       </div>
     </CardHeader>
     <CardContent>
-      <p class="text-muted-foreground mb-4  text-sm  md:text-md">
+      <p class="text-muted-foreground md:mb-4  text-xs  md:text-md">
         {{ truncatedContent }}
       </p>
       <div class="flex justify-between items-end">

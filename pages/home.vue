@@ -144,7 +144,7 @@ const streakMessage = computed(() => {
     <div class="relative z-10 min-h-screen text-foreground p-6">
       <div class="max-w-7xl mx-auto space-y-8">
         <!-- Welcome Section -->
-        <div class="text-center space-y-4 pt-16">
+        <div class="text-center space-y-4 pt-4 lg:pt-16">
           <h1 class="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text">
             Welcome back, {{ username }}!
           </h1>

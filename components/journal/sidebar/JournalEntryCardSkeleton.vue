@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all">
+  <div class="w-full flex flex-col items-start gap-2 rounded-lg border p-3 text-left text-sm transition-all  max-w-lg lg:max-w-full">
     <div class="flex w-full flex-col gap-1">
       <div class="flex items-center">
         <div class="font-semibold w-2/4">

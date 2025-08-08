@@ -17,6 +17,8 @@ const pageTitle = computed(() => {
   }
 
   if (route.name) {
+    if (route.name === 'journal-id') return 'Journal';
+    if (route.name === 'journal-new') return 'New Journal';
     return String(route.name).charAt(0).toUpperCase() + String(route.name).slice(1);
   }
   return 'MindfulLucidity';

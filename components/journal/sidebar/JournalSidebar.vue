@@ -1,25 +1,25 @@
 <template>
   <div class="flex flex-col h-full">
     <div class="flex-shrink-0">
-      <div class="flex items-center p-4 h-12">
+      <div class="lg:flex items-center p-4 h-12 hidden">
         <h1 class="text-xl  font-semibold">Journal</h1>
       </div>
-      <Separator />
+      <Separator class="hidden lg:block"/>
       <div class="p-4">
-        <div class="flex items-center gap-2">
-          <div class="relative flex-grow">
-            <Search class="absolute left-2 top-2.5 size-4 text-muted-foreground" />
-            <Input class="pl-8" placeholder="Search" v-model="searchQuery" />
+        <div class="flex   items-center justify-center  gap-2">
+          <div class="relative flex-grow lg:max-w-full max-w-lg">
+            <Search class="absolute left-2 top-2.5 size-4 text-muted-foreground " />
+            <Input class="pl-8 " placeholder="Search" v-model="searchQuery" />
           </div>
-          <Button variant="ghost" size="icon" @click="navigateTo('/journal/new')">
+          <Button variant="ghost" size="icon" @click="navigateTo('/journal/new')" class="hidden lg:inline-flex">
             <Plus class="lucide lucide-plus" />
           </Button>
         </div>
       </div>
-      <Separator />
+      <Separator class="hidden lg:block"/>
     </div>
     <ScrollArea class="flex-grow overflow-y-auto">
-      <div class="flex flex-col gap-2 p-4">
+      <div class="flex flex-col items-center lg:items-stretch gap-2 px-4 pb-4 pt-0 lg:pt-4">
         <template v-if="isLoadingOverview || entriesOverview === null">
           <JournalEntryCardSkeleton v-for="i in 3" :key="i" />
         </template>
@@ -46,6 +46,11 @@
         </template>
       </div>
     </ScrollArea>
+    <FloatingActionButtonSection class="lg:hidden mb-16">
+      <FloatingActionButton @click="navigateTo('/journal/new')" class="bg-primary">
+        <Plus class="w-6 h-6" />
+      </FloatingActionButton>
+    </FloatingActionButtonSection>
   </div>
 </template>
 
@@ -54,12 +59,15 @@ import { ref, computed, onMounted, watch } from 'vue';
 import JournalEntryCard from '../sidebar/JournalEntryCard.vue';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
-import { useJournal } from '@/composables/useJournal';
+import { useJournal } from '@/composables/useJournal.ts';
 import { Separator } from '@/components/ui/separator';
 import { Search, Plus, SearchX, FileText } from 'lucide-vue-next';
 import JournalEntryCardSkeleton from '../sidebar/JournalEntryCardSkeleton.vue';
 import type { JournalEntryOverview } from '@/composables/useJournal';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import FloatingActionButtonSection from '~/components/journal/misc/FloatingActionButtonSection.vue';
+import FloatingActionButton from '~/components/journal/misc/FloatingActionButton.vue';
+import { navigateTo } from '#imports';
 
 const { entriesOverview, selectedEntry, isLoadingOverview, loadEntriesOverview, selectEntry, clearSelectedEntry } = useJournal();
 const searchQuery = ref('');
