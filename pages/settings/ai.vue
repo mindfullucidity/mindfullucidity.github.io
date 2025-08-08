@@ -98,9 +98,9 @@ function resetToDefaults() {
     <Separator class="my-6" />
 
     <div class="space-y-6">
-      <Card>
+      <Card class="w-full">
         <CardHeader>
-          <CardTitle class="flex items-center gap-2">
+          <CardTitle class="flex items-center gap-2 ">
             <Bot class="h-5 w-5" />
             AI Assistant
           </CardTitle>

@@ -71,11 +71,11 @@
   --chart-4: #ffb86c;
   --chart-5: #f1fa8c;
   --radius: 0.625rem;
-  --sidebar: #282a36;
+  --sidebar: transparent;
   --sidebar-foreground: #f8f8f2;
   --sidebar-primary: #bd93f9;
   --sidebar-primary-foreground: #f8f8f2;
-  --sidebar-accent: #44475a;
+  --sidebar-accent: rgba(170, 130, 210, 0.21);
   --sidebar-accent-foreground: #f8f8f2;
   --sidebar-border: #44475a;
   --sidebar-ring: #bd93f9;
@@ -116,8 +116,6 @@
   --sidebar-border: #44475a;
   --sidebar-ring: #bd93f9;
 }
-
-
 
 @layer base {
   * {
@@ -188,4 +186,13 @@
 
 ::-webkit-scrollbar-thumb:hover {
   background-color: var(--card-foreground); /* A slightly different color on hover */
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
 }
