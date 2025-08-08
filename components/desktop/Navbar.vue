@@ -37,7 +37,7 @@ async function logout() {
 </script>
 
 <template>
-  <div class="hidden md:block fixed top-0 left-0 z-50 w-full h-16 bg-black/50">
+  <div class="hidden md:block fixed top-0 left-0 z-50 w-full h-16 bg-card">
     <div class="flex justify-between items-center h-full mx-auto px-4 font-medium">
       <div class="flex items-center gap-x-4">
         <NuxtLink to="/" class="text-lg font-bold ml-5 inline-flex items-center justify-center gap-2">
