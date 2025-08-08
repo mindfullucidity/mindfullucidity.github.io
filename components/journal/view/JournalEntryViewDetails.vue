@@ -182,6 +182,10 @@ const getMoodEmoji = computed(() => (value: number) => {
   if (value < 80) return '😊';
   return '🤩';
 });
+
+const selectedLucidityDetails = computed(() => {
+  return lucidityLevels.find(level => level.level === selectedLucidity.value);
+});
 </script>
 
 <template>
@@ -212,9 +216,12 @@ const getMoodEmoji = computed(() => (value: number) => {
                 ]"
               >
                 <component :is="level.icon" class="w-6 h-6" />
-                <span class="text-xs mt-1 font-medium">{{ level.label }}</span>
+                <span class="text-xs mt-1 font-medium hidden sm:block">{{ level.label }}</span>
               </div>
             </div>
+          </div>
+          <div class="text-center text-sm font-medium text-foreground sm:hidden" v-if="selectedLucidityDetails">
+            {{ selectedLucidityDetails.label }}
           </div>
 
           <div v-if="selectedLucidity > 0" class="pt-4">
@@ -279,7 +286,7 @@ const getMoodEmoji = computed(() => (value: number) => {
             <h3 class="text-lg font-semibold text-foreground">Characteristics</h3>
             <p class="text-muted-foreground">Select any special qualities your dream had</p>
           </div>
-          <div class="grid grid-cols-2 gap-3">
+          <div class="grid sm:grid-cols-2 gap-3">
             <div
               v-for="characteristic in characteristics"
               :key="characteristic.id"

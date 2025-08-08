@@ -231,33 +231,21 @@ const saveEntry = async () => {
       return;
     }
 
-    let resultEntry: JournalEntry | null = null;
-    if (editableEntry.value.journal_id && editableEntry.value.journal_id !== 0) {
-      resultEntry = await updateEntry(editableEntry.value);
-    } else {
-      resultEntry = await createEntry(editableEntry.value);
-    }
-    if (resultEntry) {
-      originalEntry.value = { ...resultEntry };
-      hasUnsavedChanges.value = false;
-      toast.success('Journal entry saved successfully!');
+    await saveEntryComposable();
 
-      if (props.isNewEntry && journalAnalysisRef.value) {
-        for (const analysis of journalAnalysisRef.value.journalAnalyses) {
-          await createJournalAnalysis({
-            journal_id: resultEntry.journal_id,
-            type: analysis.type,
-            title: analysis.title,
-            content: analysis.content,
-          });
-        }
-        journalAnalysisRef.value.journalAnalyses = []; 
+    if (props.isNewEntry && journalAnalysisRef.value) {
+      for (const analysis of journalAnalysisRef.value.journalAnalyses) {
+        await createJournalAnalysis({
+          journal_id: editableEntry.value.journal_id,
+          type: analysis.type,
+          title: analysis.title,
+          content: analysis.content,
+        });
       }
-
-      navigateTo(`/journal/${resultEntry.journal_id}${route.hash}`);
-    } else {
-      toast.error('Failed to save journal entry.');
+      journalAnalysisRef.value.journalAnalyses = []; 
     }
+
+    navigateTo(`/journal/${editableEntry.value.journal_id}${route.hash}`);
   }
 };
 

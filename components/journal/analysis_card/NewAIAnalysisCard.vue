@@ -34,33 +34,37 @@ const handleCancel = () => {
         <Sparkle class="h-4 w-4" stroke="url(#sparkle-gradient)" aria-hidden="true" />
         <span class="text-sm font-medium bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text">New AI Analysis</span>
       </div>
-      <div class="flex items-center gap-2">
-        <Label for="type">Type:</Label>
-        <Select v-model="selectedType">
-          <SelectTrigger id="type">
-            <SelectValue placeholder="Select a type" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="jungian">Jungian</SelectItem>
-            <SelectItem value="symbolic">Symbolic</SelectItem>
-            <SelectItem value="narrative">Narrative</SelectItem>
-            <SelectItem value="cognitive-behavioral">Cognitive Behavioral</SelectItem>
-            <SelectItem value="psychodynamic">Psychodynamic</SelectItem>
-            <SelectItem value="humanistic">Humanistic</SelectItem>
-          </SelectContent>
-        </Select>
+      <div class="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <Label for="type">Type:</Label>
+          <Select v-model="selectedType">
+            <SelectTrigger id="type">
+              <SelectValue placeholder="Select a type" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="jungian">Jungian</SelectItem>
+              <SelectItem value="symbolic">Symbolic</SelectItem>
+              <SelectItem value="narrative">Narrative</SelectItem>
+              <SelectItem value="cognitive-behavioral">Cognitive Behavioral</SelectItem>
+              <SelectItem value="psychodynamic">Psychodynamic</SelectItem>
+              <SelectItem value="humanistic">Humanistic</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
 
-        <Label for="depth" class="ml-10">Depth:</Label>
-        <Select v-model="selectedDepth">
-          <SelectTrigger id="depth">
-            <SelectValue placeholder="Select a depth" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="to-the-point">To The Point</SelectItem>
-            <SelectItem value="details">Details</SelectItem>
-            <SelectItem value="in-depth">In-Depth</SelectItem>
-          </SelectContent>
-        </Select>
+        <div class="flex items-center gap-2 w-full sm:w-auto">
+          <Label for="depth">Depth:</Label>
+          <Select v-model="selectedDepth">
+            <SelectTrigger id="depth">
+              <SelectValue placeholder="Select a depth" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="to-the-point">To The Point</SelectItem>
+              <SelectItem value="details">Details</SelectItem>
+              <SelectItem value="in-depth">In-Depth</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
       <textarea
         v-model="content"
