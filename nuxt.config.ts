@@ -97,8 +97,8 @@ export default defineNuxtConfig({
       periodicSyncForUpdates: 20,
     },
     devOptions: {
-      enabled: true,
-      suppressWarnings: true,
+      enabled: process.env.NODE_ENV === 'development',
+      suppressWarnings: process.env.NODE_ENV === 'development',
       navigateFallback: '/index.html',
       type: 'module',
     },

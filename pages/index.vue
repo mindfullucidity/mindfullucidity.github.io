@@ -2,7 +2,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Separator } from '@/components/ui/separator'
-import { Timer, Crown, ZoomIn } from 'lucide-vue-next'
+import { Timer, Crown, ZoomIn, Lightbulb } from 'lucide-vue-next'
 import { onMounted } from 'vue'
 import InstallPWAButton from '~/components/misc/InstallPWAButton.vue'
 
@@ -32,6 +32,7 @@ onMounted(() => {
             MindfulLucidity helps you explore your subconscious through intuitive dream journaling and advanced AI analysis.
           </p>
           <div class="flex justify-center space-x-4">
+            <InstallPWAButton />
             <Button as-child>
               <NuxtLink to="/register">Get Started</NuxtLink>
             </Button>
@@ -41,7 +42,6 @@ onMounted(() => {
                 GitHub
               </a>
             </Button>
-            <InstallPWAButton />
           </div>
         </div>
       </div>
