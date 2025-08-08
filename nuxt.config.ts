@@ -26,7 +26,7 @@ export default defineNuxtConfig({
     ],
   },
 
-  modules: ['shadcn-nuxt', '@nuxtjs/device', '@nuxtjs/supabase', 'vue-sonner/nuxt', '@vesp/nuxt-fontawesome'],
+  modules: ['shadcn-nuxt', '@nuxtjs/device', '@nuxtjs/supabase', 'vue-sonner/nuxt', '@vesp/nuxt-fontawesome', '@vite-pwa/nuxt'],
   fontawesome: {
     icons: {
       brands: ['github', 'patreon']
@@ -68,6 +68,39 @@ export default defineNuxtConfig({
     public: {
       patreonClientId: process.env.PATREON_CLIENT_ID,
       patreonRedirectUri: process.env.PATREON_REDIRECT_URI,
+    },
+  },
+
+  pwa: {
+    manifest: {
+      name: 'Mindful Lucidity',
+      short_name: 'MindfulLucidity',
+      description: 'A journal for lucid dreaming',
+      theme_color: '#1a1a1a',
+      icons: [
+        {
+          src: 'favicon.svg',
+          sizes: 'any',
+          type: 'image/svg+xml',
+          purpose: 'any maskable',
+        },
+      ],
+    },
+    workbox: {
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    },
+    injectManifest: {
+      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
+    },
+    client: {
+      installPrompt: true,
+      periodicSyncForUpdates: 20,
+    },
+    devOptions: {
+      enabled: true,
+      suppressWarnings: true,
+      navigateFallback: '/index.html',
+      type: 'module',
     },
   },
 })
