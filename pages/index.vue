@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Separator } from '@/components/ui/separator'
 import { Timer, Crown, ZoomIn } from 'lucide-vue-next'
 import { onMounted } from 'vue'
+import InstallPWAButton from '~/components/misc/InstallPWAButton.vue'
 
 
 definePageMeta({
@@ -40,6 +41,7 @@ onMounted(() => {
                 GitHub
               </a>
             </Button>
+            <InstallPWAButton />
           </div>
         </div>
       </div>
