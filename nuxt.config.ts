@@ -98,8 +98,20 @@ export default defineNuxtConfig({
     devOptions: {
       enabled: false,
       suppressWarnings: true, // Resolved conflict here
-      navigateFallback: '/index.html',
+      navigateFallback: '/home',
       type: 'module',
+    },
+    workbox: {
+      navigateFallback: '/home',
+      runtimeCaching: [
+        {
+          urlPattern: /^\/.*$/, // Match all navigation requests
+          handler: 'NetworkOnly',
+          options: {
+            cacheName: 'navigation-cache',
+          },
+        },
+      ],
     },
   },
 })
