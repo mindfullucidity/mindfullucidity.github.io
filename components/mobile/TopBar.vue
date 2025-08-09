@@ -37,7 +37,7 @@ const pageTitle = computed(() => {
       <SunMoon class="w-5 h-5 mb-1"/>
       MindfulLucidity
     </NuxtLink>
-    <div class="flex items-center">
+    <div class="flex items-center mr-4">
       <template v-if="route.path === '/' && !$pwa?.isPWAInstalled">
         <Button v-if="!user" size="sm" as-child>
           <NuxtLink to="/login">
@@ -52,7 +52,7 @@ const pageTitle = computed(() => {
           </NuxtLink>
         </Button>
       </template>
-      <h1 v-else class="text-xl font-bold text-right mr-4" :class="{ 'text-plus-gold': route.path === '/plus' }">
+      <h1 v-if="route.path !== '/'" class="text-xl font-bold text-right mr-4" :class="{ 'text-plus-gold': route.path === '/plus' }">
         <Crown v-if="route.path === '/plus'" class="w-5 h-5 mr-2 inline-block" />
         {{ pageTitle }}
       </h1>
