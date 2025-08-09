@@ -83,7 +83,7 @@ export default defineNuxtConfig({
       scope: '/',
       icons: [
         {
-          src: 'favicon.svg',
+          src: '/favicon.svg',
           sizes: 'any',
           type: 'image/svg+xml',
           purpose: 'any maskable',
@@ -97,7 +97,7 @@ export default defineNuxtConfig({
     },
     devOptions: {
       enabled: false,
-      suppressWarnings: process.env.NODE_ENV === 'development',
+      suppressWarnings: true, // Resolved conflict here
       navigateFallback: '/index.html',
       type: 'module',
     },
