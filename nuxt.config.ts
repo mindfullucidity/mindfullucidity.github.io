@@ -101,17 +101,5 @@ export default defineNuxtConfig({
       navigateFallback: '/home',
       type: 'module',
     },
-    workbox: {
-      navigateFallback: '/home',
-      runtimeCaching: [
-        {
-          urlPattern: /^\/.*$/, // Match all navigation requests
-          handler: 'NetworkOnly',
-          options: {
-            cacheName: 'navigation-cache',
-          },
-        },
-      ],
-    },
   },
 })
