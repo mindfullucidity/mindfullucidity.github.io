@@ -10,7 +10,7 @@
         <TabsTrigger value="details">Details</TabsTrigger>
       </TabsList>
     </div>
-    <div class="flex h-5 items-center space-x-1 text-sm">
+    <div class="flex h-5 items-center gap-x-1text-sm">
       <Button v-if="activeTab === 'entry' || activeTab === 'details'" variant="ghost" size="icon" @click="emit('enhanceEntry')" :disabled="isEnhancingEntry">
         <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" />
       </Button>

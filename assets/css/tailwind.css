@@ -46,7 +46,7 @@
 }
 
 :root {
-  --background: rgba(0, 0, 0, 0.2);
+  --background: rgba(0, 0, 0, 0.6);
   --foreground: #f8f8f2;
   --card: rgba(0, 0, 0, 0.5);
   --card-foreground: #f8f8f2;

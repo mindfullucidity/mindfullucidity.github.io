@@ -144,31 +144,31 @@ const streakMessage = computed(() => {
   <Title>Home | MindfulLucidity</Title>
   <div class="relative min-h-screen overflow-hidden">
     
-    <div class="relative z-10 min-h-screen text-foreground p-6">
+    <div class="relative z-10 min-h-screen text-foreground px-6 py-2 sm:py-6">
       <div class="max-w-7xl mx-auto space-y-8">
         <!-- Welcome Section -->
         <div class="text-center space-y-4 pt-4 lg:pt-16">
-          <h1 class="text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text">
+          <h1 class="text-2xl md:text-4xl font-bold bg-gradient-to-r from-primary to-accent bg-clip-text">
             Welcome back, {{ username }}!
           </h1>
-          <p class="text-muted-foreground text-lg">
+          <p class="text-muted-foreground text-sm md:text-lg">
             Ready to explore your dream world today?
           </p>
         </div>
 
         <!-- Quick Journal Entry - Most Prominent -->
         <Card class="bg-gradient-to-r from-primary/20 to-accent/20 border-border shadow-2xl">
-          <CardContent class="p-8 text-center">
-            <div class="space-y-4">
+          <CardContent class="p2 sm:p-8 text-center">
+            <div class="space-y-1 sm:space-y-4">
               <div class="flex justify-center">
                 <div class="p-4 bg-primary/20 rounded-full">
-                  <PlusCircle class="h-12 w-12 text-primary" />
+                  <PlusCircle class="h-8 w-8 sm:h-12 sm:w-12 text-primary" />
                 </div>
               </div>
-              <h2 class="text-2xl font-bold text-foreground">
+              <h2 class="text-lg sm:text-2xl font-bold text-foreground">
                 Log Your Dream
               </h2>
-              <p class="text-muted-foreground max-w-md mx-auto">
+              <p class="text-muted-foreground max-w-md mx-auto text-sm sm:text-base mb-2 sm:mb-0">
                 Capture the details while they're fresh in your memory
               </p>
               <Button
