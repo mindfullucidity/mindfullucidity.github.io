@@ -10,6 +10,7 @@ export function useSettings() {
 
   const displayName = ref('')
   const email = ref('')
+  const isDeletingAccount = ref(false)
 
   const isPatreonLinked = computed(() => !!user.value?.user_metadata?.patreon_id)
 
@@ -104,28 +105,32 @@ export function useSettings() {
   }
 
   async function deleteAccount() {
-    if (!confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      return
-    }
+    isDeletingAccount.value = true;
     try {
-      // Supabase does not directly expose a client-side function to delete a user's account for security reasons.
-      // This typically needs to be handled on the backend (e.g., via a Supabase Edge Function or a custom API endpoint)
-      // that has the appropriate service role key to call the Admin API.
-      // For this example, we'll simulate it or provide a placeholder.
-      // In a real application, you would call an Edge Function here.
-      toast.error('Account deletion initiated', {
-        description: 'Please contact support to complete account deletion. This feature is not yet implemented client-side.',
-      })
-      // Example of how you might call an Edge Function:
-      // const { data, error } = await supabase.functions.invoke('delete-user-account', {
-      //   body: { userId: user.value?.id },
-      // });
-      // if (error) throw error;
-      // await navigateTo('/register'); // Redirect after successful deletion
+      const { data, error } = await supabase.functions.invoke('delete_user_account', {
+        method: 'POST', // Edge Functions typically expect POST for actions
+      });
+
+      if (error) {
+        console.error('Error invoking delete_user_account Edge Function:', error);
+        throw new Error(error.message);
+      }
+
+      // Assuming the Edge Function returns a success message
+      toast.success('Account deleted', {
+        description: data.message || 'Your account and all associated data have been successfully deleted.',
+      });
+
+      // Redirect to home page after successful deletion
+      await supabase.auth.signOut(); // Sign out the user from Supabase session
+      await navigateTo('/'); 
+
     } catch (error: any) {
       toast.error('Error deleting account', {
         description: error.message,
-      })
+      });
+    } finally {
+      isDeletingAccount.value = false;
     }
   }
 
@@ -137,5 +142,6 @@ export function useSettings() {
     updateDisplayName,
     logout,
     deleteAccount,
+    isDeletingAccount,
   }
 }

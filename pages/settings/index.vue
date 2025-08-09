@@ -5,19 +5,29 @@ import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
-import { LogOut, Trash2 } from 'lucide-vue-next'
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogClose
+} from '@/components/ui/dialog'
+import { LogOut, Trash2, Loader2 } from 'lucide-vue-next'
 
 definePageMeta({
   layout: 'settings',
 })
 
-const { displayName, email, isPatreonLinked, togglePatreonLink, updateDisplayName, logout, deleteAccount } = useSettings()
+const { displayName, email, isPatreonLinked, togglePatreonLink, updateDisplayName, logout, deleteAccount, isDeletingAccount } = useSettings()
 </script>
 
 <template>
   <div>
     <div>
-      <h2 class="text-2xl font-bold tracking-tight">Profile Settings</h2>
+      <h2 class="text-2xl font-bold tracking-tight">Account Settings</h2>
       <p class="text-muted-foreground mt-2">
         Manage your public profile information and account settings.
       </p>
@@ -109,16 +119,45 @@ const { displayName, email, isPatreonLinked, togglePatreonLink, updateDisplayNam
           <Separator />
 
           <div class="flex items-center justify-between">
-            <div class="space-y-0.5">
+            <div class="space-y-0.5 mb-4 sm:mb-0">
               <Label class="text-red-500">Delete Account</Label>
               <p class="text-sm text-muted-foreground">
-                Permanently delete your account and all data. This cannot be undone.
+                Delete your account.
               </p>
             </div>
-            <Button variant="destructive" @click="deleteAccount">
-              <Trash2 class="h-4 w-4 mr-2" />
-              Delete Account
-            </Button>
+            <Dialog>
+              <DialogTrigger as-child>
+                <Button variant="destructive">
+                  <Trash2 class="h-4 w-4 mr-2" />
+                  Delete Account
+                </Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader>
+                  <DialogTitle>Are you absolutely sure?</DialogTitle>
+                  <DialogDescription>
+                    This action cannot be undone. This will permanently delete your account
+                    and remove your data from our servers.
+                  </DialogDescription>
+                </DialogHeader>
+                <DialogFooter>
+                  <div v-if="isDeletingAccount" class="flex w-full justify-center items-center text-destructive">
+                    <Loader2 class="h-6 w-6 mr-2 animate-spin" />
+                    Deleting Account...
+                  </div>
+                  <div v-else class="flex w-full justify-center gap-4">
+                    <DialogClose as-child>
+                      <Button type="button" variant="secondary">
+                        Cancel
+                      </Button>
+                    </DialogClose>
+                    <Button type="button" variant="destructive" @click="deleteAccount">
+                      Delete Account
+                    </Button>
+                  </div>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
           </div>
         </CardContent>
       </Card>

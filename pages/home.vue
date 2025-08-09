@@ -25,7 +25,7 @@ import {
   Moon,
   Brain,
   Sparkles,
-  FileText
+  Bed
 } from 'lucide-vue-next';
 
 interface JournalEntry {
@@ -203,7 +203,7 @@ const streakMessage = computed(() => {
                   </div>
                   <div v-else-if="journalEntries.length === 0">
                     <div class="flex flex-col items-center justify-center py-8 text-muted-foreground">
-                      <FileText class="h-8 w-8 mb-2" />
+                      <Bed class="h-8 w-8 mb-2" />
                       <p>No recent entries yet. Start by creating a new one!</p>
                     </div>
                   </div>
