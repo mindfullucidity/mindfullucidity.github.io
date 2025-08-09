@@ -15,3 +15,4 @@
 15. mobile icon enhance (both on screen and on install prompt)
 16. the install app button on desktop doesnt make sense (its says click dots but there isn't any)
 17. slight bug on bottom of page scroll (looks like it needs to scroll container up then scroll up) (on mobile)
+18. zooming on mobile
