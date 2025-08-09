@@ -6,6 +6,7 @@ import { Timer, Crown, ZoomIn, Lightbulb } from 'lucide-vue-next'
 import { onMounted } from 'vue'
 import InstallPWAButton from '~/components/misc/InstallPWAButton.vue'
 
+const { $pwa } = useNuxtApp();
 
 definePageMeta({
   layout: 'default',
@@ -32,11 +33,13 @@ onMounted(() => {
             MindfulLucidity helps you explore your subconscious through intuitive dream journaling and advanced AI analysis.
           </p>
           <div class="flex justify-center gap-4 flex-wrap">
-            <InstallPWAButton />
-            <Button as-child>
-              <NuxtLink to="/register">Get Started</NuxtLink>
-            </Button>
-            <Button as-child variant="outline">
+            <template v-if="!$pwa?.isPWAInstalled">
+              <InstallPWAButton />
+              <Button>
+                <NuxtLink to="/register">Get Started</NuxtLink>
+              </Button>
+            </template>
+            <Button variant="outline">
               <a href="https://github.com/mindfullucidity/mindfullucidity.github.io" target="_blank" rel="noopener noreferrer">
                 <font-awesome :icon="['fab', 'github']" class="h-5 w-5 mr-2" />
                 GitHub

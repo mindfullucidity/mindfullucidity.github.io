@@ -54,6 +54,7 @@ const redirectToPath = computed(() => route.query.to?.toString() || '/home');
 let authListener: any; // To store the subscription
 
 onMounted(() => {
+  isLoading.value = true;
   let authResolved = false;
   let minTimePassed = false;
   let navigationPromise: Promise<any> | null = null; // To hold the navigation promise
