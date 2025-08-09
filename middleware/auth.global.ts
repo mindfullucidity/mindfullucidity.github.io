@@ -15,6 +15,10 @@ export default defineNuxtRouteMiddleware((to, from) => {
     if (!publicRoutes.some(route => route === to.path)) {
       // If coming from the login page, don't set the 'to' parameter
       if (process.client) {
+        if (to.path === '/home' && !from.path.startsWith('/login')) {
+          window.location.href = '/login'; // Force a full page reload to login
+          return; // Stop middleware execution
+        }
         if (from.path.startsWith('/login')) {
           return
         } else {
