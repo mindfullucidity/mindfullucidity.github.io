@@ -68,6 +68,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import FloatingActionButtonSection from '~/components/journal/misc/FloatingActionButtonSection.vue';
 import FloatingActionButton from '~/components/journal/misc/FloatingActionButton.vue';
 import { navigateTo } from '#imports';
+import { parseISO, isSameDay, subDays, addDays, format } from 'date-fns';
 
 const { entriesOverview, selectedEntry, isLoadingOverview, loadEntriesOverview, selectEntry, clearSelectedEntry } = useJournal();
 const searchQuery = ref('');
@@ -93,55 +94,135 @@ watch(() => route.path, async (newPath) => {
 
 const filteredEntries = computed(() => {
   if (!entriesOverview.value) {
+    
     return [];
   }
 
   let filtered = entriesOverview.value;
+  const query = searchQuery.value.toLowerCase().trim();
+  
+  
 
-  if (searchQuery.value) {
-    const query = searchQuery.value.toLowerCase();
+  if (query) {
     const today = new Date();
-    const yesterday = new Date(today);
-    yesterday.setDate(today.getDate() - 1);
+    const yesterday = subDays(today, 1);
+    const tomorrow = addDays(today, 1);
 
+    let parsedDate: Date | null = null;
+
+    // --- Existing Date Parsing Logic ---
+    // Try to parse as a specific date (e.g., YYYY-MM-DD, MM/DD/YYYY)
+    if (!isNaN(Date.parse(query))) {
+      parsedDate = new Date(query);
+    }
+
+    // Try to parse common date formats
+    const dateFormats = ['yyyy-MM-dd', 'MM/dd/yyyy', 'dd/MM/yyyy', 'MMM dd, yyyy', 'MMMM dd, yyyy'];
+    for (const formatStr of dateFormats) {
+      try {
+        const parsed = parse(query, formatStr, new Date());
+        if (!isNaN(parsed.getTime())) {
+          parsedDate = parsed;
+          break;
+        }
+      } catch (e) {
+        // Ignore parsing errors, try next format
+      }
+    }
+
+    // Handle keywords
+    if (query.includes('today')) {
+      parsedDate = today;
+    } else if (query.includes('yesterday') || query.includes('last night')) {
+      parsedDate = yesterday;
+    } else if (query.includes('tomorrow')) {
+      parsedDate = tomorrow;
+    }
+
+    // --- Month Name Parsing Logic ---
+    const monthNames = [
+      'january', 'february', 'march', 'april', 'may', 'june',
+      'july', 'august', 'september', 'october', 'november', 'december'
+    ];
+    const shortMonthNames = [
+      'jan', 'feb', 'mar', 'apr', 'may', 'jun',
+      'jul', 'aug', 'sep', 'oct', 'nov', 'dec'
+    ];
+
+    let matchingMonthIndices: number[] = [];
+    for (let i = 0; i < monthNames.length; i++) {
+      if (monthNames[i].includes(query) || shortMonthNames[i].includes(query)) {
+        matchingMonthIndices.push(i);
+      }
+    }
+
+    
+
+    // This is the corrected month search block
+    if (matchingMonthIndices.length > 0) {
+      
+      const monthFilteredEntries = entriesOverview.value.filter((entry: JournalEntryOverview) => {
+        const entryDate = parseISO(entry.date);
+        const entryMonth = entryDate.getMonth(); // 0-indexed
+
+        if (matchingMonthIndices.includes(entryMonth)) {
+          const yearMatch = query.match(/\b(\d{4})\b/);
+          if (yearMatch) {
+            const searchYear = parseInt(yearMatch[1], 10);
+            return entryDate.getFullYear() === searchYear;
+          }
+          return true;
+        }
+        return false;
+      });
+
+      if (monthFilteredEntries.length > 0) {
+        
+        return monthFilteredEntries.sort((a, b) => {
+          const dateA = new Date(a.date);
+          const dateB = new Date(b.date);
+          if (dateA < dateB) return 1;
+          if (dateB < dateA) return -1;
+          return b.journal_id - a.journal_id;
+        });
+      } else {
+        
+      }
+    } else {
+      
+    }
+
+    // --- Main Filtering Logic (now also a fallback for month search with no results) ---
     filtered = entriesOverview.value.filter((entry: JournalEntryOverview) => {
-      const entryDate = new Date(entry.date);
+      const entryDate = parseISO(entry.date);
 
-      // Check for 'today'
-      if ('today'.includes(query) &&
-          entryDate.getDate() === today.getDate() &&
-          entryDate.getMonth() === today.getMonth() &&
-          entryDate.getFullYear() === today.getFullYear()) {
+      // If a specific date was parsed from the query, prioritize date matching
+      if (parsedDate && isSameDay(entryDate, parsedDate)) {
+        
+        const nonDateQuery = query.replace(/today|yesterday|last night|tomorrow|\d{4}-\d{2}-\d{2}|\d{2}\/\d{2}\/\d{4}|\d{2}\/\d{2}\/\d{4}|\w{3} \d{2}, \d{4}|\w+ \d{2}, \d{4}/g, '').trim();
+        if (nonDateQuery) {
+          
+          const regex = new RegExp(nonDateQuery, 'i');
+          return regex.test(entry.title) || regex.test(entry.description);
+        }
         return true;
       }
 
-      // Check for 'last night' (assuming last night means yesterday's date)
-      if ('last night'.includes(query) &&
-          entryDate.getDate() === yesterday.getDate() &&
-          entryDate.getMonth() === yesterday.getMonth() &&
-          entryDate.getFullYear() === yesterday.getFullYear()) {
-        return true;
-      }
-
-      // Check for specific date format (e.g., YYYY-MM-DD)
-      if (!isNaN(Date.parse(query)) && entry.date === query) {
-        return true;
-      }
-
-      // Existing title and description search
-      return entry.title.toLowerCase().includes(query) ||
-             entry.description.toLowerCase().includes(query);
+      // Fallback to title and description search if no date was parsed or matched
+      
+      const regex = new RegExp(query, 'i');
+      const matches = regex.test(entry.title) || regex.test(entry.description);
+      
+      return matches;
     });
   }
 
+  
   return filtered.sort((a, b) => {
-    // Sort by date in descending order
     const dateA = new Date(a.date);
     const dateB = new Date(b.date);
     if (dateA < dateB) return 1;
-    if (dateA > dateB) return -1;
-
-    // If dates are the same, sort by id in descending order
+    if (dateB < dateA) return -1;
     return b.journal_id - a.journal_id;
   });
 });
