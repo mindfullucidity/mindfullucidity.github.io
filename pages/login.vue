@@ -64,7 +64,9 @@ onMounted(() => {
         // If user exists, initiate navigation and wait for it
         await navigateTo('/home');
       }
-      isLoading.value = false; // Hide spinner after all conditions met
+      else{
+        isLoading.value = false;
+      }
     }
   };
 
