@@ -206,16 +206,24 @@ const handleUndoDeleteEntry = async () => {
 
     if (restoredEntry) {
       toast.success('Journal entry restored successfully!');
+      const restoredAnalyses: JournalAnalysis[] = [];
       if (lastDeletedEntry.value.analyses) {
         for (const analysis of lastDeletedEntry.value.analyses) {
-          await createJournalAnalysis({
+          const newAnalysis = await createJournalAnalysis({
             journal_id: restoredEntry.journal_id,
             type: analysis.type,
             title: analysis.title,
             content: analysis.content,
           });
+          if (newAnalysis) {
+            restoredAnalyses.push(newAnalysis);
+          }
         }
       }
+      editableEntry.value = {
+        ...restoredEntry,
+        analyses: restoredAnalyses,
+      };
       navigateTo(`/journal/${restoredEntry.journal_id}`);
       lastDeletedEntry.value = null;
     } else {
@@ -231,7 +239,17 @@ const saveEntry = async () => {
       return;
     }
 
-    await saveEntryComposable();
+    if (props.isNewEntry) {
+      const newEntry = await createEntry(editableEntry.value);
+      if (newEntry) {
+        editableEntry.value.journal_id = newEntry.journal_id;
+      } else {
+        toast.error('Failed to create new entry.');
+        return;
+      }
+    } else {
+      await updateEntry(editableEntry.value);
+    }
 
     if (props.isNewEntry && journalAnalysisRef.value) {
       for (const analysis of journalAnalysisRef.value.journalAnalyses) {

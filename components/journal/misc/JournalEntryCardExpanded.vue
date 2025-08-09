@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { computed } from 'vue';
 import { useMediaQuery } from '@vueuse/core';
-import { Calendar, Eye, RotateCcw, AlertTriangle, Brain, Sun } from 'lucide-vue-next';
+import { Calendar, RotateCcw, Ghost, Bed, Sun, EyeOff } from 'lucide-vue-next';
 import { formatDate } from '@/lib/utils';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -13,6 +13,7 @@ interface JournalEntry {
   content: string;
   date: string;
   lucidityLevel: number;
+  mood: number | null;
   characteristics: string[];
 }
 
@@ -51,19 +52,19 @@ const characteristicsData = [
   {
     id: 'nightmare',
     label: 'Nightmare',
-    icon: AlertTriangle,
+    icon: Ghost,
     color: 'bg-[#FF5555]/40' // Dracula red
   },
   {
     id: 'sleep_paralysis',
     label: 'Sleep Paralysis',
-    icon: Brain,
+    icon: Bed,
     color: 'bg-[#BD93F9]/40' // Dracula purple
   },
   {
     id: 'false_awakening',
     label: 'False Awakening',
-    icon: Sun,
+    icon: EyeOff,
     color: 'bg-[#FFB86C]/40' // Dracula orange
   }
 ];
@@ -72,6 +73,15 @@ const activeCharacteristics = computed(() => {
   return props.entry.characteristics.map(charId => {
     return characteristicsData.find(char => char.id === charId);
   }).filter(Boolean); // Filter out undefined in case of unknown charId
+});
+
+const getMoodEmoji = computed(() => {
+  const value = props.entry.mood === null ? 50 : props.entry.mood;
+  if (value < 20) return '😞';
+  if (value < 40) return '😐';
+  if (value < 60) return '😄';
+  if (value < 80) return '😊';
+  return '🤩';
 });
 
 const goToJournalEntry = () => {
@@ -107,8 +117,9 @@ const goToJournalEntry = () => {
           </Badge>
         </div>
         <div class="flex items-center text-xs md:text-sm font-semibold text-foreground">
-          <Eye class="w-4 h-4 mr-1" />
+          <Sun class="w-4 h-4 mr-1" />
           <span>{{ entry.lucidityLevel }}/3</span>
+          <span class="ml-4">{{ getMoodEmoji }}</span>
         </div>
       </div>
     </CardContent>

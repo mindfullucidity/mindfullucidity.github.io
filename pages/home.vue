@@ -34,6 +34,7 @@ interface JournalEntry {
   content: string;
   date: string;
   lucidityLevel: number;
+  mood: number | null;
   characteristics: string[];
 }
 
