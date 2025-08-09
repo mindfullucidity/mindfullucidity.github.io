@@ -15,6 +15,9 @@ const pageTitle = computed(() => {
   if (route.path.startsWith('/settings')) {
     return 'Settings';
   }
+  if (route.path.startsWith('/journal')) {
+    return 'Journal';
+  }
 
   const head = useHead();
   if (head.title && head.title.value) {
@@ -23,8 +26,6 @@ const pageTitle = computed(() => {
   }
 
   if (route.name) {
-    if (route.name === 'journal-id') return 'Journal';
-    if (route.name === 'journal-new') return 'New Journal';
     return String(route.name).charAt(0).toUpperCase() + String(route.name).slice(1);
   }
   return 'MindfulLucidity';
