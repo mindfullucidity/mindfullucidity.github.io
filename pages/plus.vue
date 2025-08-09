@@ -27,7 +27,7 @@ onMounted(() => {
             <p class="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
               Gain unlimited access to advanced AI analysis, exclusive features, and directly support the future of MindfulLucidity.
             </p>
-            <div class="flex justify-center space-x-4">
+            <div class="flex justify-center gap-4 flex-wrap">
               <Button as-child class="bg-black hover:bg-black/50 text-white">
             <a href="https://patreon.com/MindfulLucidity" target="_blank" rel="noopener noreferrer">
               <font-awesome :icon="['fab', 'patreon']" class="h-5 w-5 mr-2" />

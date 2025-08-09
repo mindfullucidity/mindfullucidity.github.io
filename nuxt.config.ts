@@ -16,6 +16,12 @@ export default defineNuxtConfig({
           type: 'image/svg+xml', // Change this based on your file type (e.g., 'image/png')
           href: '/favicon.svg'  // Use the public path to your icon file
         }
+      ],
+      meta: [
+        {
+          name: 'viewport',
+          content: 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no'
+        }
       ]
     }
   },
