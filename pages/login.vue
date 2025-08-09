@@ -33,7 +33,7 @@ definePageMeta({
   layout: false
 })
 
-import { ref, onMounted, computed, watchEffect } from 'vue'
+import { ref, onMounted, computed, onUnmounted, watchEffect } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 
@@ -49,19 +49,37 @@ const route = useRoute()
 const isLoading = ref(true); // Initially true for loading state
 const user = useSupabaseUser(); // Get the Supabase user
 
-watchEffect(() => {
-  // Once the user object has a definitive value (either an object or null),
-  // we can hide the loading spinner.
+const redirectToPath = computed(() => route.query.to?.toString() || '/home');
+
+let authListener: any; // To store the subscription
+
+onMounted(() => {
+  // Listen for auth state changes
+  authListener = supabase.auth.onAuthStateChange((event, session) => {
+    // When the session is available (or null), it means the auth state has been resolved
+    if (session !== undefined) { // session can be null, but not undefined here
+      isLoading.value = false;
+      if (session?.user) { // If there's a user in the session, redirect
+        navigateTo('/home');
+      }
+    }
+  });
+
+  // Also check immediately in case the session is already resolved before onAuthStateChange fires
   if (user.value !== undefined) {
     isLoading.value = false;
-    // If user is populated (not null), redirect to home
     if (user.value) {
       navigateTo('/home');
     }
   }
 });
 
-const redirectToPath = computed(() => route.query.to?.toString() || '/home');
+onUnmounted(() => {
+  // Clean up the listener when the component is unmounted
+  if (authListener) {
+    authListener.data?.unsubscribe();
+  }
+});
 
 const handleLogin = async () => {
   try {
