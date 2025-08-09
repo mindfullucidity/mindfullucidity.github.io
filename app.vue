@@ -21,9 +21,7 @@ const router = useRouter()
   <!-- The v-if ensures that we don't render the page until the user state is known -->
   <!-- This prevents the flicker or redirect to the login page -->
   <div v-if="user !== undefined" class="relative z-10">
-    <NuxtLayout>
-      <NuxtPage />
-    </NuxtLayout>
+    <NuxtPage />
     <Toaster />
   </div>
 </template>
