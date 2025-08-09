@@ -31,7 +31,7 @@ onMounted(() => {
           <p class="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
             MindfulLucidity helps you explore your subconscious through intuitive dream journaling and advanced AI analysis.
           </p>
-          <div class="flex justify-center space-x-4">
+          <div class="flex justify-center gap-4 flex-wrap">
             <InstallPWAButton />
             <Button as-child>
               <NuxtLink to="/register">Get Started</NuxtLink>

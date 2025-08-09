@@ -31,7 +31,7 @@
         </template>
         <template v-else-if="filteredEntries.length === 0 && !searchQuery">
           <div class="flex flex-col items-center justify-center py-8 text-muted-foreground">
-            <FileText class="h-8 w-8 mb-2" />
+            <Bed class="h-8 w-8 mb-2" />
             <p>No entries yet. Start by creating a new one!</p>
           </div>
         </template>
@@ -61,7 +61,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { useJournal } from '@/composables/useJournal.ts';
 import { Separator } from '@/components/ui/separator';
-import { Search, Plus, SearchX, FileText } from 'lucide-vue-next';
+import { Search, Plus, SearchX, Bed } from 'lucide-vue-next';
 import JournalEntryCardSkeleton from '../sidebar/JournalEntryCardSkeleton.vue';
 import type { JournalEntryOverview } from '@/composables/useJournal';
 import { ScrollArea } from '@/components/ui/scroll-area';

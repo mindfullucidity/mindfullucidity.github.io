@@ -124,29 +124,41 @@ const handleTriggerChange = (event: Event) => {
 
 let moodSpectrumRect: DOMRect | null = null;
 
-const handleMoodDrag = (event: MouseEvent) => {
+const handleMoodDrag = (event: MouseEvent | TouchEvent) => {
   if (!moodSpectrumRect) {
     console.error('moodSpectrumRect is null in handleMoodDrag');
     return;
   }
-  const x = event.clientX - moodSpectrumRect.left;
+  const clientX = 'touches' in event ? event.touches[0].clientX : event.clientX;
+  const x = clientX - moodSpectrumRect.left;
   const percentage = Math.max(0, Math.min(100, (x / moodSpectrumRect.width) * 100));
   mood.value = Math.round(percentage);
   emit('update:mood', mood.value);
 };
 
-const startDragging = (event: MouseEvent) => {
+const startDragging = (event: MouseEvent | TouchEvent) => {
   isDragging.value = true;
   moodSpectrumRect = (event.currentTarget as HTMLDivElement).getBoundingClientRect();
-  handleMoodDrag(event); // Set initial position on mousedown
-  window.addEventListener('mousemove', handleMoodDrag);
-  window.addEventListener('mouseup', stopDragging);
+  handleMoodDrag(event); // Set initial position on mousedown or touchstart
+
+  if ('touches' in event) {
+    window.addEventListener('touchmove', handleMoodDrag);
+    window.addEventListener('touchend', stopDragging);
+  } else {
+    window.addEventListener('mousemove', handleMoodDrag);
+    window.addEventListener('mouseup', stopDragging);
+  }
 };
 
-const stopDragging = () => {
+const stopDragging = (event: MouseEvent | TouchEvent) => {
   isDragging.value = false;
-  window.removeEventListener('mousemove', handleMoodDrag);
-  window.removeEventListener('mouseup', stopDragging);
+  if ('touches' in event) {
+    window.removeEventListener('touchmove', handleMoodDrag);
+    window.removeEventListener('touchend', stopDragging);
+  } else {
+    window.removeEventListener('mousemove', handleMoodDrag);
+    window.removeEventListener('mouseup', stopDragging);
+  }
 };
 
 const handleCharacteristicToggle = (characteristicId: string) => {
@@ -251,15 +263,16 @@ const selectedLucidityDetails = computed(() => {
           </div>
           <div class="relative">
             <div
-              class="h-12 rounded-full cursor-pointer relative overflow-hidden border border-border"
+              class="w-full h-12 rounded-full cursor-pointer relative overflow-hidden"
               :style="{
                 background: `linear-gradient(to right,
-                  hsl(330, 80%, 40%) 0%,
+                  hsl(330, 80%, 40%) -5%,
                   hsl(160, 70%, 50%) 50%,
-                  hsl(260, 90%, 70%) 100%
+                  hsl(260, 90%, 70%) 105%
                 )`
               }"
               @mousedown="startDragging"
+              @touchstart.prevent="startDragging"
             >
               <div
                 class="absolute top-1/2 w-8 h-8 rounded-full border-2 border-white shadow-lg flex items-center justify-center text-lg cursor-grab active:cursor-grabbing select-none"

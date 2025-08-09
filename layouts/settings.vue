@@ -16,7 +16,7 @@ interface SidebarItem {
 }
 
 const sidebarItems: SidebarItem[] = [
-  { id: 'profile', label: 'Profile', icon: User, to: '/settings' },
+  { id: 'profile', label: 'Account', icon: User, to: '/settings' },
   { id: 'ai', label: 'AI', icon: Bot, to: '/settings/ai' },
   { id: 'plus', label: 'Plus', icon: Crown, to: '/settings/plus' },
 ]

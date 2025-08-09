@@ -14,7 +14,7 @@
       <Button v-if="activeTab === 'entry' || activeTab === 'details'" variant="ghost" size="icon" @click="emit('enhanceEntry')" :disabled="isEnhancingEntry">
         <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" />
       </Button>
-      <Separator v-if="activeTab === 'entry' || activeTab === 'details'" orientation="vertical" class="mx-2" />
+      <Separator v-if="(activeTab === 'entry' || activeTab === 'details') && !isNewEntry" orientation="vertical" class="mx-2" />
       <Button v-if="!isNewEntry" variant="ghost" size="icon" @click="emit('deleteEntryAndNavigate')">
         <Trash2 class="w-4 h-4 text-red-400" />
       </Button>
