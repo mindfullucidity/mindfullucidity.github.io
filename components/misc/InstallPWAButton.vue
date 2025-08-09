@@ -44,13 +44,46 @@ const os = computed(() => {
   return '';
 });
 
+const browser = computed(() => {
+  if (!isClient.value) return '';
+
+  // Try to use userAgentData for more reliable Chromium detection
+  if (navigator.userAgentData) {
+    const brands = navigator.userAgentData.brands;
+    if (brands.some(brand => brand.brand === 'Chromium')) {
+      return 'Chromium';
+    }
+    // If it's a Chromium-based browser but not explicitly 'Chromium' brand (e.g., Google Chrome, Edge)
+    if (brands.some(brand => brand.brand.includes('Chrome')) || brands.some(brand => brand.brand.includes('Edge'))) {
+      return 'Chromium';
+    }
+  }
+
+  // Fallback to userAgent string for other browsers or if userAgentData is not available
+  const userAgent = navigator.userAgent.toLowerCase();
+
+  if (userAgent.includes('firefox')) {
+    return 'Firefox';
+  }
+  // General Chromium-based detection for older browsers or non-userAgentData supporting ones
+  if (userAgent.includes('chrome') && !userAgent.includes('edg') && !userAgent.includes('firefox') && !userAgent.includes('safari')) {
+    return 'Chromium';
+  }
+
+  return '';
+});
+
 const getInstructions = () => {
   if (os.value === 'iOS') {
-    return 'To install this app, tap the Share button (\u21E7) and then \'Add to Home Screen\'.';
+    return 'To install this app, tap the Share button (⇧) and then \'Add to Home Screen\'.';
   } else if (os.value === 'Android') {
-    return 'To install this app, tap the menu icon (\u22EE) and then \'Add to Home Screen\'.';
+    return "To install this app, tap the menu icon (⋮) and then 'Add to Home Screen'.";
+  } else if (browser.value === 'Firefox') {
+    return 'On Firefox, direct installation is not supported. You can continue to use the app in your browser, or install it on your mobile device (iOS/Android) for a dedicated experience.';
+  } else if (browser.value === 'Chromium') {
+    return 'On Chromium-based browsers (like Chrome, Edge, Brave), look for an "Install App" option in your browser\'s menu (often a plus icon in the address bar or under the three-dot menu). You can also install it on your mobile device (iOS/Android) for a dedicated experience.';
   } else {
-    return 'Please use your browser\'s \'Add to Home Screen\' or \'Install App\' feature.';
+    return 'Direct installation may not be supported on this browser. You can continue to use the app on the web, or install it on your mobile device (iOS/Android) for a dedicated experience.';
   }
 };
 
@@ -67,7 +100,7 @@ const handleInstallClick = () => {
   <Button
     class="bg-gradient-to-r from-[#a78bfa]/50 to-[#60a5fa]/50 hover:from-[#a78bfa] hover:to-[#60a5fa]"
     @click="handleInstallClick"
-    v-if="os !== ''"
+    v-if="isClient"
   >
     Install App
   </Button>
