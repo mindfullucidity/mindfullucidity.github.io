@@ -95,6 +95,24 @@ export default defineNuxtConfig({
       installPrompt: true,
       periodicSyncForUpdates: 20,
     },
+    workbox: {
+      runtimeCaching: [
+        {
+          urlPattern: '/home',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'authenticated-pages',
+            expiration: {
+              maxEntries: 10,
+              maxAgeSeconds: 60 * 60 * 24,
+            },
+            cacheableResponse: {
+              statuses: [0, 200],
+            },
+          },
+        },
+      ],
+    },
     devOptions: {
       enabled: false,
       suppressWarnings: true, // Resolved conflict here

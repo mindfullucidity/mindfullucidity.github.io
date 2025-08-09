@@ -12,3 +12,5 @@
 12. implmenet patreon (or maybe crowdfunding) and already subscribe enhance (also remove debug toggle and maybe make role a user_metadata)
 13. autofill theming
 14. look into only using workbox when pwa is installed
+15. mobile icon enhance (both on screen and on install prompt)
+16. the install app button on desktop doesnt make sense (its says click dots but there isn't any)
