@@ -10,6 +10,8 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import { useHome } from '@/composables/useHome';
 import JournalEntryCardExpanded from '~/components/journal/misc/JournalEntryCardExpanded.vue';
 import JournalEntryCardExpandedSkeleton from '~/components/journal/misc/JournalEntryCardExpandedSkeleton.vue';
+import HomePlusCard from '~/components/misc/HomePlusCard.vue';
+import HomeDreamStreak from '~/components/misc/HomeDreamStreak.vue';
 import { Skeleton } from '@/components/ui/skeleton';
 
 
@@ -183,10 +185,13 @@ const streakMessage = computed(() => {
           </CardContent>
         </Card>
 
-        <div class="grid grid-cols-1 sm:grid-cols-1 lg:grid-cols-3 gap-8">
+        <div class="grid grid-cols-1 md:grid-cols-1 lg:grid-cols-3 md:gap-8">
           <!-- Recent Entries -->
-          <div class="sm:col-span-1 lg:col-span-2">
-            <Card class="bg-card border-border h-full">
+          <div class="md:col-span-1 lg:col-span-2">
+            <div class="md:hidden  mb-6 md:mb-0">
+              <HomeDreamStreak :is-loading-streak-info="isLoadingStreakInfo" :streak-info="streakInfo" />
+            </div>
+            <Card class="bg-card border-border">
               <CardHeader>
                 <CardTitle class="flex items-center gap-2 text-foreground">
                   <BookOpen class="h-5 w-5 text-primary" />
@@ -220,111 +225,12 @@ const streakMessage = computed(() => {
           </div>
 
           <!-- Right Sidebar -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 gap-6">
+          <div class="grid grid-cols-2 lg:grid-cols-1 gap-6">
             <!-- Journaling Streak -->
-            <Card class="bg-card border-border">
-              <CardHeader class="pb-3">
-                <CardTitle class="flex items-center gap-2 text-foreground">
-                  <Flame class="text-destructive" />
-                  Dream Streak
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div v-if="isLoadingStreakInfo" class="text-center space-y-3">
-                  <Skeleton class="h-8 w-32 mx-auto" />
-                  <Skeleton class="h-4 w-48 mx-auto" />
-                  <Progress
-                    :model-value="0"
-                    class="h-2 bg-background"
-                  />
-                  <Skeleton class="h-3 w-40 mx-auto" />
-                </div>
-                <div v-else class="text-center space-y-3">
-                  <div :class="streakTextColorClass" class="text-3xl font-bold">
-                    {{ streakInfo.streak_length }} Day{{ streakInfo.streak_length === 1 ? '' : 's' }}
-                  </div>
-                  <p class="text-muted-foreground text-sm">
-                    {{ streakMessage }}
-                  </p>
-                  <Progress
-                    :model-value="(streakInfo.streak_length % 30) * (100/30)"
-                    class="h-2 bg-background"
-                  />
-                  <p class="text-xs text-muted-foreground">
-                    {{ 30 - (streakInfo.streak_length % 30) }} days to next milestone
-                  </p>
-                </div>
-              </CardContent>
-            </Card>
+              <HomeDreamStreak :is-loading-streak-info="isLoadingStreakInfo" :streak-info="streakInfo" class="hidden md:flex"/>
 
             <!-- Subscription Status -->
-            <Card v-if="!isSubscribed" class="bg-card border-plus-gold grid-cols-1">
-              <CardHeader>
-                <CardTitle class="flex items-center gap-2 text-plus-gold">
-                  <Crown class="h-5 w-5" />
-                  MindfulLucidity Plus
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div class="space-y-3">
-                  <p class="text-muted-foreground text-sm">
-                    Gain unlimited access to advanced AI analysis, exclusive features, and directly support the future of MindfulLucidity.
-                  </p>
-                  <!-- <div class="flex items-start space-x-2 text-sm text-muted-foreground">
-                    <Lightbulb class="h-4 w-4 flex-shrink-0 mt-1" />
-                    <p>
-                      You can get a free <a href="https://aistudio.google.com/app/apikey" target="_blank" class="text-blue-500 hover:underline">Google Gemini API key</a> to enable full access completely free, by enabling Custom AI Model in <NuxtLink to="/settings/ai" class="text-blue-500 hover:underline">Settings</NuxtLink>!
-                    </p>
-                  </div> -->
-                  <div class="flex flex-col gap-2">
-                    <Button
-                      class="w-full"
-                      as-child
-                    >
-                      <NuxtLink to="/plus">
-                        Learn More
-                      </NuxtLink>
-                    </Button>
-                    <Button
-                      size="sm"
-                      variant="outline"
-                      class="w-full"
-                      as-child
-                    >
-                      <NuxtLink to="/settings/ai">
-                        Use Your Own API Key
-                      </NuxtLink>
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-            <Card v-else class="bg-card border-plus-gold sm:flex flex-col justify-between hidden">
-              <CardHeader>
-                <CardTitle class="flex items-center gap-2 text-plus-gold">
-                  <Crown class="h-5 w-5" />
-                  MindfulLucidity Plus 
-                </CardTitle>
-                <CardDescription class="text-muted-foreground text-sm">
-                  Thank you for being a Plus Subscriber! You have full access to all MindfulLucidity Plus features.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div class="space-y-3">
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button
-                  size="sm"
-                  class="w-full"
-                  as-child
-                >
-                  <NuxtLink to="/settings/plus">
-                    Manage Subscription
-                  </NuxtLink>
-                </Button>
-              </CardFooter>
-            </Card>
+            <HomePlusCard :is-subscribed="isSubscribed" class="hidden md:flex" />
           </div>
         </div>
 
@@ -363,6 +269,9 @@ const streakMessage = computed(() => {
             </Card>
           </div>
         </div> -->
+        <div class="md:hidden">
+          <HomePlusCard :is-subscribed="isSubscribed" />
+        </div>
       </div>
     </div>
   </div>
