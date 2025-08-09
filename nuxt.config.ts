@@ -73,7 +73,7 @@ export default defineNuxtConfig({
 
   pwa: {
     manifest: {
-      name: 'Mindful Lucidity',
+      name: 'MindfulLucidity',
       short_name: 'MindfulLucidity',
       description: 'A journal for lucid dreaming',
       theme_color: '#1a1a1a',
@@ -91,18 +91,12 @@ export default defineNuxtConfig({
       ],
       start_url: '/home',
     },
-    workbox: {
-      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
-    },
-    injectManifest: {
-      globPatterns: ['**/*.{js,css,html,png,svg,ico}'],
-    },
     client: {
       installPrompt: true,
       periodicSyncForUpdates: 20,
     },
     devOptions: {
-      enabled: process.env.NODE_ENV === 'development',
+      enabled: false,
       suppressWarnings: process.env.NODE_ENV === 'development',
       navigateFallback: '/index.html',
       type: 'module',

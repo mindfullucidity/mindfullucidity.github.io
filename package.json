@@ -15,6 +15,7 @@
     "@nuxtjs/supabase": "^1.6.0",
     "@tailwindcss/vite": "^4.1.11",
     "@vesp/nuxt-fontawesome": "^2.0.0",
+    "@vite-pwa/nuxt": "^1.0.4",
     "@vueuse/core": "^13.6.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -35,7 +36,6 @@
     "vue-sonner": "^2.0.2"
   },
   "devDependencies": {
-    "@vite-pwa/nuxt": "^1.0.4",
     "typescript": "^5.8.3"
   }
 }

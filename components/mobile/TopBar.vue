@@ -5,9 +5,11 @@ import { useHead } from '#imports';
 import { SunMoon, Crown, Home, LogIn } from 'lucide-vue-next';
 import { useSupabaseUser } from '#imports';
 import { Button } from '@/components/ui/button';
+import { useNuxtApp } from '#app';
 
 const route = useRoute();
 const user = useSupabaseUser();
+const { $pwa } = useNuxtApp();
 
 const pageTitle = computed(() => {
   if (route.path.startsWith('/settings')) {
@@ -36,7 +38,7 @@ const pageTitle = computed(() => {
       MindfulLucidity
     </NuxtLink>
     <div class="flex items-center">
-      <template v-if="route.path === '/'">
+      <template v-if="route.path === '/' && !$pwa?.isPWAInstalled">
         <Button v-if="!user" size="sm" as-child>
           <NuxtLink to="/login">
             <LogIn class="w-4 h-4 mr-1" />

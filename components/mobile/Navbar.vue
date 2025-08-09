@@ -9,11 +9,14 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import { useNuxtApp } from '#app'
+import InstallPWAButton from '~/components/misc/InstallPWAButton.vue'
 
 const route = useRoute()
 
 const user = useSupabaseUser()
 const supabase = useSupabaseClient()
+const { $pwa } = useNuxtApp()
 
 async function logout() {
   try {

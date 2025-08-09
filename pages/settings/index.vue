@@ -112,7 +112,7 @@ const { displayName, email, isPatreonLinked, togglePatreonLink, updateDisplayNam
             <div class="space-y-0.5">
               <Label class="text-red-500">Delete Account</Label>
               <p class="text-sm text-muted-foreground">
-                Permanently delete your account and all associated data. This action cannot be undone.
+                Permanently delete your account and all data. This cannot be undone.
               </p>
             </div>
             <Button variant="destructive" @click="deleteAccount">

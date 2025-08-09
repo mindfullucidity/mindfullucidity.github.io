@@ -4,11 +4,15 @@ import DesktopNavbar from '~/components/desktop/Navbar.vue'
 import TopBar from '~/components/mobile/TopBar.vue'
 import { useRoute } from 'vue-router'
 import { computed } from 'vue'
+import { useNuxtApp } from '#app'
+import { useMediaQuery } from '@vueuse/core'
 
 const route = useRoute()
+const { $pwa } = useNuxtApp()
+const isLessThanLg = useMediaQuery('(max-width: 1023px)')
 
 const shouldShowMobileNavbar = computed(() => {
-  return !['/', '/login', '/register', '/plus'].includes(route.path)
+  return (!['/', '/login', '/register', '/plus'].includes(route.path)) || ($pwa?.isPWAInstalled && isLessThanLg.value)
 })
 </script>
 
