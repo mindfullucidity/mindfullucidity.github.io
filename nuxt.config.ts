@@ -78,6 +78,7 @@ export default defineNuxtConfig({
   },
 
   pwa: {
+    registerType: 'autoUpdate',
     manifest: {
       name: 'MindfulLucidity',
       short_name: 'MindfulLucidity',
@@ -121,6 +122,18 @@ export default defineNuxtConfig({
       suppressWarnings: true, // Resolved conflict here
       navigateFallback: '/home',
       type: 'module',
+    },
+    workbox: {
+      navigateFallback: null, // Disable navigateFallback to prevent serving cached HTML for navigation requests
+      runtimeCaching: [
+        {
+          urlPattern: ({ request }) => request.mode === 'navigate',
+          handler: 'NetworkFirst',
+          options: {
+            cacheName: 'html-cache',
+          },
+        },
+      ],
     },
   },
 })
