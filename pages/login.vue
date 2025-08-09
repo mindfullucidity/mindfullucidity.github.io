@@ -54,20 +54,36 @@ const redirectToPath = computed(() => route.query.to?.toString() || '/home');
 let authListener: any; // To store the subscription
 
 onMounted(() => {
+  let authResolved = false;
+  let minTimePassed = false;
+
+  // Minimum display time for the spinner
+  setTimeout(() => {
+    minTimePassed = true;
+    if (authResolved) {
+      isLoading.value = false;
+    }
+  }, 300); // 300ms minimum display time
+
   // Listen for auth state changes
   authListener = supabase.auth.onAuthStateChange((event, session) => {
-    // When the session is available (or null), it means the auth state has been resolved
-    if (session !== undefined) { // session can be null, but not undefined here
+    authResolved = true;
+    if (minTimePassed) {
       isLoading.value = false;
-      if (session?.user) { // If there's a user in the session, redirect
-        navigateTo('/home');
-      }
+    }
+    if (session?.user) { // If there's a user in the session, redirect
+      navigateTo('/home');
     }
   });
 
   // Also check immediately in case the session is already resolved before onAuthStateChange fires
-  if (user.value !== undefined) {
-    isLoading.value = false;
+  // This part is crucial for very fast loads where onAuthStateChange might be "missed"
+  // or the initial state is already known.
+  if (user.value !== undefined) { // user.value will be undefined initially, then null or object
+    authResolved = true;
+    if (minTimePassed) {
+      isLoading.value = false;
+    }
     if (user.value) {
       navigateTo('/home');
     }
