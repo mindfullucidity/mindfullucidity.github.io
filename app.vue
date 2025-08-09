@@ -8,6 +8,7 @@ const router = useRouter()
 </script>
 
 <template>
+  <NuxtPwaManifest />
   <svg width="0" height="0" style="position: absolute;">
     <defs>
       <linearGradient id="sparkle-gradient" x1="0%" y1="0%" x2="100%" y2="0%">

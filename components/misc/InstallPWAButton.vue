@@ -1,77 +1,74 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
-import { Button } from '~/components/ui/button'
+import { useNuxtApp } from '#app';
+import { ref, computed, onMounted } from 'vue';
+import { Download, Lightbulb } from 'lucide-vue-next';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
   DialogDescription,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
-  DialogClose
-} from '~/components/ui/dialog'
-import { Lightbulb } from 'lucide-vue-next'
+  DialogClose,
+} from '@/components/ui/dialog';
 
-const deferredPrompt = ref<any>(null)
-const showInstallDialog = ref(false)
-const os = ref('')
+const { $pwa } = useNuxtApp();
+
+const showInstallDialog = ref(false);
+const isClient = ref(false);
 
 onMounted(() => {
-  window.addEventListener('beforeinstallprompt', (e) => {
-    e.preventDefault()
-    deferredPrompt.value = e
-  })
+  isClient.value = true;
+});
 
-  window.addEventListener('appinstalled', () => {
-    // Hide the button if the app is already installed
-    deferredPrompt.value = null
-  })
+const os = computed(() => {
+  if (!isClient.value) return '';
+  const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera;
 
-  detectOS()
-})
-
-const detectOS = () => {
-  const userAgent = navigator.userAgent || navigator.vendor || (window as any).opera
   if (/android/i.test(userAgent)) {
-    os.value = 'Android'
-  } else if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
-    os.value = 'iOS'
-  } else {
-    os.value = 'Desktop'
+    return 'Android';
   }
-}
 
-const installPWA = async () => {
-  if (deferredPrompt.value) {
-    deferredPrompt.value.prompt()
-    const { outcome } = await deferredPrompt.value.userChoice
-    if (outcome === 'accepted') {
-      console.log('User accepted the PWA installation')
-    } else {
-      console.log('User dismissed the PWA installation')
-    }
-    deferredPrompt.value = null
-  } else {
-    showInstallDialog.value = true
+  if (/iPad|iPhone|iPod/.test(userAgent) && !(window as any).MSStream) {
+    return 'iOS';
   }
-}
+
+  if (/windows phone/i.test(userAgent)) {
+    return 'Windows Phone';
+  }
+
+  if (/mac/i.test(userAgent)) {
+    return 'iOS'; // For Safari on macOS
+  }
+
+  return '';
+});
 
 const getInstructions = () => {
-  switch (os.value) {
-    case 'Android':
-      return `Tap the \'Menu\' icon (usually 3 dots) in your browser, then select \'Add to Home screen\'.`
-    case 'iOS':
-      return `Tap the \'Share\' icon (a square with an arrow pointing up) in your browser, then scroll down and select \'Add to Home Screen\'.`
-    case 'Desktop':
-      return `Look for an \'Install\' icon in your browser's address bar (often a computer with a down arrow) or a \'Menu\' option to \'Install app\'.`
-    default:
-      return `Please use your browser's \'Add to Home Screen\' or \'Install app\' option.`
+  if (os.value === 'iOS') {
+    return 'To install this app, tap the Share button (\u21E7) and then \'Add to Home Screen\'.';
+  } else if (os.value === 'Android') {
+    return 'To install this app, tap the menu icon (\u22EE) and then \'Add to Home Screen\'.';
+  } else {
+    return 'Please use your browser\'s \'Add to Home Screen\' or \'Install App\' feature.';
   }
-}
+};
+
+const handleInstallClick = () => {
+  if ($pwa?.showInstallPrompt) {
+    $pwa.install();
+  } else {
+    showInstallDialog.value = true;
+  }
+};
 </script>
 
 <template>
-  <Button class="bg-gradient-to-r from-[#a78bfa]/50 to-[#60a5fa]/50 hover:from-[#a78bfa] hover:to-[#60a5fa]" @click="installPWA" v-if="os !== ''">
+  <Button
+    class="bg-gradient-to-r from-[#a78bfa]/50 to-[#60a5fa]/50 hover:from-[#a78bfa] hover:to-[#60a5fa]"
+    @click="handleInstallClick"
+    v-if="os !== ''"
+  >
     Install App
   </Button>
 
