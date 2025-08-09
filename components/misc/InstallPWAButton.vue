@@ -86,7 +86,7 @@ const getInstructions = () => {
         </DialogDescription>
       </DialogHeader>
       <DialogClose as-child>
-        <Button type="button" variant="secondary">
+        <Button type="button">
           Got it!
         </Button>
       </DialogClose>

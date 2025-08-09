@@ -111,7 +111,8 @@ const shouldShowDialog = () => {
 watch(() => props.activeTab, async (newTab) => {
   if (newTab === 'analysis') {
     if (props.isNewEntry) {
-      journalAnalyses.value = journalAnalyses.value; 
+      // For new entries, analyses are managed internally until saved
+      // No change needed here for new entries
     } else if (props.editableEntry.journal_id && props.editableEntry.journal_id !== 0) {
       await fetchJournalAnalyses(props.editableEntry.journal_id);
     } else {
@@ -119,6 +120,16 @@ watch(() => props.activeTab, async (newTab) => {
     }
   }
 });
+
+// New watch to react to changes in editableEntry.analyses
+watch(() => props.editableEntry.analyses, (newAnalyses) => {
+  if (newAnalyses) {
+    journalAnalyses.value = [...newAnalyses]; // Deep copy to ensure reactivity
+    journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  } else {
+    journalAnalyses.value = [];
+  }
+}, { deep: true, immediate: true });
 
 const fetchJournalAnalyses = async (journalId: number) => {
   isLoadingAnalyses.value = true;

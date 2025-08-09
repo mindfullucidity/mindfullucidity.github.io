@@ -55,12 +55,6 @@ Deno.serve(async (req: Request) => {
 
     const model = modelSetupResult.model;
 
-    const parser = StructuredOutputParser.fromZodSchema(
-      z.object({
-        content: z.string().describe("The content of the AI analysis"),
-      })
-    );
-
     let systemPrompt = `You are an AI assistant specialized in generating insightful analyses of journal entries.`;
     let humanPrompt = `Journal Entry:\nTitle: ${entry.title}\nContent: ${entry.content}\n\n`;
 
@@ -111,22 +105,22 @@ Deno.serve(async (req: Request) => {
     }
         systemPrompt += `
 
-Ensure the output is a valid JSON object with 'content' key. The content should be markdown compliant. Don't give the return a title.
-${parser.getFormatInstructions()}`;
+Provide the analysis content directly as a markdown compliant string. Do not wrap it in JSON or provide a title.`;
 
     humanPrompt += `Generate a new AI analysis based on the type "${generate.type}" and depth "${generate.depth}".`;
     if (generate.note) {
       humanPrompt += ` Consider the following note: "${generate.note}".`;
     }
 
-    const { content: generatedContent } = await model.invoke([
+    const generatedResponse = await model.invoke([
       new SystemMessage(systemPrompt),
       new HumanMessage(humanPrompt),
     ]);
 
-    const parsedContent = await parser.parse(generatedContent as string);
+    // Extract the content from the generated response
+    const contentString = generatedResponse.content;
 
-    return new Response(JSON.stringify({ type: "ai_analysis", object: parsedContent }), {
+    return new Response(JSON.stringify({ type: "ai_analysis", object: { content: contentString } }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       status: 200,
     });

@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
-import { Moon, Sun, Cloud, Sparkles, Eye, Brain, AlertTriangle, RotateCcw } from 'lucide-vue-next';
+import { Moon, Sun, Cloud, Bed, Eye, EyeOff, Ghost, RotateCcw } from 'lucide-vue-next';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import JournalEntryViewDetailsSkeleton from './JournalEntryViewDetailsSkeleton.vue';
@@ -76,7 +76,7 @@ const lucidityLevels: LucidityLevel[] = [
   {
     level: 3,
     label: 'Fully Lucid',
-    icon: Sparkles,
+    icon: Sun,
     color: 'bg-[#BD93F9]/40', // Dracula purple
   }
 ];
@@ -91,19 +91,19 @@ const characteristics: Characteristic[] = [
   {
     id: 'nightmare',
     label: 'Nightmare',
-    icon: AlertTriangle,
+    icon: Ghost,
     color: 'bg-[#FF5555]/40' // Dracula red
   },
   {
     id: 'sleep_paralysis',
     label: 'Sleep Paralysis',
-    icon: Brain,
+    icon: Bed,
     color: 'bg-[#BD93F9]/40' // Dracula purple
   },
   {
     id: 'false_awakening',
     label: 'False Awakening',
-    icon: Sun,
+    icon: EyeOff,
     color: 'bg-[#FFB86C]/40' // Dracula orange
   }
 ];

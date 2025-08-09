@@ -6,6 +6,7 @@ interface JournalEntry {
   content: string;
   date: string;
   lucidityLevel: number;
+  mood: number | null;
   characteristics: string[];
 }
 
@@ -46,7 +47,7 @@ export const useHome = () => {
     try {
       const { data, error } = await supabase
         .from('journals')
-        .select('journal_id, title, content, date, lucidity_level, characteristics')
+        .select('journal_id, title, content, date, lucidity_level, characteristics, mood')
         .order('date', { ascending: false })
         .order('journal_id', { ascending: false })
         .limit(3);
@@ -62,6 +63,7 @@ export const useHome = () => {
         content: entry.content,
         date: entry.date,
         lucidityLevel: entry.lucidity_level || 0,
+        mood: entry.mood ?? 50,
         characteristics: entry.characteristics || [],
       })) as JournalEntry[];
       return journalEntries.value;

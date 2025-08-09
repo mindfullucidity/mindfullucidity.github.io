@@ -59,7 +59,7 @@ Deno.serve(async (req: Request) => {
         })
       );
 
-      const systemPrompt = `You are an AI assistant that enhances dream journal entries.\n      Your goal is to refine the provided journal entry, improving its clarity, coherence, and expressiveness.\n      Maintain the original meaning and core story of the entry.\n      Do not add new information or alter facts.\n      Ensure the output is a valid JSON object with 'title' and 'content' keys.\n      If no title is provided please generate one, if one exist only fix spellings of it\n      ${parser.getFormatInstructions()}`;
+      const systemPrompt = `You are an AI assistant that enhances dream journal entries.\n      Your goal is to refine the provided journal entry, improving its clarity, coherence, and expressiveness.\n      Maintain the original meaning and core story of the entry.\n      Do not add new information or alter facts.\n      Ensure the output is a valid JSON object with 'title' and 'content' keys.\n      If no title is provided please generate one(keep it to 4 or less words), if one exist only fix spellings of it\n      ${parser.getFormatInstructions()}`;
 
       const humanPrompt = `Original Journal Entry:\n      Title: ${title}\n      Content: ${content}`;
 
