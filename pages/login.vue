@@ -30,7 +30,7 @@ definePageMeta({
   layout: false
 })
 
-import { ref } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 
@@ -44,6 +44,17 @@ const router = useRouter()
 const route = useRoute()
 
 const redirectToPath = computed(() => route.query.to?.toString() || '/home');
+
+// Add this block for redirecting logged-in users
+const user = useSupabaseUser()
+onMounted(() => {
+  if (user.value) {
+    // Only navigate if not already on the home page to prevent infinite redirects
+    if (route.path !== '/home') {
+      navigateTo('/home')
+    }
+  }
+})
 
 const handleLogin = async () => {
   try {
