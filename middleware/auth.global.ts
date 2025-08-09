@@ -24,7 +24,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
   else {
     const routes = ['/login', '/register']
     // And they are on a login/register page, redirect to home
-    if (routes.some(route => to.path.startsWith(route))) {
+    if (routes.some(route => route === to.path)) {
         return navigateTo('/home')
     }
   }

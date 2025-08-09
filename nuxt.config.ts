@@ -123,17 +123,5 @@ export default defineNuxtConfig({
       navigateFallback: '/home',
       type: 'module',
     },
-    workbox: {
-      navigateFallback: null, // Disable navigateFallback to prevent serving cached HTML for navigation requests
-      runtimeCaching: [
-        {
-          urlPattern: ({ request }) => request.mode === 'navigate',
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'html-cache',
-          },
-        },
-      ],
-    },
   },
 })
