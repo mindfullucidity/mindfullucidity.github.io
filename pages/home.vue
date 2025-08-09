@@ -140,6 +140,7 @@ const streakMessage = computed(() => {
 
 <template>
   <Title>Home | MindfulLucidity</Title>
+  <ClientOnly>
   <div class="relative min-h-screen overflow-hidden">
     
     <div class="relative z-10 min-h-screen text-foreground p-6">
@@ -366,6 +367,7 @@ const streakMessage = computed(() => {
       </div>
     </div>
   </div>
+</ClientOnly>
 </template>
 
 <style scoped>
