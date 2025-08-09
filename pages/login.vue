@@ -56,37 +56,39 @@ let authListener: any; // To store the subscription
 onMounted(() => {
   let authResolved = false;
   let minTimePassed = false;
+  let navigationPromise: Promise<any> | null = null; // To hold the navigation promise
+
+  const resolveLoading = async () => {
+    if (authResolved && minTimePassed) {
+      if (user.value) {
+        // If user exists, initiate navigation and wait for it
+        await navigateTo('/home');
+      }
+      isLoading.value = false; // Hide spinner after all conditions met
+    }
+  };
 
   // Minimum display time for the spinner
   setTimeout(() => {
     minTimePassed = true;
-    if (authResolved) {
-      isLoading.value = false;
-    }
+    resolveLoading();
   }, 300); // 300ms minimum display time
 
   // Listen for auth state changes
   authListener = supabase.auth.onAuthStateChange((event, session) => {
     authResolved = true;
-    if (minTimePassed) {
-      isLoading.value = false;
+    if (session?.user) {
+      user.value = session.user; // Ensure user ref is updated
+    } else {
+      user.value = null; // Explicitly set to null if no user
     }
-    if (session?.user) { // If there's a user in the session, redirect
-      navigateTo('/home');
-    }
+    resolveLoading();
   });
 
-  // Also check immediately in case the session is already resolved before onAuthStateChange fires
-  // This part is crucial for very fast loads where onAuthStateChange might be "missed"
-  // or the initial state is already known.
-  if (user.value !== undefined) { // user.value will be undefined initially, then null or object
+  // Immediate check for already resolved auth state
+  if (user.value !== undefined) {
     authResolved = true;
-    if (minTimePassed) {
-      isLoading.value = false;
-    }
-    if (user.value) {
-      navigateTo('/home');
-    }
+    resolveLoading();
   }
 });
 
