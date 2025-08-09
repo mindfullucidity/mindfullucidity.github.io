@@ -1,7 +1,10 @@
 <template>
   <Title>Login | MindfulLucidity</Title>
   <div class="flex items-center justify-center min-h-screen bg-background">
-    <div class="w-full max-w-md p-8 space-y-6 bg-card rounded-lg border border-border">
+    <div v-if="isLoading" class="flex items-center justify-center w-full h-full">
+      <div class="h-16 w-16 animate-spin rounded-full border-4 border-solid border-primary border-t-transparent"></div>
+    </div>
+    <div v-else class="w-full max-w-md p-8 space-y-6 bg-card rounded-lg border border-border">
       <h2 class="text-2xl font-bold text-center text-foreground">Login</h2>
       <form @submit.prevent="handleLogin" class="space-y-4">
         <div>
@@ -30,7 +33,7 @@ definePageMeta({
   layout: false
 })
 
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, watchEffect } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 
 
@@ -43,18 +46,22 @@ const supabase = useSupabaseClient()
 const router = useRouter()
 const route = useRoute()
 
-const redirectToPath = computed(() => route.query.to?.toString() || '/home');
+const isLoading = ref(true); // Initially true for loading state
+const user = useSupabaseUser(); // Get the Supabase user
 
-// Add this block for redirecting logged-in users
-const user = useSupabaseUser()
-onMounted(() => {
-  if (user.value) {
-    // Only navigate if not already on the home page to prevent infinite redirects
-    if (route.path !== '/home') {
-      navigateTo('/home')
+watchEffect(() => {
+  // Once the user object has a definitive value (either an object or null),
+  // we can hide the loading spinner.
+  if (user.value !== undefined) {
+    isLoading.value = false;
+    // If user is populated (not null), redirect to home
+    if (user.value) {
+      navigateTo('/home');
     }
   }
-})
+});
+
+const redirectToPath = computed(() => route.query.to?.toString() || '/home');
 
 const handleLogin = async () => {
   try {
