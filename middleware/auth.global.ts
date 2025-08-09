@@ -18,7 +18,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
         if (from.path.startsWith('/login')) {
           return
         } else {
-          return navigateTo(`/login?to=${to.path}`)
+          return navigateTo(`/login?to=${to.path}`, { replace: true })
         }
       }
     }

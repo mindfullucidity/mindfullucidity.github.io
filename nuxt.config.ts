@@ -76,14 +76,14 @@ export default defineNuxtConfig({
       name: 'MindfulLucidity',
       short_name: 'MindfulLucidity',
       description: 'A journal for lucid dreaming',
-      theme_color: '#1a1a1a',
-      background_color: '#1a1a1a',
+      theme_color: '#000000',
+      background_color: '#000000',
       display: 'standalone',
       display_override: ['standalone', 'minimal-ui'],
       scope: '/',
       icons: [
         {
-          src: '/favicon.svg',
+          src: 'favicon.svg',
           sizes: 'any',
           type: 'image/svg+xml',
           purpose: 'any maskable',
@@ -94,24 +94,6 @@ export default defineNuxtConfig({
     client: {
       installPrompt: true,
       periodicSyncForUpdates: 20,
-    },
-    workbox: {
-      runtimeCaching: [
-        {
-          urlPattern: '/home',
-          handler: 'NetworkFirst',
-          options: {
-            cacheName: 'authenticated-pages',
-            expiration: {
-              maxEntries: 10,
-              maxAgeSeconds: 60 * 60 * 24,
-            },
-            cacheableResponse: {
-              statuses: [0, 200],
-            },
-          },
-        },
-      ],
     },
     devOptions: {
       enabled: false,
