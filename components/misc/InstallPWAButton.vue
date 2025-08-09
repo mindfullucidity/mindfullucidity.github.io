@@ -109,7 +109,7 @@ const handleInstallClick = () => {
     <DialogContent>
       <DialogHeader>
         <DialogTitle class="flex items-center">
-          <Lightbulb class="h-5 w-5 mr-2" /> How to Install
+          How to Install
         </DialogTitle>
         <DialogDescription>
           {{ getInstructions() }}

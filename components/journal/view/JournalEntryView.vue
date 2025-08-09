@@ -273,6 +273,12 @@ const enhanceJournalEntry = async () => {
     return;
   }
 
+  const wordCount = editableEntry.value.content.trim().split(/\s+/).filter(word => word.length > 0).length;
+  if (wordCount < 3) {
+    toast.error("Journal entry must have at least 3 words to enhance.");
+    return;
+  }
+
   isEnhancingEntry.value = true;
   try {
     const { data, error } = await invokeEnhance({
@@ -310,6 +316,12 @@ const enhanceJournalEntry = async () => {
 const enhanceJournalDetails = async () => {
   if (!editableEntry.value || !editableEntry.value.lucidity_trigger.trim()) {
     toast.error("Lucidity trigger is empty. Nothing to enhance.");
+    return;
+  }
+
+  const wordCount = editableEntry.value.lucidity_trigger.trim().split(/\s+/).filter(word => word.length > 0).length;
+  if (wordCount < 3) {
+    toast.error("Lucidity trigger must have at least 3 words to enhance.");
     return;
   }
 
