@@ -12,7 +12,7 @@ const { $pwa } = useNuxtApp()
 const isLessThanLg = useMediaQuery('(max-width: 1023px)')
 
 const shouldShowMobileNavbar = computed(() => {
-  return (!['/', '/login', '/register', '/plus'].includes(route.path)) || ($pwa?.isPWAInstalled && isLessThanLg.value)
+  return !(['/login', '/register'].includes(route.path)) && ((!['/', '/plus'].includes(route.path)) || ($pwa?.isPWAInstalled && isLessThanLg.value))
 })
 </script>
 
@@ -20,7 +20,7 @@ const shouldShowMobileNavbar = computed(() => {
   <Title>MindfulLucidity | MindfulLucidity</Title>
   <div class="h-screen flex flex-col">
     <nav class="lg:hidden">
-      <TopBar />
+      <TopBar v-if="!['/login', '/register'].includes(route.path)" />
       <MobileNavbar v-if="shouldShowMobileNavbar" />
     </nav>
     <nav class="hidden lg:block">
