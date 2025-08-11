@@ -68,7 +68,7 @@ serve(async (req) => {
     const { access_token, refresh_token, expires_in } = await tokenResponse.json()
 
     // Get user info from Patreon
-    const patreonUserResponse = await fetch('https://www.patreon.com/api/oauth2/v2/identity?include%3Dmemberships%26fields%5Bmember%5D%3Dcurrently_entitled_amount_cents%2Cnext_charge_date%2Cpatreon_status%2Cwill_pay_amount_cents%26fields%5Buser%5D%3Demail%2Cfull_name', {
+    const patreonUserResponse = await fetch('https://www.patreon.com/api/oauth2/v2/identity?include=memberships&fields[member]=currently_entitled_amount_cents,next_charge_date,patron_status,will_pay_amount_cents,is_gifted,is_free_trial,last_charge_date&fields[user]=email,full_name', {
       headers: {
         'Authorization': `Bearer ${access_token}`,
       },
@@ -89,10 +89,16 @@ serve(async (req) => {
     let patreonCurrentlyEntitledAmountCents = null;
     let patreonWillPayAmountCents = null;
     let patreonNextChargeDate = null;
+    let patreonIsFreeTrial = null;
+    let patreonIsGifted = null;
+    let patreonLastChargeDate = null;
 
     const membership = patreonUserData.included?.find((item: any) => item.type === 'member');
     if (membership) {
-      patreonStatus = membership.attributes.patreon_status;
+      patreonStatus = membership.attributes.patron_status;
+      patreonIsFreeTrial = membership.attributes.is_free_trial;
+      patreonIsGifted = membership.attributes.is_gifted;
+      patreonLastChargeDate = membership.attributes.last_charge_date;
       patreonCurrentlyEntitledAmountCents = membership.attributes.currently_entitled_amount_cents;
       patreonWillPayAmountCents = membership.attributes.will_pay_amount_cents;
       patreonNextChargeDate = membership.attributes.next_charge_date;
@@ -119,6 +125,9 @@ serve(async (req) => {
         patreon_currently_entitled_amount_cents: patreonCurrentlyEntitledAmountCents,
         patreon_will_pay_amount_cents: patreonWillPayAmountCents,
         patreon_next_charge_date: patreonNextChargeDate,
+        patreon_is_free_trial: patreonIsFreeTrial,
+        patreon_is_gifted: patreonIsGifted,
+        patreon_last_charge_date: patreonLastChargeDate
       },
     })
 

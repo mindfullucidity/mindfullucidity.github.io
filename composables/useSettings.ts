@@ -55,6 +55,9 @@ export function useSettings() {
             patreon_currently_entitled_amount_cents: null,
             patreon_will_pay_amount_cents: null,
             patreon_next_charge_date: null,
+            patreon_is_free_trial: null,
+            patreon_is_gifted: null,
+            patreon_last_charge_date: null
           },
         })
         if (error) throw error
