@@ -80,28 +80,38 @@ serve(async (req) => {
     }
 
     const patreonUserData = await patreonUserResponse.json()
-    const patreonUserId = patreonUserData.data.id
-    const patreonUserEmail = patreonUserData.data.attributes.email
-    const patreonUserName = patreonUserData.data.attributes.full_name
+    const patreonUserInfo = {
+      patreon_id: patreonUserData.data.id,
+      patreon_email: patreonUserData.data.attributes.email,
+      patreon_name: patreonUserData.data.attributes.full_name,
+    }
 
     // Extract membership info
-    let patreonStatus = null;
-    let patreonCurrentlyEntitledAmountCents = null;
-    let patreonWillPayAmountCents = null;
-    let patreonNextChargeDate = null;
-    let patreonIsFreeTrial = null;
-    let patreonIsGifted = null;
-    let patreonLastChargeDate = null;
+    let patreonMembershipInfo = {};
+    let user_role = 'normal';
 
     const membership = patreonUserData.included?.find((item: any) => item.type === 'member');
     if (membership) {
-      patreonStatus = membership.attributes.patron_status;
-      patreonIsFreeTrial = membership.attributes.is_free_trial;
-      patreonIsGifted = membership.attributes.is_gifted;
-      patreonLastChargeDate = membership.attributes.last_charge_date;
-      patreonCurrentlyEntitledAmountCents = membership.attributes.currently_entitled_amount_cents;
-      patreonWillPayAmountCents = membership.attributes.will_pay_amount_cents;
-      patreonNextChargeDate = membership.attributes.next_charge_date;
+      const {
+        patron_status,
+        is_free_trial,
+        is_gifted,
+        last_charge_date,
+        currently_entitled_amount_cents,
+        will_pay_amount_cents,
+        next_charge_date,
+      } = membership.attributes;
+
+      patreonMembershipInfo = {
+        patreon_status: patron_status,
+        patreon_is_free_trial: is_free_trial,
+        patreon_is_gifted: is_gifted,
+        patreon_last_charge_date: last_charge_date,
+        patreon_currently_entitled_amount_cents: currently_entitled_amount_cents,
+        patreon_will_pay_amount_cents: will_pay_amount_cents,
+        patreon_next_charge_date: next_charge_date,
+      };
+      user_role = patron_status === 'active_patron' ? 'plus' : 'normal'
     }
 
     const { data: { user }, error: userError } = await supabase.auth.getUser(supabaseAccessToken, {
@@ -118,16 +128,9 @@ serve(async (req) => {
         patreon_access_token: access_token,
         patreon_refresh_token: refresh_token,
         patreon_expires_at: Date.now() + expires_in * 1000, // Store expiry as timestamp
-        patreon_id: patreonUserId,
-        patreon_email: patreonUserEmail,
-        patreon_name: patreonUserName,
-        patreon_status: patreonStatus,
-        patreon_currently_entitled_amount_cents: patreonCurrentlyEntitledAmountCents,
-        patreon_will_pay_amount_cents: patreonWillPayAmountCents,
-        patreon_next_charge_date: patreonNextChargeDate,
-        patreon_is_free_trial: patreonIsFreeTrial,
-        patreon_is_gifted: patreonIsGifted,
-        patreon_last_charge_date: patreonLastChargeDate
+        ...patreonUserInfo,
+        ...patreonMembershipInfo,
+        user_role: user_role
       },
     })
 

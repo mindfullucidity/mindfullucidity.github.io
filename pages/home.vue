@@ -68,7 +68,7 @@ onMounted(async () => {
   }
 });
 
-const isSubscribed = computed(() => user.value?.app_metadata?.user_role === 'plus');
+const isSubscribed = computed(() => user.value?.user_metadata?.user_role === 'plus');
 const insights = ref({
   topThemes: ["Flying", "Water", "Animals", "Transformation"],
   lucidityTrend: 75,

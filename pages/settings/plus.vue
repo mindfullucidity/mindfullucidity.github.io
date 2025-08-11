@@ -12,66 +12,15 @@ definePageMeta({
 })
 
 const user = useSupabaseUser()
-const supabase = useSupabaseClient()
 
-const isPlusSubscriber = computed(() => user.value?.app_metadata?.user_role === 'plus')
+const isPlusSubscriber = computed(() => user.value?.user_metadata?.user_role === 'plus')
 const currentPrice = ref('$5/month') // This would come from your user's subscription data
 const renewalDate = ref('August 5, 2026') // This would come from your user's subscription data
-
-async function callSetUserRole(role: 'plus' | 'normal') {
-  try {
-    const { data, error } = await supabase.functions.invoke('set_user_role', {
-      body: { role },
-    })
-
-    if (error) {
-      throw error
-    }
-
-    toast.success(`User role updated to ${role}.`)
-
-    // Refresh the user session to get the updated app_metadata
-    await supabase.auth.refreshSession();
-    console.log('User after refresh:', user.value);
-  } catch (error: any) {
-    console.error('Error updating user role:', error);
-    let errorMessage = 'An unknown error occurred.';
-    if (error.context && error.context.body && typeof error.context.body === 'string') {
-      try {
-        const parsedError = JSON.parse(error.context.body);
-        if (parsedError.error) {
-          errorMessage = parsedError.error;
-        }
-      } catch (parseError) {
-        // If parsing fails, use the raw body
-        errorMessage = error.context.body;
-      }
-    } else if (error.message) {
-      errorMessage = error.message;
-    }
-
-    toast.error(errorMessage, {
-      title: 'Error updating role',
-    });
-  }
-}
-
-function handleUpgrade() {
-  callSetUserRole('plus')
-}
-
-function handleUnsubscribe() {
-  callSetUserRole('normal')
-}
 
 function handleManagePayment() {
   // Logic to redirect to payment management portal
   console.log('Manage Payment clicked')
   window.open('https://example.com/manage-payment', '_blank') // Replace with actual payment portal URL
-}
-
-function checkPatreonPledge() {
-  console.log('Patreon Pledge Status:', user.value?.app_metadata?.user_role);
 }
 </script>
 
@@ -85,16 +34,6 @@ function checkPatreonPledge() {
     </div>
 
     <Separator class="my-6" />
-
-    <!-- Debug Toggle Button -->
-    <div class="mb-4 flex gap-2">
-      <Button @click="callSetUserRole(isPlusSubscriber ? 'normal' : 'plus')" variant="outline">
-        {{ isPlusSubscriber ? 'Set to Normal' : 'Set to Plus' }} (Debug Toggle)
-      </Button>
-      <Button @click="checkPatreonPledge" variant="outline">
-        Check Patreon Pledge
-      </Button>
-    </div>
 
     <div class="space-y-6">
       <Card v-if="!isPlusSubscriber">
