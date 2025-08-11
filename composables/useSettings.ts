@@ -57,7 +57,8 @@ export function useSettings() {
             patreon_next_charge_date: null,
             patreon_is_free_trial: null,
             patreon_is_gifted: null,
-            patreon_last_charge_date: null
+            patreon_last_charge_date: null,
+            user_role: null,
           },
         })
         if (error) throw error

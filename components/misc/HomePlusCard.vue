@@ -53,7 +53,7 @@ const props = defineProps<{
         MindfulLucidity Plus 
       </CardTitle>
       <CardDescription class="text-muted-foreground text-sm">
-        Thank you for being a Plus Subscriber! You have full access to all MindfulLucidity Plus features.
+        Thank you for being a Plus Member! You have full access to all MindfulLucidity Plus features.
       </CardDescription>
     </CardHeader>
     <CardContent class="flex-grow">
