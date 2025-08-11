@@ -68,7 +68,7 @@ serve(async (req) => {
     const { access_token, refresh_token, expires_in } = await tokenResponse.json()
 
     // Get user info from Patreon
-    const patreonUserResponse = await fetch('https://www.patreon.com/api/oauth2/v2/identity?fields%5Buser%5D=email,full_name', {
+    const patreonUserResponse = await fetch('https://www.patreon.com/api/oauth2/v2/identity?include%3Dmemberships%26fields%5Bmember%5D%3Dcurrently_entitled_amount_cents%2Cnext_charge_date%2Cpatreon_status%2Cwill_pay_amount_cents%26fields%5Buser%5D%3Demail%2Cfull_name', {
       headers: {
         'Authorization': `Bearer ${access_token}`,
       },
@@ -83,6 +83,20 @@ serve(async (req) => {
     const patreonUserId = patreonUserData.data.id
     const patreonUserEmail = patreonUserData.data.attributes.email
     const patreonUserName = patreonUserData.data.attributes.full_name
+
+    // Extract membership info
+    let patreonStatus = null;
+    let patreonCurrentlyEntitledAmountCents = null;
+    let patreonWillPayAmountCents = null;
+    let patreonNextChargeDate = null;
+
+    const membership = patreonUserData.included?.find((item: any) => item.type === 'member');
+    if (membership) {
+      patreonStatus = membership.attributes.patreon_status;
+      patreonCurrentlyEntitledAmountCents = membership.attributes.currently_entitled_amount_cents;
+      patreonWillPayAmountCents = membership.attributes.will_pay_amount_cents;
+      patreonNextChargeDate = membership.attributes.next_charge_date;
+    }
 
     const { data: { user }, error: userError } = await supabase.auth.getUser(supabaseAccessToken, {
       jwt: supabaseAccessToken,
@@ -101,6 +115,10 @@ serve(async (req) => {
         patreon_id: patreonUserId,
         patreon_email: patreonUserEmail,
         patreon_name: patreonUserName,
+        patreon_status: patreonStatus,
+        patreon_currently_entitled_amount_cents: patreonCurrentlyEntitledAmountCents,
+        patreon_will_pay_amount_cents: patreonWillPayAmountCents,
+        patreon_next_charge_date: patreonNextChargeDate,
       },
     })
 

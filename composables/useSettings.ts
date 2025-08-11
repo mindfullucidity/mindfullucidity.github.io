@@ -51,6 +51,10 @@ export function useSettings() {
             patreon_id: null,
             patreon_email: null,
             patreon_name: null,
+            patreon_status: null,
+            patreon_currently_entitled_amount_cents: null,
+            patreon_will_pay_amount_cents: null,
+            patreon_next_charge_date: null,
           },
         })
         if (error) throw error

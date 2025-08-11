@@ -109,7 +109,7 @@ function checkPatreonPledge() {
         </CardHeader>
         <CardContent class="space-y-4">
           <p>
-            MindfulLucidity Plus is our way of saying thank you to our dedicated supporters on Patreon. By becoming a patron, you gain access to all premium features, ensuring you have the best possible experience while directly contributing to the growth and development of MindfulLucidity.
+            MindfulLucidity Plus is our way of saying thank you to our dedicated supporters on Patreon. By becoming a patreon, you gain access to all premium features, ensuring you have the best possible experience while directly contributing to the growth and development of MindfulLucidity.
           </p>
           <div class="flex flex-wrap gap-2">
             <Button as-child class="bg-black hover:bg-black/50 text-white">
