@@ -123,5 +123,8 @@ export default defineNuxtConfig({
       navigateFallback: '/home',
       type: 'module',
     },
+    workbox: {
+      navigateFallbackAllowlist: [/^\//],
+    },
   },
 })
