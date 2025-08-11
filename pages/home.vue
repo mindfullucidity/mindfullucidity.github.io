@@ -144,7 +144,7 @@ const streakMessage = computed(() => {
   <Title>Home | MindfulLucidity</Title>
   <div class="relative min-h-screen overflow-hidden">
     
-    <div class="relative z-10 min-h-screen text-foreground px-6 py-2 sm:py-6">
+    <div class="relative z-10 min-h-screen text-foreground px-6 py-2 sm:py-4">
       <div class="max-w-7xl mx-auto space-y-8">
         <!-- Welcome Section -->
         <div class="text-center space-y-4 pt-4 lg:pt-16">
@@ -168,7 +168,7 @@ const streakMessage = computed(() => {
               <h2 class="text-lg sm:text-2xl font-bold text-foreground">
                 Log Your Dream
               </h2>
-              <p class="text-muted-foreground max-w-md mx-auto text-sm sm:text-base mb-2 sm:mb-0">
+              <p class="text-muted-foreground max-w-md mx-auto text-sm sm:text-base mb-2 sm:mb-4">
                 Capture the details while they're fresh in your memory
               </p>
               <Button

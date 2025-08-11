@@ -69,6 +69,10 @@ function handleManagePayment() {
   console.log('Manage Payment clicked')
   window.open('https://example.com/manage-payment', '_blank') // Replace with actual payment portal URL
 }
+
+function checkPatreonPledge() {
+  console.log('Patreon Pledge Status:', user.value?.app_metadata?.user_role);
+}
 </script>
 
 <template>
@@ -83,9 +87,12 @@ function handleManagePayment() {
     <Separator class="my-6" />
 
     <!-- Debug Toggle Button -->
-    <div class="mb-4">
+    <div class="mb-4 flex gap-2">
       <Button @click="callSetUserRole(isPlusSubscriber ? 'normal' : 'plus')" variant="outline">
         {{ isPlusSubscriber ? 'Set to Normal' : 'Set to Plus' }} (Debug Toggle)
+      </Button>
+      <Button @click="checkPatreonPledge" variant="outline">
+        Check Patreon Pledge
       </Button>
     </div>
 

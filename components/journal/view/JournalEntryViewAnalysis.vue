@@ -38,6 +38,7 @@
         <template v-else-if="showNewAnalysisCard === 'ai' && !editingAnalysis">
           <NewAIAnalysisCard
             :journalId="editableEntry.journal_id"
+            :journalContent="editableEntry.content"
             @generate-ai-analysis="handleGenerateAIAnalysis"
             @cancel="handleCancelNewAnalysis"
           />

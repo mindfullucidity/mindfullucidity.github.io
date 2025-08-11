@@ -4,7 +4,7 @@
     <div class="relative flex h-full">
       <div
         :class="[
-          'relative z-10 border-r overflow-y-auto lg:w-[24rem] min-w-[24rem]',
+          'relative z-10 border-r overflow-y-auto lg:w-[22rem] min-w-[22rem]',
           route.path === '/journal' ? 'block w-full' : 'hidden',
           'lg:block',
         ]"

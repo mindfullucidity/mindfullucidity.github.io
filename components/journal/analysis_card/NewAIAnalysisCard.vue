@@ -7,7 +7,7 @@ import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'vue-sonner'; // Import toast
 
-const props = defineProps<{ journalId: number }>();
+const props = defineProps<{ journalId: number, journalContent: string }>();
 const emit = defineEmits(['save', 'cancel']);
 
 const selectedType = ref('jungian');
@@ -15,7 +15,7 @@ const selectedDepth = ref('to-the-point');
 const content = ref('');
 
 const handleGenerateAIAnalysis = () => {
-  const wordCount = content.value.trim().split(/\s+/).filter(word => word.length > 0).length;
+  const wordCount = props.journalContent.trim().split(/\s+/).filter(word => word.length > 0).length;
   if (wordCount < 3) {
     toast.error("Content must have at least 3 words to generate AI analysis.");
     return;
