@@ -10,7 +10,7 @@ export default defineNuxtRouteMiddleware((to, from) => {
 
   // If there's no current user
   if (!user.value) {
-    const publicRoutes = ['/', '/login', '/register', '/plus']
+    const publicRoutes = ['/', '/login', '/register', '/plus', '/privacy-policy', '/terms-of-service']
     // And the current path is NOT a public route, redirect to login
     if (!publicRoutes.some(route => route === to.path)) {
         if (from.path.startsWith('/login')) {

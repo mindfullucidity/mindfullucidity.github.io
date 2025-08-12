@@ -4,4 +4,4 @@
 
 
 2.  cache /journal/new in a cookie
-3.  more useful characterisitics
+3.  more useful characterisitics (powers, old wise man) (specify gender)

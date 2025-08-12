@@ -5,6 +5,7 @@ import { Separator } from '@/components/ui/separator'
 import { Timer, Crown, ZoomIn, Lightbulb } from 'lucide-vue-next'
 import { onMounted } from 'vue'
 import InstallPWAButton from '~/components/misc/InstallPWAButton.vue'
+import AppFooter from '~/components/misc/AppFooter.vue'
 
 const { $pwa } = useNuxtApp();
 
@@ -19,7 +20,7 @@ onMounted(() => {
 
 <template>
   <Title>MindfulLucidity</Title>
-  <div class="min-h-screen flex flex-col items-center justify-center text-foreground relative sm:mt-20">
+  <div class="min-h-screen flex flex-col items-center justify-center text-foreground relative sm:mt-10">
     
     <div class="relative z-10 w-full">
     <!-- Hero Section -->
@@ -150,15 +151,7 @@ onMounted(() => {
     </section>
 
     <!-- Footer -->
-    <footer class="w-full py-6">
-      <div class="container mx-auto px-4 md:px-6 flex flex-col md:flex-row items-center justify-between text-sm text-muted-foreground">
-        <p>&copy; 2025 Mindful Lucidity. All rights reserved.</p>
-        <nav class="flex gap-4 sm:gap-6 mt-4 md:mt-0">
-          <NuxtLink to="#" class="hover:underline">Privacy Policy</NuxtLink>
-          <NuxtLink to="#" class="hover:underline">Terms of Service</NuxtLink>
-        </nav>
-      </div>
-    </footer>
+    <AppFooter />
     </div>
   </div>
 </template>
