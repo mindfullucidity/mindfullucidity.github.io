@@ -22,7 +22,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <Title>Privacy Policy</Title>
+  <Title>Privacy Policy | MindfulLucidity</Title>
   <div class="container mx-auto px-4 py-8 prose dark:prose-invert max-w-4xl">
     <div v-html="privacyHtml"></div>
   </div>

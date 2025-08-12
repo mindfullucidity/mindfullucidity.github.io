@@ -75,7 +75,7 @@ These instructions will get you a copy of the project up and running on your loc
         supabase db push
         ```
     *   (Optional) If you're starting a new Supabase project, you might need to run `supabase init` first.
-    *   Update the `supabase.url` and `supabase.key` in `nuxt.config.ts` with your project's API URL and `anon` key.
+    *   Ensure `SUPABASE_URL` and `SUPABASE_KEY` are set as environment variables (e.g., in a `.env` file for local development, or in your deployment environment). These will be automatically picked up by `nuxt.config.ts`.
     *   You may also need to configure environment variables for Patreon integration if you plan to use it (e.g., `PATREON_CLIENT_ID`, `PATREON_REDIRECT_URI`).
 
 ### Development Server

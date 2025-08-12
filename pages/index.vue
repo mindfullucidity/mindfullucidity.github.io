@@ -24,12 +24,6 @@ onMounted(() => {
 
 <template>
   <Title>MindfulLucidity</Title>
-    <!-- Temporary: For verifying environment variables -->
-    <div class="p-4 bg-blue-900 text-blue-100 rounded-md text-sm mb-4">
-      <p><strong>Client ID:</strong> {{ patreonClientId }}</p>
-      <p><strong>Redirect URI:</strong> {{ patreonRedirectUri }}</p>
-    </div>
-    <!-- End Temporary -->
   <div class="min-h-screen flex flex-col items-center justify-center text-foreground relative sm:mt-10">
     
     <div class="relative z-10 w-full">

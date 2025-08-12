@@ -49,7 +49,7 @@ Make sure you have the development environment set up as described in the [READM
     ```bash
 pnpm install # or npm install, yarn install, bun install
     ```
-4.  **Configure Supabase:** Set up your local Supabase environment as detailed in the [README.md](README.md).
+4.  **Configure Supabase:** Set up your local Supabase environment. Ensure your `SUPABASE_URL` and `SUPABASE_KEY` are configured as environment variables (e.g., in a `.env` file for local development, or in your deployment environment).
 5.  **Start the development server:**
     ```bash
 pnpm dev # or npm run dev, yarn dev, bun run dev
