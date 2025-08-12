@@ -20,8 +20,8 @@ jobs:
       - run: pnpm install
       - run: pnpm exec nuxt build --preset github_pages
         env:
-          NUXT_PUBLIC_PATREON_CLIENT_ID: ${{ vars.NUXT_PUBLIC_PATREON_CLIENT_ID }}
-          NUXT_PUBLIC_PATREON_REDIRECT_URI: ${{ vars.NUXT_PUBLIC_PATREON_REDIRECT_URI }}
+          NUXT_PUBLIC_PATREON_CLIENT_ID: ${{ env.NUXT_PUBLIC_PATREON_CLIENT_ID }}
+          NUXT_PUBLIC_PATREON_REDIRECT_URI: ${{ env.NUXT_PUBLIC_PATREON_REDIRECT_URI }}
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
