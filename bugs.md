@@ -1,7 +1,8 @@
+Bugs:
+1. Still being redirect to /login even on direct fisits to public endpoints /plus
+2. patreon linking broken in prod
 
-1.  implmenet patreon (or maybe crowdfunding) and already subscribe enhance (also remove debug toggle and maybe make role a user_metadata)
--
-
-
-2.  cache /journal/new in a cookie
-3.  more useful characterisitics (powers, old wise man) (specify gender)
+Feature Enhancements:
+1.  cache /journal/new in a cookie
+2.  more useful characterisitics (powers, old wise man) (specify gender)
+3.  report bug, about and open source advertisment on main page

@@ -119,13 +119,25 @@ export default defineNuxtConfig({
     },
     devOptions: {
       enabled: true,
-      suppressWarnings: true, // Resolved conflict here
-      navigateFallback: '/home',
+      suppressWarnings: true,
       type: 'module',
-      navigateFallbackAllowlist: [/^\//],
     },
     workbox: {
-      navigateFallbackAllowlist: [/^\//],
+      navigateFallback: '/home',
+      navigateFallbackAllowlist: [
+        /^\/home(\/.*)?$/,
+        /^\/journal(\/.*)?$/,
+      ],
+      navigateFallbackDenylist: [
+        /^\/$/,
+        /^\/login$/,
+        /^\/register$/,
+        /^\/plus$/,
+        /^\/privacy-policy$/,
+        /^\/terms-of-service$/,
+        /^\/redirect(\?.*)?$/,
+        /^\/settings(\?.*)?$/,
+      ],
     },
   },
 })

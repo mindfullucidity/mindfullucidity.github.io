@@ -63,7 +63,7 @@ onMounted(() => {
     if (authResolved && minTimePassed) {
       if (user.value) {
         // If user exists, initiate navigation and wait for it
-        await navigateTo('/home');
+        await navigateTo(redirectToPath.value);
       }
       else{
         isLoading.value = false;
