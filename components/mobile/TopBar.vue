@@ -21,6 +21,9 @@ const pageTitle = computed(() => {
   if (route.path.startsWith('/documents')) {
     return 'Documents';
   }
+  if (route.path.startsWith('/support')) {
+    return 'Support';
+  }
 
   const head = useHead();
   if (head.title && head.title.value) {

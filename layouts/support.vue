@@ -1,29 +1,36 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute } from '#imports'
-import { User, Bot, Crown } from 'lucide-vue-next'
+import { Mail, Bug } from 'lucide-vue-next' // Assuming these icons are suitable
 import { SidebarPage, SidebarTitle, SidebarItems, SidebarItem, SidebarMain, type SidebarItemType } from '@/components/sidebar'
 
 const sidebarItems: SidebarItemType[] = [
-  { id: 'profile', label: 'Account', icon: User, to: '/settings' },
-  { id: 'ai', label: 'AI', icon: Bot, to: '/settings/ai' },
-  { id: 'plus', label: 'Plus', icon: Crown, to: '/settings/plus', staticColor: 'text-plus-gold' },
+  { id: 'contact-us', label: 'Contact Us', icon: Mail, to: '/support/contact_us' },
+  { id: 'report-bug', label: 'Report Bug', icon: Bug, to: '/support/report_bug' },
 ]
 
 const route = useRoute()
-const activeSection = ref(route.path.split('/').pop() === 'settings' ? 'profile' : route.path.split('/').pop())
+const activeSection = ref('') // Initialize with empty string
 
 watch(() => route.path, (newPath) => {
-  activeSection.value = newPath.split('/').pop() === 'settings' ? 'profile' : newPath.split('/').pop()
-})
+  const pathSegment = newPath.split('/').pop()
+  if (pathSegment === 'contact_us') {
+    activeSection.value = 'contact-us'
+  } else if (pathSegment === 'report_bug') {
+    activeSection.value = 'report-bug'
+  } else {
+    // Fallback for other cases if any
+    activeSection.value = pathSegment || ''
+  }
+}, { immediate: true }) // Run immediately on component mount
 </script>
 
 <template>
   <NuxtLayout name="default">
-    <Title>Settings | MindfulLucidity</Title>
+    <Title>Support | MindfulLucidity</Title>
     <SidebarPage>
       <template #title>
-        <SidebarTitle>Settings</SidebarTitle>
+        <SidebarTitle>Support</SidebarTitle>
       </template>
       <template #items>
         <SidebarItems :active-section="activeSection" :items="sidebarItems">
@@ -43,14 +50,6 @@ watch(() => route.path, (newPath) => {
       <template #main>
         <SidebarMain>
           <slot />
-          <footer class="w-full mt-auto lg:hidden">
-            <div class="container mx-auto px-4 md:px-6 flex items-center justify-between text-sm text-muted-foreground">
-              <p>&copy; 2025 Mindful Lucidity.</p>
-              <NuxtLink to="/support" class="hover:underline flex items-center gap-1">
-                Support
-              </NuxtLink>
-            </div>
-          </footer>
         </SidebarMain>
       </template>
     </SidebarPage>

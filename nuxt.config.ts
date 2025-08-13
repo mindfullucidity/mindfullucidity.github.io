@@ -136,6 +136,7 @@ export default defineNuxtConfig({
         /^\/redirect(\?.*)?$/,
         /^\/documents(\?.*)?$/,
         /^\/settings(\?.*)?$/,
+        /^\/support(\?.*)?$/,
       ],
     },
   },

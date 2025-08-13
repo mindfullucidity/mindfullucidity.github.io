@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { Home, Book, Settings, LogOut, User, ChevronDown, ChevronUp, SunMoon, Crown, LogIn } from 'lucide-vue-next'
+import { Home, Book, Settings, LogOut, User, ChevronDown, ChevronUp, SunMoon, Crown, LogIn, LifeBuoy, Mail, Bug } from 'lucide-vue-next'
 import { useSupabaseClient, useSupabaseUser } from '#imports'
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import {
@@ -8,6 +8,10 @@ import {
   DropdownMenuItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal,
 } from '@/components/ui/dropdown-menu'
 
 const route = useRoute()
@@ -103,6 +107,10 @@ async function logout() {
             <DropdownMenuItem class="flex items-center gap-2 text-gray-100/50 hover:text-foreground" @click="navigateTo('/settings')">
               <Settings class="w-4 h-4 text-foreground" />
               Settings
+            </DropdownMenuItem>
+            <DropdownMenuItem class="flex items-center gap-2 text-gray-100/50 hover:text-foreground" @click="navigateTo('/support')">
+              <LifeBuoy class="w-4 h-4 text-foreground" />
+              Support
             </DropdownMenuItem>
             <DropdownMenuItem class="flex items-center gap-2 text-plus-gold/50 hover:text-plus-gold" @click="navigateTo('/settings/plus')">
               <Crown class="w-4 h-4 text-plus-gold" />
