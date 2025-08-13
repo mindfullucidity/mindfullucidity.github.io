@@ -18,6 +18,9 @@ const pageTitle = computed(() => {
   if (route.path.startsWith('/journal')) {
     return 'Journal';
   }
+  if (route.path.startsWith('/documents')) {
+    return 'Documents';
+  }
 
   const head = useHead();
   if (head.title && head.title.value) {

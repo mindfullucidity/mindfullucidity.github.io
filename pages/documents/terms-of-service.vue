@@ -20,7 +20,7 @@ onMounted(async () => {
 </script>
 
 <template>
-  <div class="container mx-auto px-4 py-8 prose dark:prose-invert max-w-4xl">
+  <div class="container mx-auto px-4 prose dark:prose-invert max-w-4xl">
     <Markdown>{{ termsMarkdown }}</Markdown>
   </div>
 </template>

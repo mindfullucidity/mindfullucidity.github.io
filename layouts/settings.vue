@@ -26,7 +26,7 @@ watch(() => route.path, (newPath) => {
         <SidebarTitle>Settings</SidebarTitle>
       </template>
       <template #items>
-        <SidebarItems :active-section="activeSection">
+        <SidebarItems :active-section="activeSection" :items="sidebarItems">
           <SidebarItem
             v-for="item in sidebarItems"
             :key="item.id"

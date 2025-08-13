@@ -17,7 +17,6 @@ Bugs:
 
 Essential Feature:
 1.  report bug, contact us
-2.  add sidebar to terms of service ect.
 
 External:
 1. Setup Patreon Page
