@@ -109,7 +109,7 @@ watch(() => props.entryId, async (newId) => {
       editableEntry.value.characteristics = editableEntry.value.characteristics || [];
       editableEntry.value.lucidity_level = editableEntry.value.lucidity_level ?? 0;
     }
-    originalEntry.value = editableEntry.value ? { ...editableEntry.value } : null;
+    originalEntry.value = editableEntry.value ? JSON.parse(JSON.stringify(editableEntry.value)) : null; // Deep copy on load
     hasUnsavedChanges.value = false;
   } else {
     const today = new Date();
@@ -134,8 +134,9 @@ watch(editableEntry, (newVal, oldVal) => {
   const isLucidityTriggerSame = newVal?.lucidity_trigger === originalEntry.value.lucidity_trigger;
   const isMoodSame = newVal?.mood === originalEntry.value.mood;
   const isCharacteristicsSame = JSON.stringify(newVal?.characteristics) === JSON.stringify(originalEntry.value.characteristics);
+  const isDescriptionSame = newVal?.description === originalEntry.value.description;
 
-  hasUnsavedChanges.value = !(isContentSame && isTitleSame && isDateSame && isLucidityLevelSame && isLucidityTriggerSame && isMoodSame && isCharacteristicsSame);
+  hasUnsavedChanges.value = !(isContentSame && isTitleSame && isDateSame && isLucidityLevelSame && isLucidityTriggerSame && isMoodSame && isCharacteristicsSame && isDescriptionSame);
 
 }, { deep: true });
 
@@ -243,12 +244,17 @@ const saveEntry = async () => {
       const newEntry = await createEntry(editableEntry.value);
       if (newEntry) {
         editableEntry.value.journal_id = newEntry.journal_id;
+        originalEntry.value = JSON.parse(JSON.stringify(editableEntry.value)); // Deep copy for new entry
+        navigateTo(`/journal/${editableEntry.value.journal_id}${route.hash}`);
+        hasUnsavedChanges.value = false; // Explicitly set to false after save
       } else {
         toast.error('Failed to create new entry.');
         return;
       }
     } else {
       await updateEntry(editableEntry.value);
+      originalEntry.value = JSON.parse(JSON.stringify(editableEntry.value)); // Deep copy for existing entry
+      hasUnsavedChanges.value = false; // Explicitly set to false after save
     }
 
     if (props.isNewEntry && journalAnalysisRef.value) {
@@ -262,8 +268,6 @@ const saveEntry = async () => {
       }
       journalAnalysisRef.value.journalAnalyses = []; 
     }
-
-    navigateTo(`/journal/${editableEntry.value.journal_id}${route.hash}`);
   }
 };
 
