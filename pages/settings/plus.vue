@@ -27,7 +27,7 @@ const currentPrice = computed(() => {
   } else if (user.value?.user_metadata?.patreon_is_gifted) {
     prefix = 'Gifted - ';
   }
-  return `${prefix}${amountDollars}/month`;
+  return `${prefix}$${amountDollars}/month`;
 });
 
 const renewalDate = computed(() => {

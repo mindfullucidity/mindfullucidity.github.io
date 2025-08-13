@@ -1,0 +1,6 @@
+export { default as SidebarPage } from './SidebarPage.vue'
+export { default as SidebarTitle } from './SidebarTitle.vue'
+export { default as SidebarItems } from './SidebarItems.vue'
+export { default as SidebarItem } from './SidebarItem.vue'
+export { default as SidebarMain } from './SidebarMain.vue'
+export * from './types'
