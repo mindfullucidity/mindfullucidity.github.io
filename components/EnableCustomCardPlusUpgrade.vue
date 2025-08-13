@@ -22,7 +22,7 @@ defineProps({
     <div class="grid gap-4 py-4">
       <div class="flex flex-col space-y-4">
         <NuxtLink to="/plus">
-          <Button variant="default" class="w-full bg-plus-gold/60 hover:bg-plus-gold/40">
+          <Button variant="default" class="w-full bg-plus-gold/80 text-black hover:bg-plus-gold">
             <Crown class="mr-2 h-4 w-4" />
             Upgrade to Plus
           </Button>

@@ -58,8 +58,12 @@ onMounted(() => {
         </div>
       </section>
 
+
+      <!-- How it works -->
+      <HowItWorks class=" bg-card" />
+
       <!-- Mission Statement -->
-      <section class="w-full py-12 md:py-24 lg:py-32 bg-card">
+      <section class="w-full py-12 md:py-24 lg:py-32">
         <div class="container mx-auto px-4 md:px-6 text-center">
           <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl mb-4">
             Our Mission
@@ -69,9 +73,6 @@ onMounted(() => {
           </p>
         </div>
       </section>
-
-      <!-- How it works -->
-      <HowItWorks />
 
       <!-- Features -->
       <section class="w-full py-12 md:py-24 lg:py-32 bg-card">
@@ -125,10 +126,10 @@ onMounted(() => {
             Become a member to help support others on their spiritual journey and contribute to the ongoing development of MindfulLucidity. Your contributions directly fund new features and help us maintain the ability to grant full access to all users, regardless of their membership status.
           </p>
           <div class="flex justify-center space-x-4">
-            <Button as-child>
+            <Button as-child class="bg-plus-gold/80 text-black hover:bg-plus-gold">
               <NuxtLink to="/plus">Learn More</NuxtLink>
             </Button>
-            <Button as-child class="bg-black hover:bg-black/50 text-white">
+            <Button as-child class="bg-plus-gold/80 text-black hover:bg-plus-gold">
               <a href="https://patreon.com/MindfulLucidity" target="_blank" rel="noopener noreferrer">
                 <font-awesome :icon="['fab', 'patreon']" class="h-5 w-5 mr-2" />
                 Support on Patreon

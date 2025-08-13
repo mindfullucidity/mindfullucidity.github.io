@@ -24,10 +24,7 @@ const props = defineProps<{
           Gain unlimited access to advanced AI analysis, and directly support the future of MindfulLucidity.
         </p>
         <div class="flex flex-col gap-2">
-          <Button
-            class="w-full"
-            as-child
-          >
+          <Button as-child class="bg-plus-gold/80 text-black hover:bg-plus-gold w-full">
             <NuxtLink to="/plus">
               Learn More
             </NuxtLink>

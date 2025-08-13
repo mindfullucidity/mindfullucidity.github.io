@@ -124,4 +124,4 @@ This project is open-source and available under the [GNU General Public License 
 
 ## Contact 📧
 
-For any inquiries or support, please reach out to us at [Your Contact Email/Method, e.g., annekinmeyburgh@gmail.com].
+For any inquiries or support, please reach out to us at annekinmeyburgh@gmail.com

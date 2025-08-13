@@ -22,7 +22,7 @@ const props = defineProps<{
 }>();
 
 const displayTitle = computed(() => {
-  return props.entry.title || new Date(props.entry.date).toLocaleDateString();
+  return props.entry.title || formattedDate.value;
 });
 
 const isLargeScreen = useMediaQuery('(min-width: 768px)');
