@@ -1,30 +1,27 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
-import { marked } from 'marked';
+import Markdown from '@/components/Markdown.vue';
 
 const privacyMarkdown = ref('');
-const privacyHtml = ref('');
 
 definePageMeta({
-  layout: 'default',
+  layout: 'documents',
 });
 
 onMounted(async () => {
   try {
     const response = await fetch('/PRIVACY_POLICY.md');
     privacyMarkdown.value = await response.text();
-    privacyHtml.value = marked(privacyMarkdown.value);
   } catch (error) {
     console.error('Error fetching privacy policy:', error);
-    privacyHtml.value = '<p>Error loading Privacy Policy.</p>';
+    privacyMarkdown.value = 'Error loading Privacy Policy.';
   }
 });
 </script>
 
 <template>
-  <Title>Privacy Policy | MindfulLucidity</Title>
   <div class="container mx-auto px-4 py-8 prose dark:prose-invert max-w-4xl">
-    <div v-html="privacyHtml"></div>
+    <Markdown>{{ privacyMarkdown }}</Markdown>
   </div>
 </template>
 
