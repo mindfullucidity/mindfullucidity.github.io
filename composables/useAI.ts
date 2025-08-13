@@ -16,7 +16,7 @@ export const useAI = () => {
 
     if (error) {
       // If the error has a context body, try to parse it for a more specific message
-      if (error.context && error.context.body) {
+      if (error.context?.body) {
         let errorBodyText = error.context.body;
         // If it's a ReadableStream, convert it to text
         if (error.context.body instanceof ReadableStream) {

@@ -68,7 +68,7 @@ export async function setupAIModel(req: Request) {
     }
 
     const userId = userData?.user?.id;
-    const userRole = userData?.user?._metadata?.user_role;
+    const userRole = userData?.user?.user_metadata?.user_role;
 
     if (!userId) {
       return {
