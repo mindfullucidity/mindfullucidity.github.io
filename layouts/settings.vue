@@ -46,7 +46,7 @@ watch(() => route.path, (newPath) => {
           <footer class="w-full mt-auto lg:hidden">
             <div class="container mx-auto px-4 md:px-6 flex items-center justify-between text-sm text-muted-foreground">
               <p>&copy; 2025 Mindful Lucidity.</p>
-              <NuxtLink to="/support" class="hover:underline flex items-center gap-1">
+              <NuxtLink to="/support/contact_us" class="hover:underline flex items-center gap-1">
                 Support
               </NuxtLink>
             </div>

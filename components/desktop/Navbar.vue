@@ -81,6 +81,19 @@ async function logout() {
           </NuxtLink>
           <NuxtLink
             v-if="!user"
+            to="/support/contact_us"
+            class="inline-flex items-center justify-center px-3 py-1 rounded-lg"
+            :class="{
+              'bg-primary/30': hoveredItem === 'contact_us' || (hoveredItem === null && !isHoveringNavbar && route.path.startsWith('/support')),
+              'text-primary-selected': route.path.startsWith('/support')
+            }"
+            @mouseover="hoveredItem = 'contact_us'"
+          >
+            <Mail v-if="route.path.startsWith('/support')" class="w-5 h-5 mr-2" />
+            <span class="text-sm">Contact US</span>
+          </NuxtLink>
+          <NuxtLink
+            v-if="!user"
             to="/plus"
             class="inline-flex items-center justify-center px-3 py-1 rounded-lg text-plus-gold"
             :class="{
