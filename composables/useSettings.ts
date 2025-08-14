@@ -62,7 +62,15 @@ export function useSettings() {
           },
         })
         if (error) throw error
-        toast.success('Patreon unlinked!')
+        // Force a session refresh to get updated user_metadata
+        const { error: refreshError } = await supabase.auth.refreshSession()
+        if (refreshError) {
+          toast.error('Failed to refresh session after unlinking Patreon', {
+            description: refreshError.message,
+          })
+        } else {
+          toast.success('Patreon unlinked!')
+        }
       } catch (error: any) {
         toast.error('Error unlinking Patreon', {
           description: error.message,
@@ -90,9 +98,17 @@ export function useSettings() {
         data: { full_name: displayName.value },
       })
       if (error) throw error
-      toast.success('Display name updated!', {
-        description: 'Your display name has been successfully updated.',
-      })
+      // Force a session refresh to get updated user_metadata
+      const { error: refreshError } = await supabase.auth.refreshSession()
+      if (refreshError) {
+        toast.error('Failed to refresh session after updating display name', {
+          description: refreshError.message,
+        })
+      } else {
+        toast.success('Display name updated!', {
+          description: 'Your display name has been successfully updated.',
+        })
+      }
     } catch (error: any) {
       toast.error('Error updating display name', {
         description: error.message,

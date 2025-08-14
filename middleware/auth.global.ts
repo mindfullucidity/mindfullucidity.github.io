@@ -28,7 +28,7 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
         '/support/report_bug',
       ]
     // And the current path is NOT a public route, redirect to login
-    if (!publicRoutes.some(route => to.path.startsWith(route))) {
+    if (!publicRoutes.some(route => to.path === route)) {
         if (from.path.startsWith('/login')) {
           return
         } else {
