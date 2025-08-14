@@ -40,6 +40,7 @@ definePageMeta({
 
 import { ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { toast } from 'vue-sonner'
 
 
 import { Button } from '~/components/ui/button'
@@ -57,7 +58,7 @@ const redirectToPath = computed(() => route.query.to?.toString() || '/home');
 
 const handleRegister = async () => {
   if (password.value !== confirmPassword.value) {
-    alert('Passwords do not match!');
+    toast.error('Passwords do not match!');
     return;
   }
   try {
@@ -68,13 +69,16 @@ const handleRegister = async () => {
         data: {
           full_name: displayName.value,
         },
+        emailRedirectTo: `${window.location.origin}/login`,
       },
     })
     if (error) throw error
-    alert('Registration successful! Please check your email to confirm your account.')
+    const { error: error2 } = await supabase.auth.signOut()
+    if (error2) throw error
+    toast.success('Registration successful! Please check your email to confirm your account.')
     navigateTo(`/redirect?to=${redirectToPath.value}`)
   } catch (error: any) {
-    alert(error.message)
+    toast.error(error.message)
   }
 }
 
@@ -88,7 +92,7 @@ const signInWithGoogle = async () => {
     })
     if (error) throw error
   } catch (error: any) {
-    alert(error.message)
+    toast.error(error.message)
   }
 }
 </script>

@@ -35,6 +35,7 @@ definePageMeta({
 
 import { ref, onMounted, computed, onUnmounted, watchEffect } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
+import { toast } from 'vue-sonner'
 
 
 import { Button } from '~/components/ui/button'
@@ -57,13 +58,15 @@ onMounted(() => {
   isLoading.value = true;
   let authResolved = false;
   let minTimePassed = false;
-  let navigationPromise: Promise<any> | null = null; // To hold the navigation promise
 
   const resolveLoading = async () => {
     if (authResolved && minTimePassed) {
       if (user.value) {
         // If user exists, initiate navigation and wait for it
         await navigateTo(redirectToPath.value);
+        setTimeout(async () => {
+          isLoading.value = false;
+        }, 2000);
       }
       else{
         isLoading.value = false;
@@ -72,9 +75,9 @@ onMounted(() => {
   };
 
   // Minimum display time for the spinner
-  setTimeout(() => {
+  setTimeout(async () => {
     minTimePassed = true;
-    resolveLoading();
+    await resolveLoading();
   }, 300); // 300ms minimum display time
 
   // Listen for auth state changes
@@ -98,7 +101,7 @@ onMounted(() => {
 onUnmounted(() => {
   // Clean up the listener when the component is unmounted
   if (authListener) {
-    authListener.data?.unsubscribe();
+    authListener.data.subscription?.unsubscribe();
   }
 });
 
@@ -109,9 +112,10 @@ const handleLogin = async () => {
       password: password.value,
     })
     if (error) throw error
+    localStorage.setItem('isAuthenticated', 'true')
     navigateTo(`/redirect?to=${redirectToPath.value}`)
   } catch (error: any) {
-    alert(error.message)
+    toast.error(error.message)
   }
 }
 
@@ -125,7 +129,7 @@ const signInWithGoogle = async () => {
     })
     if (error) throw error
   } catch (error: any) {
-    alert(error.message)
+    toast.error(error.message)
   }
 }
 </script>

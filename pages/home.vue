@@ -138,6 +138,11 @@ const streakMessage = computed(() => {
     return 'Log a journal today to keep streak';
   }
 });
+
+definePageMeta({                                                                                                              
+  layout: 'default',
+  middleware: ['auth'],
+});
 </script>
 
 <template>

@@ -23,5 +23,6 @@ const shouldShowPlaceholder = computed(() => {
 
 definePageMeta({
   layout: 'journal',
+  middleware: ['auth'], 
 });
 </script>

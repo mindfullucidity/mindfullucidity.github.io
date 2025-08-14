@@ -1,4 +1,5 @@
 <script setup lang="ts">
+console.log('Redirect Page: Script Setup Running');
 definePageMeta({
   layout: false,
 });
@@ -25,6 +26,7 @@ onMounted(async () => {
   if (hasCodeArg.value) {
     // If 'code' argument is present, wait for session to exist (login flow)
     if (session?.user) {
+      localStorage.setItem('isAuthenticated', 'true')
       router.replace(redirectTo.value)
     } else {
       // If no session after code, it might be an error or not fully processed yet
@@ -34,6 +36,7 @@ onMounted(async () => {
   } else if (isLogoutRedirect.value) {
     // If 'logout=true' argument is present, wait for session to be null (logout flow)
     if (!session?.user) {
+      localStorage.removeItem('isAuthenticated')
       clearCache()
       router.replace(redirectTo.value)
     } else {

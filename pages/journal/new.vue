@@ -10,6 +10,7 @@ const { clearSelectedEntry } = useJournal();
 clearSelectedEntry();
 
 definePageMeta({
-  layout: 'journal',
+  layout: 'journal',                                                                                                     
+  middleware: ['auth'], 
 });
 </script>

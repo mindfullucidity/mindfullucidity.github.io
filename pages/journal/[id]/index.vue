@@ -24,6 +24,7 @@ watch(() => route.params.id, async (newId) => {
 }, { immediate: true });
 
 definePageMeta({
-  layout: 'journal',
+  layout: 'journal',                                                                                                     
+  middleware: ['auth'], 
 });
 </script>
