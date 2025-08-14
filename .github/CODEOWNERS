@@ -1,0 +1,6 @@
+# This file specifies the code owners for different parts of the repository.
+# When a pull request modifies code owned by a specified owner, that owner
+# will be automatically requested for review.
+
+# Default owner for the entire repository
+* @awmeyburgh

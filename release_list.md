@@ -1,6 +1,3 @@
-Essential Bugs:
-1. there is a difference between my link status on phone and web, meaning there is a issue syncing the access token on linking and delinking
-
 Bugs:
 1. on smaller screens the analysis card is overflowing horizontially
 2. on phone, when I open a journal that was all ready open (go to sidebar and open again), the entry content isn't initially displaying. But if I click details and entry again it displays
@@ -9,10 +6,7 @@ Bugs:
 5. cancel on patreon link broken
 6. plus in sidebar not gold
 7. highlight on mobile select navbar not showing
-
-External:
-1. Setup Patreon Page
-2. Write Reddit and LinkedIn posts
+8. there is a difference between my link status on phone and web, meaning there is a issue syncing the access token on linking and delinking
 
 Feature:
 1.  cache /journal/new in a cookie
