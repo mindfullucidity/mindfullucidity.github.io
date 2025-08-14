@@ -61,7 +61,7 @@ function handleManagePayment() {
 
     <div class="space-y-6">
       <!-- Patreon Linking Section -->
-      <Card v-if="!isPatreonLinked">
+      <Card v-if="!isPatreonLinked || showRelinkMessage">
         <CardHeader>
           <CardTitle class="flex items-center gap-2">
             <font-awesome :icon="['fab', 'patreon']" class="h-5 w-5" />
@@ -72,10 +72,10 @@ function handleManagePayment() {
           </CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
-          <div v-if="showRelinkMessage" class="bg-yellow-900/20 text-yellow-400 p-3 rounded-md text-sm flex items-center gap-2">
+          <div v-if="showRelinkMessage" class="text-muted-foreground rounded-md text-sm flex items-center gap-2">
             <Lightbulb class="h-4 w-4 flex-shrink-0" />
             <p>
-              If you are a Patreon supporter and your account is linked, but you're not recognized as a Plus member, please relink your account to refresh your status.
+              If you are a Patreon member and your account is linked, but you're not recognized as a Plus member, please relink your account to refresh your status.
             </p>
           </div>
           <div class="flex items-center justify-between">
@@ -159,7 +159,7 @@ function handleManagePayment() {
             </Card>
           </div>
           <div class="flex flex-col sm:flex-row gap-2">
-            <Button variant="destructive" @click="handleUnsubscribe">Unsubscribe</Button>
+            <Button variant="destructive" @click="togglePatreonLink">Unsubscribe</Button>
             <Button variant="outline" @click="handleManagePayment">
               Manage Membership
               <ExternalLink class="ml-2 h-4 w-4" />
