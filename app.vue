@@ -2,9 +2,15 @@
 import { Toaster } from '@/components/ui/sonner'
 import 'vue-sonner/style.css'
 import AuroraBorealis from '@/components/AuroraBorealis.vue';
+import { onMounted } from 'vue';
 
 const user = useSupabaseUser()
 const router = useRouter()
+const { refreshUser } = useAuth();
+
+onMounted(() => {
+  refreshUser();
+});
 </script>
 
 <template>

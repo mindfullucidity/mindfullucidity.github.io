@@ -1,6 +1,5 @@
 import { defineNuxtRouteMiddleware, navigateTo } from '#app'
 import { useSupabaseClient } from '#imports'
-
 export default defineNuxtRouteMiddleware(async (to, from) => {
   // Check local storage for authentication status
   const isAuthenticatedLocally = process.client ? localStorage.getItem('isAuthenticated') === 'true' : false
