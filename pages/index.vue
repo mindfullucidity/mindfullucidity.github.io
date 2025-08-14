@@ -40,10 +40,10 @@ onMounted(() => {
         <div class="container mx-auto px-4 md:px-6">
           <div class="flex flex-col items-center space-y-4">
             <h1 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
-              Unlock Your Inner World
+              Awaken Your Inner Universe
             </h1>
             <p class="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-              Harness the power of lucid dreaming and AI-driven journaling to explore your unconscious mind and accelerate your spiritual journey.
+              Explore the depths of your consciousness through lucid dreaming and AI-powered self-reflection.
             </p>
             <div class="flex justify-center gap-4 flex-wrap">
               <template v-if="!$pwa?.isPWAInstalled">
@@ -62,20 +62,8 @@ onMounted(() => {
       <!-- How it works -->
       <HowItWorks class=" bg-card" />
 
-      <!-- Mission Statement -->
-      <section class="w-full py-12 md:py-24 lg:py-32">
-        <div class="container mx-auto px-4 md:px-6 text-center">
-          <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl mb-4">
-            Our Mission
-          </h2>
-          <p class="mx-auto max-w-[800px] text-muted-foreground md:text-xl">
-            To aid individuals in their spiritual awakening by helping them understand their unconscious mind and awaken from its patterns. We also facilitate lucid dreaming, enabling a more direct interaction with the unconscious during sleep to accelerate integration and realization.
-          </p>
-        </div>
-      </section>
-
       <!-- Features -->
-      <section class="w-full py-12 md:py-24 lg:py-32 bg-card">
+      <section class="w-full py-12 md:py-24 lg:py-32">
         <div class="container mx-auto px-4 md:px-6">
           <h2 class="text-3xl font-bold tracking-tighter text-center sm:text-4xl md:text-5xl mb-12">
             Key Features
@@ -83,20 +71,20 @@ onMounted(() => {
           <div class="mt-14 grid gap-6 lg:mt-20 lg:grid-cols-3">
             <div class="rounded-lg bg-card p-5 border">
               <span class="mb-4 flex size-12 items-center justify-center rounded-full bg-primary">
-                <Lightbulb class="size-6" />
-              </span>
-              <h3 class="mb-2 text-xl font-medium">Advanced AI Dream Analysis</h3>
-              <p class="leading-7 text-muted-foreground">
-                Gain profound insights into your dreams with our cutting-edge AI, offering interpretations that delve into symbolism, psychological implications, and connections to your waking life.
-              </p>
-            </div>
-            <div class="rounded-lg bg-card p-5 border">
-              <span class="mb-4 flex size-12 items-center justify-center rounded-full bg-primary">
                 <Timer class="size-6" />
               </span>
               <h3 class="mb-2 text-xl font-medium">Intuitive Dream Journaling</h3>
               <p class="leading-7 text-muted-foreground">
                 Easily record and organize your dream experiences with a user-friendly interface designed to capture every detail, from vivid imagery to subtle emotions.
+              </p>
+            </div>
+            <div class="rounded-lg bg-card p-5 border">
+              <span class="mb-4 flex size-12 items-center justify-center rounded-full bg-primary">
+                <Lightbulb class="size-6" />
+              </span>
+              <h3 class="mb-2 text-xl font-medium">Advanced AI Dream Analysis</h3>
+              <p class="leading-7 text-muted-foreground">
+                Gain profound insights into your dreams with our cutting-edge AI, offering interpretations that delve into symbolism, psychological implications, and connections to your waking life.
               </p>
             </div>
             <div class="rounded-lg bg-card p-5 border">
@@ -109,6 +97,18 @@ onMounted(() => {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      <!-- Mission Statement -->
+      <section class="w-full py-12 md:py-24 lg:py-32 bg-card">
+        <div class="container mx-auto px-4 md:px-6 text-center">
+          <h2 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl mb-4">
+            Our Mission
+          </h2>
+          <p class="mx-auto max-w-[800px] text-muted-foreground md:text-xl">
+            To foster spiritual awakening by helping individuals gain insight into their unconscious mind and its patterns, supported by powerful analysis. Our platform empowers users to practice lucid dreaming, offering a direct connection to the unconscious during sleep for accelerated personal integration and realization.
+          </p>
         </div>
       </section>
 
@@ -126,7 +126,7 @@ onMounted(() => {
             Become a member to help support others on their spiritual journey and contribute to the ongoing development of MindfulLucidity. Your contributions directly fund new features and help us maintain the ability to grant full access to all users, regardless of their membership status.
           </p>
           <div class="flex justify-center space-x-4">
-            <Button as-child class="bg-plus-gold/80 text-black hover:bg-plus-gold">
+            <Button as-child class="bg-black hover:bg-card">
               <NuxtLink to="/plus">Learn More</NuxtLink>
             </Button>
             <Button as-child class="bg-plus-gold/80 text-black hover:bg-plus-gold">

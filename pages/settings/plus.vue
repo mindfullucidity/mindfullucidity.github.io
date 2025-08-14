@@ -113,7 +113,7 @@ function handleManagePayment() {
                 Support on Patreon
               </a>
             </Button>
-            <Button as-child class="bg-plus-gold/80 text-black hover:bg-plus-gold">
+            <Button as-child class="bg-black hover:bg-card">
               <NuxtLink to="/plus">Learn More</NuxtLink>
             </Button>
           </div>
