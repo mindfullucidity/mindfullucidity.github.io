@@ -31,8 +31,8 @@ const handleEdit = () => {
   <Collapsible v-model:open="isOpen">
     <Card class="text-card-foreground flex flex-col gap-6 rounded-xl border shadow-sm transition-all duration-200">
       <CardHeader>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
+        <div class="flex items-start justify-between">
+          <div class="flex flex-wrap items-start gap-3 flex-grow">
             <div
               class="px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 bg-card border"
             >
@@ -40,9 +40,9 @@ const handleEdit = () => {
               <Sparkle v-else-if="props.type === 'ai'" class="h-3 w-3" aria-hidden="true" stroke="url(#sparkle-gradient)" />
               <span class="pt-1" :class="props.type === 'ai' ? 'bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text' : 'text-blue-200'">{{ props.type === 'personal' ? 'Your Analysis' : 'AI Analysis' }}</span>
             </div>
-            <CardTitle class="font-medium">{{ props.title }}</CardTitle>
+            <CardTitle class="font-medium  flex-grow min-w-0 truncate">{{ props.title }}</CardTitle>
           </div>
-          <div v-if="props.showActions" class="flex items-center gap-2">
+          <div v-if="props.showActions" class="flex items-center gap-2 flex-shrink-0">
             <Button variant="ghost" size="icon" class="h-8 w-8 text-red-400 hover:text-red-400" @click="handleDelete">
               <Trash2 class="h-4 w-4" aria-hidden="true" />
             </Button>
