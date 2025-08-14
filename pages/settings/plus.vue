@@ -107,14 +107,14 @@ function handleManagePayment() {
             MindfulLucidity Plus is our way of saying thank you to our dedicated supporters on Patreon. By becoming a patreon, you gain access to all premium features, ensuring you have the best possible experience while directly contributing to the growth and development of MindfulLucidity.
           </p>
           <div class="flex flex-wrap gap-2">
+            <Button as-child class="bg-black hover:bg-card">
+              <NuxtLink to="/plus">Learn More</NuxtLink>
+            </Button>
             <Button as-child class="bg-plus-gold/80 text-black hover:bg-plus-gold">
               <a href="https://patreon.com/MindfulLucidity" target="_blank" rel="noopener noreferrer">
                 <font-awesome :icon="['fab', 'patreon']" class="h-5 w-5 mr-2" />
                 Support on Patreon
               </a>
-            </Button>
-            <Button as-child class="bg-black hover:bg-card">
-              <NuxtLink to="/plus">Learn More</NuxtLink>
             </Button>
           </div>
           <div class="flex items-start space-x-2 text-sm text-muted-foreground">

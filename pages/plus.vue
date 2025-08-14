@@ -3,10 +3,13 @@ import { Button } from '@/components/ui/button'
 import { Crown, Lightbulb, Sparkles, Handshake, Unlock, Code } from 'lucide-vue-next'
 import AppFooter from '~/components/misc/AppFooter.vue'
 import { onMounted } from 'vue'
+import { useSupabaseUser } from '#imports'
 
 definePageMeta({
   layout: 'default',
 })
+
+const user = useSupabaseUser() // Get the user object
 
 onMounted(() => {
   window.scrollTo(0, 0);
@@ -35,7 +38,7 @@ onMounted(() => {
               Support on Patreon
             </a>
           </Button>
-              <Button as-child class="bg-black hover:bg-black/50 text-white">
+              <Button as-child class="bg-black hover:bg-black/50 text-white" v-if="user">
             <NuxtLink to="/settings/plus">
               <font-awesome :icon="['fab', 'patreon']" class="h-5 w-5 mr-2" />
               Link Patreon Account

@@ -1,8 +1,7 @@
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { ChatGoogleGenerativeAI } from "npm:@langchain/google-genai";
 import { HumanMessage, SystemMessage } from "npm:@langchain/core/messages";
-import { StructuredOutputParser } from "npm:langchain/output_parsers";
-import { z } from "npm:zod";
+
 
 import { setupAIModel } from "../_shared/model_setup.ts";
 
@@ -49,9 +48,9 @@ Deno.serve(async (req: Request) => {
 
     const model = modelSetupResult.model;
 
-    const { messages, parser, responseType } = parseRequest(type, object);
+    const { messages, responseType } = parseRequest(type, object);
 
-    if (!messages || !parser) {
+    if (!messages) {
       return new Response(JSON.stringify({ error: "Unsupported type or invalid request object" }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
         status: 400,
@@ -61,9 +60,19 @@ Deno.serve(async (req: Request) => {
     messages.forEach((message, index) => {
       console.log(`Message ${index} length: ${message.content.length}`);
     });
-    const { content: enhancedContent } = await model.invoke(messages);
+    let enhancedContent: string;
+    try {
+      const { content } = await model.invoke(messages);
+      enhancedContent = content as string;
+    } catch (invokeError) {
+      console.error("Error during model invocation:", invokeError);
+      return new Response(JSON.stringify({ error: "Something went wrong while generating" }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 500,
+      });
+    }
 
-    const parsedContent = await parseResponse(responseType, enhancedContent as string, parser);
+    const parsedContent = await parseResponse(responseType, enhancedContent as string);
 
     return new Response(JSON.stringify({ type: responseType, object: parsedContent }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -82,82 +91,92 @@ function parseRequest(type: string, object: any) {
   switch (type) {
     case "journal_entry": {
       const { title, content } = object as JournalEntry;
-      const parser = StructuredOutputParser.fromZodSchema(
-        z.object({
-          title: z.string().describe("The title of the journal entry"),
-          content: z.string().describe("The content of the journal entry"),
-        })
-      );
       const systemPrompt = `You are an AI assistant that enhances dream journal entries.
       Your goal is to refine the provided journal entry, improving its clarity, coherence, and expressiveness.
       Maintain the original meaning and core story of the entry.
       Do not add new information or alter facts.
-      Ensure the output is a valid JSON object with 'title' and 'content' keys.
+      Ensure the output is in the format:
+      :type:
+      {type}
+      :content:
+      {content}
+      where {type} is the title and {content} is the journal entry content.
       If no title is provided please generate one(keep it to 4 or less words), if one exist only fix spellings of it
-      ${parser.getFormatInstructions()}`;
+      End the response with a new line followed by :EOF:`;
       const humanPrompt = `Original Journal Entry:
       Title: ${title}
       Content: ${content}`;
       return {
         messages: [new SystemMessage(systemPrompt), new HumanMessage(humanPrompt)],
-        parser,
         responseType: "journal_entry",
       };
     }
     case "personal_analysis": {
       const { type: analysisType, content } = object as PersonalAnalysis;
-      const parser = StructuredOutputParser.fromZodSchema(
-        z.object({
-          type: z.string().describe("The type of the personal analysis"),
-          content: z.string().describe("The content of the personal analysis"),
-        })
-      );
       const systemPrompt = `You are an AI assistant that enhances personal journal analyses.
       Your goal is to refine the provided personal analysis, improving its clarity, coherence, and expressiveness.
       Maintain the original meaning and core insights of the analysis.
       Do not add new information or alter facts.
-      Ensure the output is a valid JSON object with 'type' and 'content' keys.
-      ${parser.getFormatInstructions()}`;
+      Ensure the output is in the format:
+      :type:
+      {type}
+      :content:
+      {content}
+      where {type} is the analysis type and {content} is the personal analysis content.
+      End the response with a new line followed by :EOF:`;
       const humanPrompt = `Original Personal Analysis:
       Type: ${analysisType}
       Content: ${content}`;
       return {
         messages: [new SystemMessage(systemPrompt), new HumanMessage(humanPrompt)],
-        parser,
         responseType: "personal_analysis",
       };
     }
     case "journal_details": {
       const { lucidity_level, lucidity_trigger } = object as JournalDetails;
-      const parser = StructuredOutputParser.fromZodSchema(
-        z.object({
-          lucidity_trigger: z.string().describe("The enhanced lucidity trigger text"),
-        })
-      );
       const systemPrompt = `You are an AI assistant that enhances lucidity trigger descriptions for dream journal entries.
 Your goal is to refine the provided lucidity trigger, improving its clarity, coherence, and expressiveness.
 Maintain the original meaning and core idea of the trigger.
 Do not add new information or alter facts.
-Ensure the output is a valid JSON object with a 'lucidity_trigger' key.
-Context: The user's lucidity level was ${lucidity_level}.`;
+Ensure the output is in the format:
+:type:
+{type}
+:content:
+{content}
+where {type} is 'lucidity_trigger' and {content} is the enhanced lucidity trigger text.
+Context: The user's lucidity level was ${lucidity_level}.
+End the response with a new line followed by :EOF:`;
       const humanPrompt = `Original Lucidity Trigger: ${lucidity_trigger}`;
       return {
         messages: [new SystemMessage(systemPrompt), new HumanMessage(humanPrompt)],
-        parser,
         responseType: "journal_details",
       };
     }
     default:
-      return { messages: null, parser: null, responseType: null };
+      return { messages: null, responseType: null };
   }
 }
 
-async function parseResponse(type: string, enhancedContent: string, parser: StructuredOutputParser<any>) {
+async function parseResponse(type: string, enhancedContent: string) {
+  enhancedContent = enhancedContent.replace(/:EOF:$/, '').trim();
+
+  const typeMatch = enhancedContent.match(/:type:\n([\s\S]*?)\n:content:/);
+  const contentMatch = enhancedContent.match(/:content:\n([\s\S]*)/);
+
+  if (!typeMatch || !contentMatch) {
+    throw new Error("Invalid response format from AI. Expected ':type:\n{type}\n:content:\n{content}'");
+  }
+
+  const extractedType = typeMatch[1].trim();
+  const extractedContent = contentMatch[1].trim();
+
   switch (type) {
     case "journal_entry":
+      return { title: extractedType, content: extractedContent };
     case "personal_analysis":
+      return { type: extractedType, content: extractedContent };
     case "journal_details":
-      return await parser.parse(enhancedContent);
+      return { lucidity_trigger: extractedContent };
     default:
       throw new Error("Unsupported response type");
   }

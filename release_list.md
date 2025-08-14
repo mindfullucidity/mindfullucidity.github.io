@@ -1,14 +1,14 @@
 Essential Bugs:
-1. patreon linking broken in prod (redirect to /login then to /settings) (aswell as special case from /settings/plus)
-3. there is a difference between my link status on phone and web, meaning there is a issue syncing the access token on linking and delinking
-4. unsubscribe not working on settings/plus, plus the 2 gold button next to each other looks off
-2. fix bug that is occuring on logger journal entries with model invoke
+1. there is a difference between my link status on phone and web, meaning there is a issue syncing the access token on linking and delinking
 
 Bugs:
 1. on smaller screens the analysis card is overflowing horizontially
 2. on phone, when I open a journal that was all ready open (go to sidebar and open again), the entry content isn't initially displaying. But if I click details and entry again it displays
 3. Update text on /settings/plus and plus dialog
 4. renew N/A
+5. cancel on patreon link broken
+6. plus in sidebar not gold
+7. highlight on mobile select navbar not showing
 
 External:
 1. Setup Patreon Page
