@@ -1,10 +1,8 @@
 Essential Bugs:
 1. patreon linking broken in prod (redirect to /login then to /settings) (aswell as special case from /settings/plus)
+3. there is a difference between my link status on phone and web, meaning there is a issue syncing the access token on linking and delinking
+4. unsubscribe not working on settings/plus, plus the 2 gold button next to each other looks off
 2. fix bug that is occuring on logger journal entries with model invoke
-3. currently a bug where the save button doesn't disappear when saving a entry (although the content does actually save)
-4. add new pages to service worker
-5. there is a difference between my link status on phone and web, meaning there is a issue syncing the access token on linking and delinking
-6. unsubscribe not working on settings/plus, plus the 2 gold button next to each other looks off
 
 Bugs:
 1. on smaller screens the analysis card is overflowing horizontially

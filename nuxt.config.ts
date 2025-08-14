@@ -121,6 +121,10 @@ export default defineNuxtConfig({
       enabled: true,
       suppressWarnings: true,
       type: 'module',
+      navigateFallbackAllowlist: [
+        /^\/home(\/.*)?$/,
+        /^\/journal(\/.*)?$/,
+      ],
     },
     workbox: {
       navigateFallback: '/home',

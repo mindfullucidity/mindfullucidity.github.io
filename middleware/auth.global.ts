@@ -12,9 +12,23 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
 
   // If there's no current session
   if (!session) {
-      const publicRoutes = ['/', '/login', '/register', '/plus', '/privacy-policy', '/terms-of-service', '/redirect']
+      const publicRoutes = [
+        '/',
+        '/login',
+        '/register',
+        '/plus',
+        '/documents',
+        '/documents/privacy-policy',
+        '/documents/terms-of-service',
+        '/settings',
+        '/settings/ai',
+        '/settings/plus',
+        '/support',
+        '/support/contact_us',
+        '/support/report_bug',
+      ]
     // And the current path is NOT a public route, redirect to login
-    if (!publicRoutes.some(route => route === to.path)) {
+    if (!publicRoutes.some(route => to.path.startsWith(route))) {
         if (from.path.startsWith('/login')) {
           return
         } else {
