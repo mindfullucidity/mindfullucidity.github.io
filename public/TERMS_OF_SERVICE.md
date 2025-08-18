@@ -70,7 +70,7 @@ We reserve the right to modify or replace these Terms at any time. We will provi
 
 ## 13. Contact Us
 
-If you have any questions about these Terms, please contact us at mindfullucidy.gnosisflow@gmail.com.
+If you have any questions about these Terms, please contact us at mindfullucidity@outlook.com.
 
 ---
 
