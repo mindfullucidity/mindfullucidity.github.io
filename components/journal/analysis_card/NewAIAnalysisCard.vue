@@ -6,9 +6,12 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'vue-sonner'; // Import toast
+import { useJournal } from '@/composables/useJournal'; // Import useJournal
 
 const props = defineProps<{ journalId: number, journalContent: string }>();
 const emit = defineEmits(['save', 'cancel']);
+
+const { userGender } = useJournal(); // Access userGender
 
 const selectedType = ref('jungian');
 const selectedDepth = ref('to-the-point');
@@ -26,6 +29,7 @@ const handleGenerateAIAnalysis = () => {
     type: selectedType.value,
     depth: selectedDepth.value,
     content: content.value,
+    userGender: userGender.value, // Pass userGender
   });
 };
 

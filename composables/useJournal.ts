@@ -431,5 +431,6 @@ export const useJournal = () => {
     updateJournalAnalysis,
     deleteJournalAnalysis,
     getAnalysisPrettyTitle,
+    userGender: user.value?.user_metadata?.gender as string | "Unknown", // Expose user gender
   };
 };

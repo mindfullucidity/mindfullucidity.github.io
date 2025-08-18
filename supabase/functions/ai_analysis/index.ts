@@ -32,6 +32,7 @@ interface RequestPayload {
   entry: JournalEntry;
   analyses: Analysis[];
   generate: GenerateOptions;
+  userGender?: string;
 }
 
 export const corsHeaders = {
@@ -48,20 +49,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { entry, analyses, generate } = await req.json() as RequestPayload;
-
-    const authHeader = req.headers.get('Authorization');
-    const token = authHeader?.split('Bearer ')[1];
-
-    let userGender: string | undefined;
-    if (token) {
-      const { data: { user }, error: userError } = await supabase.auth.getUser(token);
-      if (userError) {
-        console.error('Error fetching user:', userError.message);
-      } else if (user) {
-        userGender = user.user_metadata?.gender as string | "Unkown";
-      }
-    }
+    const { entry, analyses, generate, userGender } = await req.json() as RequestPayload;
 
     const modelSetupResult = await setupAIModel(req);
 
