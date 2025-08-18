@@ -54,8 +54,21 @@ serve(async (req) => {
 
     // Redirect back to the settings page or a success page
     const returnToUrl = decodedState.returnTo || '/settings'; // Fallback to /settings if not provided
-    const redirectUrl = new URL(returnToUrl);
-    redirectUrl.searchParams.set('patreonLinked', 'true'); // Add indicator
+
+    // Create a URL object from the original returnToUrl to extract its origin
+    const originalReturnUrl = new URL(returnToUrl);
+
+    // Construct the base redirect URL using the origin from the original return URL
+    const redirectUrl = new URL(originalReturnUrl.origin);
+    redirectUrl.pathname = '/redirect'; // Set the path to /redirect
+
+    // The 'to' parameter should only contain the path and query of the original return URL
+    const pathToRedirectTo = originalReturnUrl.pathname;
+    redirectUrl.searchParams.set('to', pathToRedirectTo);
+    // Add the patreonLinked indicator
+    redirectUrl.searchParams.set('patreonLinked', 'true');
+
+    console.log(redirectUrl)
     return new Response(null, {
       status: 302,
       headers: {
