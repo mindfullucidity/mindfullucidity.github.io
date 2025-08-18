@@ -62,6 +62,13 @@ export default defineNuxtConfig({
   // Ensure text-plus-gold is always included in the CSS
   tailwindcss: {
     config: {
+      theme: {
+        extend: {
+          colors: {
+            'plus-gold': 'var(--color-plus-gold)',
+          },
+        },
+      },
       safelist: [
         'text-plus-gold',
         'text-primary-selected',

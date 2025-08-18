@@ -31,8 +31,8 @@ defineProps({
     :to="to"
     class="w-full inline-flex items-center justify-between px-3 py-1 rounded-lg text-sm font-medium transition-colors"
     :class="[
-      activeSection === id && id !== 'plus' ? 'text-primary' : '',
-      staticColor ? `!${staticColor}` : '',
+      activeSection === id && !staticColor ? 'text-primary' : '',
+      staticColor ? staticColor : '',
       activeSection === id ? 'bg-muted' : 'hover:bg-muted',
     ]"
   >

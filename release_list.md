@@ -3,10 +3,9 @@ Bugs:
 2. on phone, when I open a journal that was all ready open (go to sidebar and open again), the entry content isn't initially displaying. But if I click details and entry again it displays
 3. Update text on /settings/plus and plus dialog
 4. renew N/A
-5. cancel on patreon link broken
-6. plus in sidebar not gold
-7. highlight on mobile select navbar not showing
-8. there is a difference between my link status on phone and web, meaning there is a issue syncing the access token on linking and delinking
+5. plus in sidebar not gold
+6. highlight on mobile select navbar not showing
+7. there is a difference between my link status on phone and web, meaning there is a issue syncing the access token on linking and delinking
 
 Feature:
 1.  cache /journal/new in a cookie
