@@ -257,8 +257,8 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
       }
     }, abortController.value.signal);
 
-    // Stream complete, explicitly call handleStreamComplete
-    if (currentStreamingAnalysis.value) {
+    // Only call handleStreamComplete if the generation was NOT aborted
+    if (!abortController.value.signal.aborted && currentStreamingAnalysis.value) {
       await handleStreamComplete(currentStreamingAnalysis.value.textChunks.join(''));
     }
   } catch (err: any) {
@@ -281,10 +281,19 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
 };
 
 const handleStreamComplete = async (fullContent: string) => {
-  
+
   if (!currentStreamingAnalysis.value) {
     toast.error('Streaming analysis data missing.');
     console.error('handleStreamComplete: Streaming analysis data missing.');
+    return;
+  }
+
+  if (!fullContent.trim()) { // Check if content is empty or just whitespace
+    toast.error('AI did not return an analysis. It might have deemed the content inappropriate or encountered an internal issue.');
+    console.error('handleStreamComplete: AI returned empty content.');
+    isGeneratingAIAnalysis.value = false;
+    currentStreamingAnalysis.value = null;
+    abortController.value = null;
     return;
   }
 
@@ -305,13 +314,13 @@ const handleStreamComplete = async (fullContent: string) => {
       content: fullContent,
       user_id: '',
     };
-    
+
     journalAnalyses.value.push(newAnalysis);
     journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     toast.success('AI Analysis generated and added to entry!');
     newlyGeneratedAnalysis.value = newAnalysis;
-    
-    
+
+
     await nextTick();
     newlyGeneratedAnalysis.value = null; // Clear after nextTick to prevent duplication
   } else {
@@ -324,12 +333,12 @@ const handleStreamComplete = async (fullContent: string) => {
 
     if (resultAnalysis) {
       toast.success('AI Analysis generated and saved successfully!');
-      
+
       journalAnalyses.value.push(resultAnalysis);
       journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
       newlyGeneratedAnalysis.value = resultAnalysis;
-      
-      
+
+
       await nextTick();
       newlyGeneratedAnalysis.value = null; // Clear after nextTick to prevent duplication
     } else {
@@ -341,7 +350,7 @@ const handleStreamComplete = async (fullContent: string) => {
   isGeneratingAIAnalysis.value = false;
   currentStreamingAnalysis.value = null;
   abortController.value = null;
-  
+
 };
 
 const handleSaveNewAnalysis = async (analysisData: Omit<JournalAnalysis, 'journal_analysis_id' | 'created_at' | 'user_id'>) => {
