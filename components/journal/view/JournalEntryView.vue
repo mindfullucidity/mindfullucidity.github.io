@@ -101,8 +101,8 @@ const lastDeletedEntry = ref<JournalEntry | null>(null);
 const journalAnalysisRef = ref<typeof JournalEntryViewAnalysis | null>(null);
 
 watch(() => props.entryId, async (newId) => {
-  isContentReady.value = false; 
-  editableEntry.value = null; 
+  isContentReady.value = false;
+  editableEntry.value = null;
   if (newId) {
     editableEntry.value = await findEntryById(newId);
     if (editableEntry.value) {
@@ -119,7 +119,7 @@ watch(() => props.entryId, async (newId) => {
     originalEntry.value = null;
     hasUnsavedChanges.value = false;
   }
-  isContentReady.value = true; 
+  isContentReady.value = true;
 }, { immediate: true });
 
 watch(editableEntry, (newVal, oldVal) => {
