@@ -50,11 +50,8 @@ const handleCancel = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="jungian">Jungian</SelectItem>
-              <SelectItem value="symbolic">Symbolic</SelectItem>
-              <SelectItem value="narrative">Narrative</SelectItem>
+              <SelectItem value="freudian">Freudian</SelectItem>
               <SelectItem value="cognitive-behavioral">Cognitive Behavioral</SelectItem>
-              <SelectItem value="psychodynamic">Psychodynamic</SelectItem>
-              <SelectItem value="humanistic">Humanistic</SelectItem>
             </SelectContent>
           </Select>
         </div>
