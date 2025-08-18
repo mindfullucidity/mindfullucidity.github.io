@@ -1,5 +1,5 @@
 <script setup lang="ts">
-console.log('Redirect Page: Script Setup Running');
+
 definePageMeta({
   layout: false,
 });

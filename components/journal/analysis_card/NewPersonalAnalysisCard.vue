@@ -28,7 +28,7 @@ watch(() => props.initialAnalysis, (newVal) => {
 });
 
 const handleSave = () => {
-  console.log('NewPersonalAnalysisCard handleSave called. journalId:', props.journalId);
+  
   if (!content.value.trim()) {
     toast.error('Analysis for dream is required.');
     return;

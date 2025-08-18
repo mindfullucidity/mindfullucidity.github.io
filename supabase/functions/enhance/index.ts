@@ -58,7 +58,7 @@ Deno.serve(async (req: Request) => {
     }
 
     messages.forEach((message, index) => {
-      console.log(`Message ${index} length: ${message.content.length}`);
+      
     });
     let enhancedContent: string;
     try {

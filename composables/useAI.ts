@@ -57,7 +57,7 @@ export const useAI = () => {
     onChunk: (chunk: string) => void,
     signal?: AbortSignal,
   ) => {
-    console.log('streamAIAnalysis: Starting stream request.');
+    
     try {
       const response = await fetch(`${supabase.supabaseUrl}/functions/v1/ai_analysis`, {
         method: 'POST',
@@ -70,7 +70,7 @@ export const useAI = () => {
         signal,
       });
 
-      console.log('streamAIAnalysis: Response received. response.ok:', response.ok);
+      
       if (!response.ok) {
         const errorData = await response.json();
         console.error('streamAIAnalysis: Response not OK. Error data:', errorData);
@@ -87,11 +87,11 @@ export const useAI = () => {
       }
 
       while (true) {
-        console.log('streamAIAnalysis: Calling reader.read()...');
+        
         const { done, value } = await reader.read();
-        console.log('streamAIAnalysis: reader.read() returned. done:', done, 'value length:', value?.length);
+        
         if (done) {
-          console.log('streamAIAnalysis: Stream is done.');
+          
           break;
         }
 
@@ -108,7 +108,7 @@ export const useAI = () => {
               const parsed = JSON.parse(jsonString);
               if (parsed.content) {
                 onChunk(parsed.content);
-                console.log('streamAIAnalysis: onChunk called with content.');
+                
               }
             } catch (e) {
               console.error('streamAIAnalysis: Error parsing SSE data:', e, 'Line:', line);
@@ -116,10 +116,10 @@ export const useAI = () => {
           }
         }
       }
-      console.log('streamAIAnalysis: Stream processing loop finished.');
+      
     } catch (error: any) {
       if (error.name === 'AbortError') {
-        console.log('streamAIAnalysis: AI analysis stream aborted.');
+        
       } else {
         console.error('streamAIAnalysis: Error during AI analysis streaming:', error);
         throw error;

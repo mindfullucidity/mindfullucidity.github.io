@@ -214,7 +214,7 @@ const handleCancelAIAnalysisGeneration = () => {
 };
 
 const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: string, depth: string, content: string }) => {
-  console.log('handleGenerateAIAnalysis: Starting AI analysis generation. isGeneratingAIAnalysis:', isGeneratingAIAnalysis.value);
+  
   if (!props.editableEntry) {
     toast.error('Journal entry is not loaded.');
     return;
@@ -230,7 +230,7 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
     title: getAnalysisPrettyTitle(payload.type),
     textChunks: [],
   };
-  console.log('handleGenerateAIAnalysis: Initialized currentStreamingAnalysis:', currentStreamingAnalysis.value);
+  
 
   try {
     await streamAIAnalysis({
@@ -247,7 +247,7 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
     }, (chunk) => {
       if (currentStreamingAnalysis.value) {
         currentStreamingAnalysis.value.textChunks.push(chunk);
-        console.log('handleGenerateAIAnalysis: Received chunk. currentStreamingAnalysis.textChunks.length:', currentStreamingAnalysis.value.textChunks.length);
+        
       }
     }, abortController.value.signal);
 
@@ -258,7 +258,7 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
   } catch (err: any) {
     if (err.name === 'AbortError') {
       toast.info('AI Analysis generation cancelled.');
-      console.log('handleGenerateAIAnalysis: AI Analysis generation cancelled.');
+      
     } else {
       toast.error(`An unexpected error occurred during AI Analysis: ${err.message}`);
       console.error("handleGenerateAIAnalysis: Unexpected AI Analysis error:", err);
@@ -270,12 +270,12 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
     isGeneratingAIAnalysis.value = false;
     currentStreamingAnalysis.value = null;
     abortController.value = null;
-    console.log('handleGenerateAIAnalysis: After completion (finally block). isGeneratingAIAnalysis:', isGeneratingAIAnalysis.value, 'currentStreamingAnalysis:', currentStreamingAnalysis.value);
+    
   }
 };
 
 const handleStreamComplete = async (fullContent: string) => {
-  console.log('handleStreamComplete: Stream completed. Full content length:', fullContent.length);
+  
   if (!currentStreamingAnalysis.value) {
     toast.error('Streaming analysis data missing.');
     console.error('handleStreamComplete: Streaming analysis data missing.');
@@ -299,13 +299,13 @@ const handleStreamComplete = async (fullContent: string) => {
       content: fullContent,
       user_id: '',
     };
-    console.log('handleStreamComplete: New entry - created newAnalysis:', newAnalysis);
+    
     journalAnalyses.value.push(newAnalysis);
     journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
     toast.success('AI Analysis generated and added to entry!');
     newlyGeneratedAnalysis.value = newAnalysis;
-    console.log('handleStreamComplete: New entry - journalAnalyses after push:', journalAnalyses.value.map(a => a.journal_analysis_id));
-    console.log('handleStreamComplete: New entry - newlyGeneratedAnalysis:', newlyGeneratedAnalysis.value?.journal_analysis_id);
+    
+    
     await nextTick();
     newlyGeneratedAnalysis.value = null; // Clear after nextTick to prevent duplication
   } else {
@@ -318,12 +318,12 @@ const handleStreamComplete = async (fullContent: string) => {
 
     if (resultAnalysis) {
       toast.success('AI Analysis generated and saved successfully!');
-      console.log('handleStreamComplete: Existing entry - created resultAnalysis:', resultAnalysis);
+      
       journalAnalyses.value.push(resultAnalysis);
       journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
       newlyGeneratedAnalysis.value = resultAnalysis;
-      console.log('handleStreamComplete: Existing entry - journalAnalyses after push:', journalAnalyses.value.map(a => a.journal_analysis_id));
-      console.log('handleStreamComplete: Existing entry - newlyGeneratedAnalysis:', newlyGeneratedAnalysis.value?.journal_analysis_id);
+      
+      
       await nextTick();
       newlyGeneratedAnalysis.value = null; // Clear after nextTick to prevent duplication
     } else {
@@ -335,7 +335,7 @@ const handleStreamComplete = async (fullContent: string) => {
   isGeneratingAIAnalysis.value = false;
   currentStreamingAnalysis.value = null;
   abortController.value = null;
-  console.log('handleStreamComplete: After completion. isGeneratingAIAnalysis:', isGeneratingAIAnalysis.value, 'currentStreamingAnalysis:', currentStreamingAnalysis.value, 'newlyGeneratedAnalysis:', newlyGeneratedAnalysis.value?.journal_analysis_id);
+  
 };
 
 const handleSaveNewAnalysis = async (analysisData: Omit<JournalAnalysis, 'journal_analysis_id' | 'created_at' | 'user_id'>) => {
