@@ -30,7 +30,7 @@ const handleCancel = () => {
   <Collapsible v-model:open="isOpen">
     <Card class="text-card-foreground flex flex-col gap-6 rounded-xl border shadow-sm transition-all duration-200">
       <CardHeader>
-        <div class="flex items-center justify-between">
+        <div class="flex items-start justify-between">
           <div class="flex flex-wrap items-start gap-3 flex-grow">
             <div
               class="px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 bg-card border"
