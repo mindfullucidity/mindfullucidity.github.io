@@ -99,12 +99,12 @@ function handleManagePayment() {
             MindfulLucidity Plus
           </CardTitle>
           <CardDescription>
-            Unlock full functionality and enhance your dream journaling experience with MindfulLucidity Plus.
+            Gain full access to advanced AI analysis without limits and support the MindfulLucidity community.
           </CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
           <p>
-            MindfulLucidity Plus is our way of saying thank you to our dedicated supporters on Patreon. By becoming a patreon, you gain access to all premium features, ensuring you have the best possible experience while directly contributing to the growth and development of MindfulLucidity.
+            MindfulLucidity Plus offers unlimited AI analysis, removing the need for your own API key, and directly supports the ongoing development and community of MindfulLucidity. Your contribution helps us keep the platform accessible and continuously improving for everyone.
           </p>
           <div class="flex flex-wrap gap-2">
             <Button as-child class="bg-black hover:bg-card">
@@ -133,7 +133,7 @@ function handleManagePayment() {
             MindfulLucidity Plus
           </CardTitle>
           <CardDescription>
-            Thank you for being a MindfulLucidity Plus member! You have full access to all premium features.
+            Thank you for being a MindfulLucidity Plus member! You have full access to all Plus features.
           </CardDescription>
         </CardHeader>
         <CardContent class="space-y-4">
