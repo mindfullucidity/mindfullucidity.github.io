@@ -164,7 +164,7 @@ const cancelEdit = () => {
 
 const deleteEntryAndNavigate = async () => {
   if (editableEntry.value && editableEntry.value.journal_id !== 0) {
-    lastDeletedEntry.value = { ...editableEntry.value }; 
+    lastDeletedEntry.value = JSON.parse(JSON.stringify(editableEntry.value)); 
     const success = await deleteEntry(editableEntry.value.journal_id);
     if (success) {
       toast.success('Journal entry deleted successfully!', {
