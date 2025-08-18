@@ -9,7 +9,10 @@ export function useSettings() {
   const config = useRuntimeConfig()
 
   const displayName = ref('')
+  const originalDisplayName = ref('')
   const email = ref('')
+  const gender = ref<'Male' | 'Female' | 'Other' | 'Prefer Not To Say' | 'Unknown'>('Unknown')
+  const originalGender = ref<'Male' | 'Female' | 'Other' | 'Prefer Not To Say' | 'Unknown'>('Unknown')
   const isDeletingAccount = ref(false)
 
   const isPatreonLinked = computed(() => !!user.value?.user_metadata?.patreon_id)
@@ -18,8 +21,15 @@ export function useSettings() {
     if (newUser) {
       displayName.value = newUser.user_metadata?.full_name || newUser.email || ''
       email.value = newUser.email || ''
+      gender.value = newUser.user_metadata?.gender || 'Unknown'
+      originalDisplayName.value = displayName.value
+      originalGender.value = gender.value
     }
   }, { immediate: true })
+
+  const hasChanges = computed(() => {
+    return displayName.value !== originalDisplayName.value || gender.value !== originalGender.value
+  })
 
   
 
@@ -76,25 +86,45 @@ export function useSettings() {
     }
   }
 
-  async function updateDisplayName() {
+  async function saveProfileChanges() {
     try {
+      const updates: { full_name?: string; gender?: string | null } = {}
+      let changesMade = false
+
+      if (displayName.value !== originalDisplayName.value) {
+        updates.full_name = displayName.value
+        changesMade = true
+      }
+
+      if (gender.value !== originalGender.value) {
+        updates.gender = gender.value === 'Unknown' ? null : gender.value
+        changesMade = true
+      }
+
+      if (!changesMade) {
+        toast.info('No changes to save.')
+        return
+      }
+
       const { error } = await supabase.auth.updateUser({
-        data: { full_name: displayName.value },
+        data: updates,
       })
       if (error) throw error
-      // Force a session refresh to get updated user_metadata
+
       const { error: refreshError } = await supabase.auth.refreshSession()
       if (refreshError) {
-        toast.error('Failed to refresh session after updating display name', {
+        toast.error('Failed to refresh session after updating profile', {
           description: refreshError.message,
         })
       } else {
-        toast.success('Display name updated!', {
-          description: 'Your display name has been successfully updated.',
+        toast.success('Profile updated!', {
+          description: 'Your profile information has been successfully updated.',
         })
+        originalDisplayName.value = displayName.value
+        originalGender.value = gender.value
       }
     } catch (error: any) {
-      toast.error('Error updating display name', {
+      toast.error('Error updating profile', {
         description: error.message,
       })
     }
@@ -145,9 +175,13 @@ export function useSettings() {
   return {
     displayName,
     email,
+    gender,
+    originalDisplayName,
+    originalGender,
+    hasChanges,
     isPatreonLinked,
     togglePatreonLink,
-    updateDisplayName,
+    saveProfileChanges,
     logout,
     deleteAccount,
     isDeletingAccount,

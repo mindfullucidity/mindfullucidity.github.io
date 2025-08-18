@@ -3,6 +3,7 @@ import { useSettings } from '@/composables/useSettings'
 import { Label } from '@/components/ui/label'
 import { Input } from '@/components/ui/input'
 import { Separator } from '@/components/ui/separator'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import {
@@ -21,7 +22,7 @@ definePageMeta({
   layout: 'settings',
 })
 
-const { displayName, email, isPatreonLinked, togglePatreonLink, updateDisplayName, logout, deleteAccount, isDeletingAccount } = useSettings()
+const { displayName, email, gender, originalDisplayName, originalGender, hasChanges, isPatreonLinked, togglePatreonLink, saveProfileChanges, logout, deleteAccount, isDeletingAccount } = useSettings()
 </script>
 
 <template>
@@ -65,8 +66,23 @@ const { displayName, email, isPatreonLinked, togglePatreonLink, updateDisplayNam
               Email cannot be changed here.
             </p>
           </div>
+          <div class="space-y-2">
+            <Label for="gender">Gender</Label>
+            <Select v-model="gender">
+              <SelectTrigger id="gender">
+                <SelectValue placeholder="Select your gender" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="Male">Male</SelectItem>
+                <SelectItem value="Female">Female</SelectItem>
+                <SelectItem value="Other">Other</SelectItem>
+                <SelectItem value="Prefer Not To Say">Prefer Not To Say</SelectItem>
+                
+              </SelectContent>
+            </Select>
+          </div>
           <div class="flex justify-end">
-            <Button @click="updateDisplayName">Save changes</Button>
+            <Button @click="saveProfileChanges" :disabled="!hasChanges">Save changes</Button>
           </div>
         </CardContent>
       </Card>
