@@ -12,6 +12,7 @@ import JournalEntryCardExpanded from '~/components/journal/misc/JournalEntryCard
 import JournalEntryCardExpandedSkeleton from '~/components/journal/misc/JournalEntryCardExpandedSkeleton.vue';
 import HomePlusCard from '~/components/misc/HomePlusCard.vue';
 import HomeDreamStreak from '~/components/misc/HomeDreamStreak.vue';
+import PostConfigDialog from '~/components/misc/PostConfigDialog.vue';
 import { Skeleton } from '@/components/ui/skeleton';
 
 
@@ -147,6 +148,7 @@ definePageMeta({
 
 <template>
   <Title>Home | MindfulLucidity</Title>
+  <PostConfigDialog />
   <div class="relative min-h-screen overflow-hidden">
     
     <div class="relative z-10 min-h-screen text-foreground px-6 py-2 sm:py-4">
