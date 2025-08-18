@@ -2,6 +2,7 @@
 import LucidityLevel from './details/LucidityLevel.vue';
 import MoodSpectrum from './details/MoodSpectrum.vue';
 import Characteristics from './details/Characteristics.vue';
+import Symbols from './details/Symbols.vue';
 import JournalEntryViewDetailsSkeleton from './JournalEntryViewDetailsSkeleton.vue';
 
 const props = defineProps({
@@ -44,6 +45,11 @@ const emit = defineEmits([
         <Characteristics
           :initial-characteristics="props.initialCharacteristics"
           @update:characteristics="(value) => emit('update:characteristics', value)"
+        />
+
+        <Symbols
+          :is-loading-entry="props.isLoadingEntry"
+          :is-enhancing-details="props.isEnhancingDetails"
         />
       </div>
     </div>
