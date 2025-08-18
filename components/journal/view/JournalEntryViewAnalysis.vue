@@ -43,8 +43,26 @@
             @cancel="handleCancelNewAnalysis"
           />
         </template>
-        <template v-if="isGeneratingAIAnalysis">
-          <SkeletonPreviewAnalysisCard type="ai" :title="generatingAnalysisType ? getAnalysisPrettyTitle(generatingAnalysisType) : null" @cancel-generation="handleCancelAIAnalysisGeneration" />
+        <template v-if="isGeneratingAIAnalysis && currentStreamingAnalysis">
+          <AIStreamingPreviewAnalysisCard
+            :type="currentStreamingAnalysis.type"
+            :title="currentStreamingAnalysis.title"
+            :text-chunks="currentStreamingAnalysis.textChunks"
+            :is-streaming="isGeneratingAIAnalysis"
+            @cancel-generation="handleCancelAIAnalysisGeneration"
+            @stream-complete="handleStreamComplete"
+          />
+        </template>
+        <template v-else-if="newlyGeneratedAnalysis">
+          <PreviewAnalysisCard
+            :analysisId="newlyGeneratedAnalysis.journal_analysis_id"
+            :type="newlyGeneratedAnalysis.type"
+            :title="getAnalysisPrettyTitle(newlyGeneratedAnalysis.title)"
+            :content="newlyGeneratedAnalysis.content"
+            :show-actions="true"
+            @delete="handleDeleteAnalysis"
+            @edit="handleEditAnalysis"
+          />
         </template>
 
         <div class="flex flex-col sm:flex-row gap-2 mt-4 justify-center">
@@ -70,6 +88,7 @@ import SkeletonPreviewAnalysisCard from '@/components/journal/analysis_card/Skel
 import NewPersonalAnalysisCard from '@/components/journal/analysis_card/NewPersonalAnalysisCard.vue';
 import PreviewAnalysisCard from '@/components/journal/analysis_card/PreviewAnalysisCard.vue';
 import NewAIAnalysisCard from '@/components/journal/analysis_card/NewAIAnalysisCard.vue';
+import AIStreamingPreviewAnalysisCard from '@/components/journal/analysis_card/AIStreamingPreviewAnalysisCard.vue';
 import { useJournal } from '@/composables/useJournal';
 import { useAI } from '@/composables/useAI';
 import { useLocalStorage } from '@vueuse/core';
@@ -86,9 +105,11 @@ const emit = defineEmits([
 ]);
 
 const { loadJournalAnalyses, createJournalAnalysis, updateJournalAnalysis, deleteJournalAnalysis, getAnalysisPrettyTitle } = useJournal();
-const { invokeAIAnalysis } = useAI();
+const { invokeAIAnalysis, streamAIAnalysis } = useAI();
 
 const journalAnalyses = ref<JournalAnalysis[]>([]);
+const currentStreamingAnalysis = ref<{ type: 'ai', title: string | null, textChunks: string[] } | null>(null);
+const newlyGeneratedAnalysis = ref<JournalAnalysis | null>(null);
 const showNewAnalysisCard = ref<'ai' | 'personal' | null>(null);
 const editingAnalysis = ref<JournalAnalysis | null>(null);
 const lastDeletedAnalysis = ref<JournalAnalysis | null>(null);
@@ -193,6 +214,7 @@ const handleCancelAIAnalysisGeneration = () => {
 };
 
 const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: string, depth: string, content: string }) => {
+  console.log('handleGenerateAIAnalysis: Starting AI analysis generation. isGeneratingAIAnalysis:', isGeneratingAIAnalysis.value);
   if (!props.editableEntry) {
     toast.error('Journal entry is not loaded.');
     return;
@@ -200,11 +222,18 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
 
   isGeneratingAIAnalysis.value = true;
   generatingAnalysisType.value = payload.type;
-  showNewAnalysisCard.value = null; 
+  showNewAnalysisCard.value = null;
   abortController.value = new AbortController();
 
+  currentStreamingAnalysis.value = {
+    type: 'ai',
+    title: getAnalysisPrettyTitle(payload.type),
+    textChunks: [],
+  };
+  console.log('handleGenerateAIAnalysis: Initialized currentStreamingAnalysis:', currentStreamingAnalysis.value);
+
   try {
-    const { data, error } = await invokeAIAnalysis({
+    await streamAIAnalysis({
       entry: {
         title: props.editableEntry.title,
         content: props.editableEntry.content,
@@ -215,60 +244,98 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
         depth: payload.depth,
         note: payload.content,
       },
+    }, (chunk) => {
+      if (currentStreamingAnalysis.value) {
+        currentStreamingAnalysis.value.textChunks.push(chunk);
+        console.log('handleGenerateAIAnalysis: Received chunk. currentStreamingAnalysis.textChunks.length:', currentStreamingAnalysis.value.textChunks.length);
+      }
     }, abortController.value.signal);
 
-    if (error) {
-      toast.error(`AI Analysis failed: ${error.message}`);
-      console.error("AI Analysis error:", error);
-      if (error.message.includes("rate limit") && shouldShowDialog()) {
-        emit('showUpgradeDialog');
-      }
-    } else if (data && data.object && data.object.content) {
-      if (isGeneratingAIAnalysis.value) {
-        if (props.isNewEntry) {
-          const newAnalysis: JournalAnalysis = {
-            journal_analysis_id: Date.now() * -1, 
-            created_at: new Date().toISOString(),
-            journal_id: 0, 
-            type: `ai`,
-            title: `${payload.type}`,
-            content: data.object.content,
-            user_id: '', 
-          };
-          journalAnalyses.value.push(newAnalysis);
-          journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-          toast.success('AI Analysis generated and added to entry!');
-        } else {
-          const resultAnalysis = await createJournalAnalysis({
-            journal_id: payload.journal_id,
-            type: `ai`,
-            title: `${payload.type}`,
-            content: data.object.content,
-          });
-
-          if (resultAnalysis) {
-            toast.success('AI Analysis generated and saved successfully!');
-            journalAnalyses.value.push(resultAnalysis);
-            journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-          } else {
-            toast.error('Failed to save AI Analysis to database.');
-          }
-        }
-      } else {
-      }
-    } else {
-      toast.error("AI Analysis failed: Unexpected response from function.");
+    // Stream complete, explicitly call handleStreamComplete
+    if (currentStreamingAnalysis.value) {
+      await handleStreamComplete(currentStreamingAnalysis.value.textChunks.join(''));
     }
   } catch (err: any) {
     if (err.name === 'AbortError') {
+      toast.info('AI Analysis generation cancelled.');
+      console.log('handleGenerateAIAnalysis: AI Analysis generation cancelled.');
     } else {
       toast.error(`An unexpected error occurred during AI Analysis: ${err.message}`);
-      console.error("Unexpected AI Analysis error:", err);
+      console.error("handleGenerateAIAnalysis: Unexpected AI Analysis error:", err);
+      if (err.message.includes("rate limit") && shouldShowDialog()) {
+        emit('showUpgradeDialog');
+      }
     }
   } finally {
     isGeneratingAIAnalysis.value = false;
+    currentStreamingAnalysis.value = null;
     abortController.value = null;
+    console.log('handleGenerateAIAnalysis: After completion (finally block). isGeneratingAIAnalysis:', isGeneratingAIAnalysis.value, 'currentStreamingAnalysis:', currentStreamingAnalysis.value);
   }
+};
+
+const handleStreamComplete = async (fullContent: string) => {
+  console.log('handleStreamComplete: Stream completed. Full content length:', fullContent.length);
+  if (!currentStreamingAnalysis.value) {
+    toast.error('Streaming analysis data missing.');
+    console.error('handleStreamComplete: Streaming analysis data missing.');
+    return;
+  }
+
+  const payloadType = generatingAnalysisType.value;
+  if (!payloadType) {
+    toast.error('Analysis type missing after stream completion.');
+    console.error('handleStreamComplete: Analysis type missing after stream completion.');
+    return;
+  }
+
+  if (props.isNewEntry) {
+    const newAnalysis: JournalAnalysis = {
+      journal_analysis_id: Date.now() * -1,
+      created_at: new Date().toISOString(),
+      journal_id: 0,
+      type: `ai`,
+      title: `${payloadType}`,
+      content: fullContent,
+      user_id: '',
+    };
+    console.log('handleStreamComplete: New entry - created newAnalysis:', newAnalysis);
+    journalAnalyses.value.push(newAnalysis);
+    journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    toast.success('AI Analysis generated and added to entry!');
+    newlyGeneratedAnalysis.value = newAnalysis;
+    console.log('handleStreamComplete: New entry - journalAnalyses after push:', journalAnalyses.value.map(a => a.journal_analysis_id));
+    console.log('handleStreamComplete: New entry - newlyGeneratedAnalysis:', newlyGeneratedAnalysis.value?.journal_analysis_id);
+    await nextTick();
+    newlyGeneratedAnalysis.value = null; // Clear after nextTick to prevent duplication
+  } else {
+    const resultAnalysis = await createJournalAnalysis({
+      journal_id: props.editableEntry.journal_id,
+      type: `ai`,
+      title: `${payloadType}`,
+      content: fullContent,
+    });
+
+    if (resultAnalysis) {
+      toast.success('AI Analysis generated and saved successfully!');
+      console.log('handleStreamComplete: Existing entry - created resultAnalysis:', resultAnalysis);
+      journalAnalyses.value.push(resultAnalysis);
+      journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+      newlyGeneratedAnalysis.value = resultAnalysis;
+      console.log('handleStreamComplete: Existing entry - journalAnalyses after push:', journalAnalyses.value.map(a => a.journal_analysis_id));
+      console.log('handleStreamComplete: Existing entry - newlyGeneratedAnalysis:', newlyGeneratedAnalysis.value?.journal_analysis_id);
+      await nextTick();
+      newlyGeneratedAnalysis.value = null; // Clear after nextTick to prevent duplication
+    } else {
+      toast.error('Failed to save AI Analysis to database.');
+      console.error('handleStreamComplete: Failed to save AI Analysis to database.');
+    }
+  }
+
+  isGeneratingAIAnalysis.value = false;
+  currentStreamingAnalysis.value = null;
+  abortController.value = null;
+  console.log('handleStreamComplete: After completion. isGeneratingAIAnalysis:', isGeneratingAIAnalysis.value, 'currentStreamingAnalysis:', currentStreamingAnalysis.value, 'newlyGeneratedAnalysis:', newlyGeneratedAnalysis.value?.journal_analysis_id);
 };
 
 const handleSaveNewAnalysis = async (analysisData: Omit<JournalAnalysis, 'journal_analysis_id' | 'created_at' | 'user_id'>) => {

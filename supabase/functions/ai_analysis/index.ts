@@ -137,16 +137,33 @@ Provide the analysis content directly as a markdown compliant string. Do not wra
       humanPrompt += ` Consider the following note: "${generate.note}".`;
     }
 
-    const generatedResponse = await model.invoke([
+    const stream = await model.stream([
       new SystemMessage(systemPrompt),
       new HumanMessage(humanPrompt),
     ]);
 
-    // Extract the content from the generated response
-    const contentString = generatedResponse.content;
+    const customReadable = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        try {
+          for await (const chunk of stream) {
+            if (chunk.content) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: chunk.content })}\n\n`));
+            }
+          }
+        } finally {
+          controller.close();
+        }
+      },
+    });
 
-    return new Response(JSON.stringify({ type: "ai_analysis", object: { content: contentString } }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(customReadable, {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
       status: 200,
     });
 

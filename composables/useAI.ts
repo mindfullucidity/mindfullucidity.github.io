@@ -52,8 +52,84 @@ export const useAI = () => {
     return _invokeSupabaseFunction('enhance', payload);
   };
 
+  const streamAIAnalysis = async (
+    payload: { entry: any; analyses: any[]; generate: any; },
+    onChunk: (chunk: string) => void,
+    signal?: AbortSignal,
+  ) => {
+    console.log('streamAIAnalysis: Starting stream request.');
+    try {
+      const response = await fetch(`${supabase.supabaseUrl}/functions/v1/ai_analysis`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${(await supabase.auth.getSession()).data.session?.access_token}`,
+          'X-AI-Settings': JSON.stringify(settingsCookie.value),
+        },
+        body: JSON.stringify(payload),
+        signal,
+      });
+
+      console.log('streamAIAnalysis: Response received. response.ok:', response.ok);
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error('streamAIAnalysis: Response not OK. Error data:', errorData);
+        throw new Error(errorData.error || 'Failed to stream AI analysis');
+      }
+
+      const reader = response.body?.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+
+      if (!reader) {
+        console.error('streamAIAnalysis: Failed to get readable stream reader.');
+        throw new Error('Failed to get readable stream reader.');
+      }
+
+      while (true) {
+        console.log('streamAIAnalysis: Calling reader.read()...');
+        const { done, value } = await reader.read();
+        console.log('streamAIAnalysis: reader.read() returned. done:', done, 'value length:', value?.length);
+        if (done) {
+          console.log('streamAIAnalysis: Stream is done.');
+          break;
+        }
+
+        buffer += decoder.decode(value, { stream: true });
+
+        let newlineIndex;
+        while ((newlineIndex = buffer.indexOf('\n')) !== -1) {
+          const line = buffer.substring(0, newlineIndex).trim();
+          buffer = buffer.substring(newlineIndex + 1);
+
+          if (line.startsWith('data:')) {
+            try {
+              const jsonString = line.substring(5).trim();
+              const parsed = JSON.parse(jsonString);
+              if (parsed.content) {
+                onChunk(parsed.content);
+                console.log('streamAIAnalysis: onChunk called with content.');
+              }
+            } catch (e) {
+              console.error('streamAIAnalysis: Error parsing SSE data:', e, 'Line:', line);
+            }
+          }
+        }
+      }
+      console.log('streamAIAnalysis: Stream processing loop finished.');
+    } catch (error: any) {
+      if (error.name === 'AbortError') {
+        console.log('streamAIAnalysis: AI analysis stream aborted.');
+      } else {
+        console.error('streamAIAnalysis: Error during AI analysis streaming:', error);
+        throw error;
+      }
+    }
+  };
+
   return {
     invokeAIAnalysis,
     invokeEnhance,
+    streamAIAnalysis,
   };
 };
