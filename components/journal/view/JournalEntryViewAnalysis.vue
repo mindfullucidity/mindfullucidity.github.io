@@ -130,6 +130,12 @@ const shouldShowDialog = () => {
   return false;
 };
 
+onMounted(async () => {
+  if (props.activeTab === 'analysis' && !props.isNewEntry && props.editableEntry.journal_id && props.editableEntry.journal_id !== 0) {
+    await fetchJournalAnalyses(props.editableEntry.journal_id);
+  }
+});
+
 watch(() => props.activeTab, async (newTab) => {
   if (newTab === 'analysis') {
     if (props.isNewEntry) {

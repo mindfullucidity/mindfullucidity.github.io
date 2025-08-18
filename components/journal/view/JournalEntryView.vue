@@ -15,13 +15,16 @@
         @save-entry="saveEntry"
       />
       <Separator />
-      <JournalEntryViewEntry
-        v-model:editableEntry="editableEntry"
-        :is-loading-entry="isLoadingEntry"
-        :is-enhancing-entry="isEnhancingEntry"
-      />
+      <TabsContent value="entry" class="p-6 overflow-y-auto flex-grow">
+        <JournalEntryViewEntry
+          v-model:editableEntry="editableEntry"
+          :is-loading-entry="isLoadingEntry"
+          :is-enhancing-entry="isEnhancingEntry"
+        />
+      </TabsContent>
       <JournalEntryViewAnalysis
-        v-if="editableEntry"
+        v-if="editableEntry && activeTab === 'analysis'"
+        :key="isNewEntry"
         ref="journalAnalysisRef"
         :editable-entry="editableEntry"
         :is-new-entry="isNewEntry"
@@ -94,7 +97,7 @@ const isContentReady = ref(false);
 
 const route = useRoute();
 const router = useRouter();
-const activeTab = ref('entry');
+const activeTab = ref(route.hash === '#analysis' ? 'analysis' : route.hash === '#details' ? 'details' : 'entry');
 
 const lastDeletedEntry = ref<JournalEntry | null>(null);
 
@@ -147,16 +150,6 @@ watch(activeTab, (newTab) => {
     router.push({ hash: '#details' });
   } else {
     router.push({ hash: '' });
-  }
-});
-
-onMounted(() => {
-  if (route.hash === '#analysis') {
-    activeTab.value = 'analysis';
-  } else if (route.hash === '#details') {
-    activeTab.value = 'details';
-  } else {
-    activeTab.value = 'entry';
   }
 });
 
