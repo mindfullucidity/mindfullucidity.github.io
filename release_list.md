@@ -6,5 +6,4 @@ Feature:
 1.  cache /journal/new in a cookie
 2.  more useful characterisitics (powers, old wise man) (specify gender) (symbols)
 3.  Plus feature done.
-4.  Improve the ai response for analysis
-5.  links to jungian words
+4.  links to jungian words
