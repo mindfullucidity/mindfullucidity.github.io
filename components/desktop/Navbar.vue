@@ -90,7 +90,7 @@ async function logout() {
             @mouseover="hoveredItem = 'contact_us'"
           >
             <Mail v-if="route.path.startsWith('/support')" class="w-5 h-5 mr-2" />
-            <span class="text-sm">Contact US</span>
+            <span class="text-sm">Contact Us</span>
           </NuxtLink>
           <NuxtLink
             v-if="!user"

@@ -28,12 +28,13 @@ const handleInput = (event: Event) => {
 };
 
 onMounted(() => {
-  adjustHeight();
+  // Introduce a small delay to ensure DOM is fully ready
+  setTimeout(() => {
+    adjustHeight();
+  }, 0); // 0ms delay
 });
 
 watch(() => props.modelValue, () => {
-  // Use nextTick to ensure the DOM has updated with the new modelValue
-  // before we try to calculate the new height.
   nextTick(() => {
     adjustHeight();
   });

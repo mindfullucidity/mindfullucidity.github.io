@@ -1,0 +1,10 @@
+diff --git a/lib/nuxt/runtime/plugin.js b/lib/nuxt/runtime/plugin.js
+index 6412d5d17ddff28aa27c671d00b932406c215d32..4f39cd5955cfaa08424a807f68ce650614c3f2af 100644
+--- a/lib/nuxt/runtime/plugin.js
++++ b/lib/nuxt/runtime/plugin.js
+@@ -1,4 +1,4 @@
+-import { toast } from "../packages";
++import { toast } from "vue-sonner";
+ import { defineNuxtPlugin } from "nuxt/app";
+ export default defineNuxtPlugin(() => {
+   return {

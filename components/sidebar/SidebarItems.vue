@@ -55,7 +55,7 @@ const handleSelectChange = (value: string) => {
               class="w-full min-w-0 text-center"
               :class="[
                 activeSection === item.id && !item.staticColor ? 'text-primary' : '',
-                item.staticColor ? `!${item.staticColor}` : '',
+                item.staticColor ? item.staticColor : '',
                 activeSection === item.id ? 'bg-muted' : 'hover:bg-muted',
               ]"
             >
@@ -75,13 +75,13 @@ const handleSelectChange = (value: string) => {
               class="h-4 w-4 mr-3"
               v-if="activeItem?.icon"
               :class="[
-                activeItem?.staticColor ? `!${activeItem.staticColor}` : (activeSection === activeItem?.id ? 'text-primary' : 'text-white'),
+                activeItem?.staticColor ? activeItem.staticColor : (activeSection === activeItem?.id ? 'text-primary' : ''),
               ]"
             />
             <SelectValue
               :placeholder="activeItem?.label || 'Select Item'"
               :class="[
-                activeItem?.staticColor ? `!${activeItem.staticColor}` : (activeSection === activeItem?.id ? 'text-primary' : 'text-white'),
+                activeItem?.staticColor ? activeItem.staticColor : (activeSection === activeItem?.id ? 'text-primary' : ''),
               ]"
             />
           </div>
@@ -100,12 +100,12 @@ const handleSelectChange = (value: string) => {
                 :is="item.icon"
                 class="h-4 w-4 mr-3"
                 :class="[
-                  item.staticColor ? `!${item.staticColor}` : (activeSection === item.id ? 'text-primary' : 'text-white'),
+                  item.staticColor ? item.staticColor : (activeSection === item.id ? 'text-primary' : ''),
                 ]"
               />
               <span
                 :class="[
-                  item.staticColor ? `!${item.staticColor}` : (activeSection === item.id ? 'text-primary' : 'text-white'),
+                  item.staticColor ? item.staticColor : (activeSection === item.id ? 'text-primary' : ''),
                 ]"
               >
                 {{ item.label }}

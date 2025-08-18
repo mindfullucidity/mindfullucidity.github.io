@@ -21,23 +21,7 @@ export function useSettings() {
     }
   }, { immediate: true })
 
-  onMounted(async () => {
-    if (route.query.patreonLinked === 'true') {
-      // This means we've just returned from Patreon OAuth
-      // Force a session refresh to get updated user_metadata
-      const { error } = await supabase.auth.refreshSession()
-      if (error) {
-        toast.error('Failed to refresh session', {
-          description: error.message,
-        })
-      } else {
-        // Clean up the URL
-        const url = new URL(window.location.href)
-        url.searchParams.delete('patreonLinked')
-        window.history.replaceState({}, document.title, url.toString())
-      }
-    }
-  })
+  
 
   async function togglePatreonLink() {
     if (isPatreonLinked.value) {

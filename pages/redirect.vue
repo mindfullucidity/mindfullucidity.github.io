@@ -5,6 +5,7 @@ definePageMeta({
 });
 
 import { useSupabaseUser } from '#imports'
+import { toast } from 'vue-sonner'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { useHome } from '~/composables/useHome';
 
@@ -21,6 +22,22 @@ const supabase = useSupabaseClient()
 const isLoading = ref(true)
 
 onMounted(async () => {
+  // Patreon Linked Logic
+  if (route.query.patreonLinked === 'true') {
+    const { error } = await supabase.auth.refreshSession()
+    if (error) {
+      toast.error('Failed to refresh session', {
+        description: error.message,
+      })
+    } else {
+      toast.success('Patreon linked successfully!')
+    }
+    // Always redirect after Patreon linking attempt
+    router.replace(redirectTo.value)
+    isLoading.value = false
+    return // Exit to prevent further processing
+  }
+
   const { data: { session } } = await supabase.auth.getSession()
 
   if (hasCodeArg.value) {

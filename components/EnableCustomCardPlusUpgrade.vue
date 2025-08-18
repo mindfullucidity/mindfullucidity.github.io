@@ -6,7 +6,7 @@ import { Crown, Lightbulb, Bot } from 'lucide-vue-next'
 defineProps({
   description: {
     type: String,
-    default: "You've reached a limit or are missing out on premium features. Upgrade to Plus or use your own AI model for unlimited access!",
+    default: "You've reached a limit or are missing out on Plus features. Upgrade to Plus or use your own AI model for unlimited access!",
   },
 })
 </script>
