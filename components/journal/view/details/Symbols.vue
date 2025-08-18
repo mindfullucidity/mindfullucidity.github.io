@@ -2,7 +2,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { Button } from '@/components/ui/button';
 import { toast } from 'vue-sonner';
-import { Plus, Sparkles, Activity, PawPrint, Users, Box, MapPin, CloudSun, HelpCircle, BadgePlus } from 'lucide-vue-next';
+import { Plus, Sparkles, Activity, PawPrint, Users, Box, MapPin, CloudSun, HelpCircle, BadgePlus, BookOpenText } from 'lucide-vue-next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useSymbols } from '@/composables/useSymbols';
+import { useSupabaseUser } from '#imports';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import type { Symbol } from '@/composables/useSymbols';
 
 const props = defineProps({
@@ -18,11 +20,15 @@ const props = defineProps({
   isEnhancingDetails: { type: Boolean, default: false },
 });
 
-const { getSymbols } = useSymbols();
+const { getSymbols, createSymbol, deleteSymbol } = useSymbols();
+const user = useSupabaseUser();
 const showAddSymbolDialog = ref(false);
 const showCreateSymbolCard = ref(false);
 const searchTerm = ref('');
 const selectedSymbols = ref<Symbol[]>([]);
+const showDeleteConfirmDialog = ref(false);
+const symbolToDelete = ref<Symbol | null>(null);
+let pressTimer: ReturnType<typeof setTimeout> | null = null;
 
 const allSymbols = ref<any[]>([]); // To store all fetched symbols
 
@@ -37,6 +43,7 @@ const categoryIcons: Record<string, any> = {
   'Objects & Items': Box,
   'Places & Settings': MapPin,
   'Colors & Weather': CloudSun,
+  'Themes': BookOpenText,
   'Other': HelpCircle,
 };
 
@@ -106,7 +113,7 @@ const newSymbolCategory = ref('');
 const newSymbolName = ref('');
 const newSymbolDescription = ref('');
 
-const handleSaveNewSymbol = () => {
+const handleSaveNewSymbol = async () => {
   if (!newSymbolCategory.value) {
     toast.error('Please specify a category for the new symbol.');
     return;
@@ -115,13 +122,26 @@ const handleSaveNewSymbol = () => {
     toast.error('Please specify a name for the new symbol.');
     return;
   }
-  // For now, just a toast. Later, this will interact with Supabase.
-  toast.success(`New Symbol: ${newSymbolName.value} (${newSymbolCategory.value}) saved!`);
-  // Reset form
-  newSymbolCategory.value = '';
-  newSymbolName.value = '';
-  newSymbolDescription.value = '';
-  showCreateSymbolCard.value = false;
+
+  const newSymbolData = {
+    category: newSymbolCategory.value,
+    name: newSymbolName.value,
+    description: newSymbolDescription.value || null,
+  };
+
+  const created = await createSymbol(newSymbolData);
+
+  if (created) {
+    toast.success(`New Symbol: ${created.name} (${created.category}) saved!`);
+    selectedSymbols.value.push(created);
+    // Reset form
+    newSymbolCategory.value = '';
+    newSymbolName.value = '';
+    newSymbolDescription.value = '';
+    showCreateSymbolCard.value = false;
+  } else {
+    toast.error('Failed to create symbol.');
+  }
 };
 
 const handleCancelNewSymbol = () => {
@@ -130,6 +150,44 @@ const handleCancelNewSymbol = () => {
   newSymbolName.value = '';
   newSymbolDescription.value = '';
   showCreateSymbolCard.value = false;
+};
+
+const onMouseDown = (symbol: Symbol) => {
+  if (symbol.user_id === user.value?.id) {
+    pressTimer = setTimeout(() => {
+      symbolToDelete.value = symbol;
+      showDeleteConfirmDialog.value = true;
+    }, 500); // 2 seconds
+  }
+};
+
+const onMouseUp = () => {
+  if (pressTimer) {
+    clearTimeout(pressTimer);
+    pressTimer = null;
+  }
+};
+
+const onMouseLeave = () => {
+  if (pressTimer) {
+    clearTimeout(pressTimer);
+    pressTimer = null;
+  }
+};
+
+const handleDeleteSymbol = async () => {
+  if (symbolToDelete.value && user.value) {
+    const success = await deleteSymbol(symbolToDelete.value.symbol_id, user.value.id);
+    if (success) {
+      toast.success(`Symbol '${symbolToDelete.value.name}' deleted.`);
+      // Remove from selectedSymbols as well
+      selectedSymbols.value = selectedSymbols.value.filter(s => s.symbol_id !== symbolToDelete.value?.symbol_id);
+    } else {
+      toast.error(`Failed to delete symbol '${symbolToDelete.value.name}'.`);
+    }
+  }
+  symbolToDelete.value = null;
+  showDeleteConfirmDialog.value = false;
 };
 </script>
 
@@ -151,6 +209,9 @@ const handleCancelNewSymbol = () => {
             :key="symbol.symbol_id"
             variant="outline"
             @click="selectSymbol(symbol)"
+            @mousedown="onMouseDown(symbol)"
+            @mouseup="onMouseUp()"
+            @mouseleave="onMouseLeave()"
           >
             {{ symbol.name }}
           </Button>
@@ -260,5 +321,20 @@ const handleCancelNewSymbol = () => {
         </div>
       </DialogContent>
     </Dialog>
+
+    <AlertDialog :open="showDeleteConfirmDialog" @update:open="showDeleteConfirmDialog = $event">
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
+          <AlertDialogDescription>
+            This action cannot be undone. This will permanently delete the '{{ symbolToDelete?.name }}' symbol.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel @click="showDeleteConfirmDialog = false">Cancel</AlertDialogCancel>
+          <AlertDialogAction @click="handleDeleteSymbol">Delete</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
   </div>
 </template>

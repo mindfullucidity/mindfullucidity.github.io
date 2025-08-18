@@ -66,4 +66,12 @@ INSERT INTO public.symbols (category, name, description, user_id) VALUES
     ('Colors & Weather', 'White', 'Purity, innocence, or new beginnings.', NULL),
     ('Colors & Weather', 'Storm', 'Emotional turmoil, conflict, or a brewing crisis.', NULL),
     ('Colors & Weather', 'Rain', 'Emotional release, sadness, or cleansing.', NULL),
-    ('Colors & Weather', 'Sun', 'Happiness, clarity, or a positive outlook.', NULL);
+    ('Colors & Weather', 'Sun', 'Happiness, clarity, or a positive outlook.', NULL),
+    ('Themes', 'The Quest', 'A journey toward a goal or a discovery of something new. This theme often reflects the dreamer''s search for meaning, purpose, or personal growth in their waking life.', NULL),
+    ('Themes', 'Conflict/Battle', 'A theme centered on a struggle, whether with an opponent, a monster, or a natural force. This represents the dreamer''s inner or external conflicts, such as moral dilemmas or personal challenges.', NULL),
+    ('Themes', 'Betrayal', 'The overarching plot involves a character deceiving or betraying the dreamer. This theme can symbolize unresolved trust issues, a fear of being hurt, or a past wound that is being processed.', NULL),
+    ('Themes', 'Metamorphosis', 'A dream where the central theme is a transformation, either of the dreamer themselves, another character, or a setting. This symbolizes personal change, evolution, and growth.', NULL),
+    ('Themes', 'Loss/Abandonment', 'The core of the dream is a feeling of being left behind, losing a person, or the disappearance of a valued object. This often reflects a fear of loneliness or a period of grief and change.', NULL),
+    ('Themes', 'Being Lost', 'The dreamer is unable to find their way, which can symbolize a feeling of being directionless in life or uncertain about future choices.', NULL),
+    ('Themes', 'Healing/Recovery', 'A dream where the main plot involves healing a wound, recovering from an illness, or bringing something back to life. This theme points to emotional or physical restoration in the dreamer''s life.', NULL)
+;
