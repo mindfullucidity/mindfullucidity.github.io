@@ -2,8 +2,14 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { HumanMessage, SystemMessage } from "npm:@langchain/core/messages";
 import { StructuredOutputParser } from "npm:langchain/output_parsers";
 import { z } from "npm:zod";
+import { createClient } from "npm:@supabase/supabase-js";
 
 import { setupAIModel } from "../_shared/model_setup.ts";
+
+const supabase = createClient(
+  Deno.env.get('SUPABASE_URL') ?? '',
+  Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+);
 
 interface JournalEntry {
   title: string;
@@ -44,6 +50,19 @@ Deno.serve(async (req: Request) => {
   try {
     const { entry, analyses, generate } = await req.json() as RequestPayload;
 
+    const authHeader = req.headers.get('Authorization');
+    const token = authHeader?.split('Bearer ')[1];
+
+    let userGender: string | undefined;
+    if (token) {
+      const { data: { user }, error: userError } = await supabase.auth.getUser(token);
+      if (userError) {
+        console.error('Error fetching user:', userError.message);
+      } else if (user) {
+        userGender = user.user_metadata?.gender as string | "Unkown";
+      }
+    }
+
     const modelSetupResult = await setupAIModel(req);
 
     if (modelSetupResult.status !== 200) {
@@ -56,7 +75,13 @@ Deno.serve(async (req: Request) => {
     const model = modelSetupResult.model;
 
     let systemPrompt = `You are an AI assistant specialized in generating insightful analyses of journal entries.`;
-    let humanPrompt = `Journal Entry:\nTitle: ${entry.title}\nContent: ${entry.content}\n\n`;
+    let humanPrompt = '';
+
+    if (userGender) {
+      humanPrompt += `User Details:\n\tGender: ${userGender}\n\n`;
+    }
+
+    humanPrompt += `Journal Entry:\nTitle: ${entry.title}\nContent: ${entry.content}\n\n`;
 
     if (analyses && analyses.length > 0) {
       humanPrompt += `Existing Analyses:\n`;
