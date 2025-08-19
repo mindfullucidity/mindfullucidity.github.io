@@ -36,14 +36,14 @@ onMounted(() => {
     <div class="relative z-10 w-full">
 
       <!-- Hero Section -->
-      <section class="w-full py-12 md:py-24 lg:py-32 text-center">
+      <section class="w-full py-20 md:py-40 lg:py-60 text-center">
         <div class="container mx-auto px-4 md:px-6">
           <div class="flex flex-col items-center space-y-4">
             <h1 class="text-3xl font-bold tracking-tighter sm:text-4xl md:text-5xl lg:text-6xl/none">
               Awaken Your Inner Universe
             </h1>
-            <p class="mx-auto max-w-[700px] text-muted-foreground md:text-xl">
-              Explore the depths of your consciousness through lucid dreaming and AI-powered self-reflection.
+            <p class="mx-auto max_w-[700px] text-muted-foreground md:text-xl">
+              Deepen your self-understanding through profound interactions with your dreams.
             </p>
             <div class="flex justify-center gap-4 flex-wrap">
               <template v-if="!$pwa?.isPWAInstalled">
@@ -123,7 +123,7 @@ onMounted(() => {
             MindfulLucidity Plus
           </h2>
           <p class="mx-auto max-w-[700px] md:text-xl mb-8">
-            Become a member to help support others on their spiritual journey and contribute to the ongoing development of MindfulLucidity. Your contributions directly fund new features and help us maintain the ability to grant full access to all users, regardless of their membership status.
+            Become a member for just $5/month to help support others on their spiritual journey and contribute to the ongoing development of MindfulLucidity. Your contributions directly fund new features and help us maintain the ability to grant full access to all users, regardless of their membership status.
           </p>
           <div class="flex justify-center space-x-4">
             <Button as-child class="bg-black hover:bg-card">
