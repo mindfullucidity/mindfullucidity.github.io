@@ -1,0 +1,7 @@
+{
+  "imports": {
+    "npm:": "https://esm.sh/",
+    "langchain/": "https://esm.sh/langchain@0.3.30/",
+    "@langchain/google-genai": "https://esm.sh/@langchain/google-genai@0.2.16"
+  }
+}

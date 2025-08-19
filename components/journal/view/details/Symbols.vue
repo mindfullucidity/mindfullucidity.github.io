@@ -11,19 +11,24 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
 import { useSymbols } from '@/composables/useSymbols';
+import { useJournal } from '@/composables/useJournal';
 import { useSupabaseUser } from '#imports';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import type { Symbol } from '@/composables/useSymbols';
 
+import type { JournalEntry, JournalAnalysis } from '@/composables/useJournal';
+import { useAI } from '@/composables/useAI';
+
 const props = defineProps({
   isLoadingEntry: { type: Boolean, default: false },
   isEnhancingDetails: { type: Boolean, default: false },
-  initialSymbolIds: { type: Array as PropType<number[]>, default: () => [] },
+  journalEntry: { type: Object as PropType<JournalEntry>, required: true },
 });
 
-const emit = defineEmits(['update:symbolIds', 'component-ready']);
+const emit = defineEmits(['update:journalEntry', 'component-ready']);
 
 const { getSymbols, createSymbol, deleteSymbol } = useSymbols();
+const { invokeDetectSymbols } = useAI();
 const user = useSupabaseUser();
 const showAddSymbolDialog = ref(false);
 const showCreateSymbolCard = ref(false);
@@ -35,29 +40,41 @@ let pressTimer: ReturnType<typeof setTimeout> | null = null;
 
 const allSymbols = ref<any[]>([]); // To store all fetched symbols
 
+const lucidityLevels = [
+  { level: 0, label: 'Not Lucid', description: 'No awareness of dreaming.' },
+  { level: 1, label: 'Slightly Aware', description: 'Slight awareness, fleeting thoughts of dreaming.' },
+  { level: 2, label: 'Moderately Lucid', description: 'Some awareness, occasional reality checks.' },
+  { level: 3, label: 'Fully Lucid', description: 'Clear awareness, frequent reality checks, some control.' },
+];
+
+const getLucidityLevelLabel = (level: number) => {
+  const found = lucidityLevels.find(l => l.level === level);
+  return found ? found.label : 'Unknown';
+};
+
 onMounted(async () => {
   allSymbols.value = await getSymbols();
   // Populate selectedSymbols based on initialSymbolIds
-  if (props.initialSymbolIds && props.initialSymbolIds.length > 0) {
+  if (props.journalEntry.symbol_ids && props.journalEntry.symbol_ids.length > 0) {
     selectedSymbols.value = allSymbols.value.filter(symbol =>
-      props.initialSymbolIds.includes(symbol.symbol_id)
+      props.journalEntry.symbol_ids.includes(symbol.symbol_id)
     );
   }
   emit('component-ready');
 });
 
 // Add watch effect
-watch(() => props.initialSymbolIds, (newSymbolIds) => {
+watch(() => props.journalEntry.symbol_ids, (newSymbolIds) => {
   if (allSymbols.value.length > 0) { // Ensure allSymbols are loaded before filtering
     selectedSymbols.value = allSymbols.value.filter(symbol =>
-      newSymbolIds.includes(symbol.symbol_id)
+      newSymbolIds?.includes(symbol.symbol_id)
     );
   } else {
     // If allSymbols are not yet loaded, re-fetch and then filter
     getSymbols().then(fetchedSymbols => {
       allSymbols.value = fetchedSymbols;
       selectedSymbols.value = allSymbols.value.filter(symbol =>
-        newSymbolIds.includes(symbol.symbol_id)
+        newSymbolIds?.includes(symbol.symbol_id)
       );
     });
   }
@@ -134,7 +151,7 @@ const selectSymbol = (symbol: Symbol) => {
     toast.info(`Removed symbol: ${symbol.name}`);
   }
   showAddSymbolDialog.value = false;
-  emit('update:symbolIds', selectedSymbols.value.map(s => s.symbol_id));
+  emit('update:journalEntry', { ...props.journalEntry, symbol_ids: selectedSymbols.value.map(s => s.symbol_id) });
 };
 
 const newSymbolCategory = ref('');
@@ -167,7 +184,7 @@ const handleSaveNewSymbol = async () => {
     newSymbolName.value = '';
     newSymbolDescription.value = '';
     showCreateSymbolCard.value = false;
-    emit('update:symbolIds', selectedSymbols.value.map(s => s.symbol_id));
+    emit('update:journalEntry', { ...props.journalEntry, symbol_ids: selectedSymbols.value.map(s => s.symbol_id) });
   } else {
     toast.error('Failed to create symbol.');
   }
@@ -211,13 +228,75 @@ const handleDeleteSymbol = async () => {
       toast.success(`Symbol '${symbolToDelete.value.name}' deleted.`);
       // Remove from selectedSymbols as well
       selectedSymbols.value = selectedSymbols.value.filter(s => s.symbol_id !== symbolToDelete.value?.symbol_id);
-      emit('update:symbolIds', selectedSymbols.value.map(s => s.symbol_id));
+      emit('update:journalEntry', { ...props.journalEntry, symbol_ids: selectedSymbols.value.map(s => s.symbol_id) });
     } else {
       toast.error(`Failed to delete symbol '${symbolToDelete.value.name}'.`);
     }
   }
   symbolToDelete.value = null;
   showDeleteConfirmDialog.value = false;
+};
+
+const detectSymbols = async () => {
+  if (!props.journalEntry || props.isLoadingEntry || props.isEnhancingDetails) {
+    return;
+  }
+
+  // Basic validation for content
+  if (!props.journalEntry.content && !props.journalEntry.title) {
+    toast.error("Journal entry is empty. Nothing to detect symbols from.");
+    return;
+  }
+
+  // Prepare data for the Edge Function
+  // Explicitly fetch analyses to ensure they are up-to-date
+  const { loadJournalAnalyses } = useJournal();
+  const currentAnalyses = await loadJournalAnalyses(props.journalEntry.journal_id);
+
+  const journalEntryData = {
+    title: props.journalEntry.title || '',
+    content: props.journalEntry.content || '',
+    lucidity_level: getLucidityLevelLabel(props.journalEntry.lucidity_level || 0),
+    lucidity_trigger: props.journalEntry.lucidity_trigger || '',
+    mood: props.journalEntry.mood || 50,
+    characteristics: props.journalEntry.characteristics || [],
+    analyses: currentAnalyses || [],
+  };
+
+  console.log('Sending journalEntryData to detect_symbols:', journalEntryData);
+
+  const userSymbols = allSymbols.value.map(s => ({
+    symbol_id: s.symbol_id,
+    category: s.category,
+    name: s.name,
+    description: s.description,
+  }));
+
+  try {
+    const { data, error } = await invokeDetectSymbols({
+      journal_entry_data: journalEntryData,
+      user_symbols: userSymbols,
+      selected_symbol_ids: props.journalEntry.symbol_ids || [],
+    });
+
+    if (error) {
+      throw new Error(error.message || 'Failed to detect symbols.');
+    }
+
+    const detectedSymbolIds: number[] = data?.detected_symbol_ids || [];
+
+    const newSelectedSymbols = allSymbols.value.filter(symbol =>
+      detectedSymbolIds.includes(symbol.symbol_id)
+    );
+
+    selectedSymbols.value = newSelectedSymbols;
+    emit('update:journalEntry', { ...props.journalEntry, symbol_ids: newSelectedSymbols.map(s => s.symbol_id) });
+    toast.success('Symbols detected successfully!');
+
+  } catch (error: any) {
+    console.error('Error detecting symbols:', error);
+    toast.error(`Failed to detect symbols: ${error.message || 'An unknown error occurred.'}`);
+  }
 };
 </script>
 

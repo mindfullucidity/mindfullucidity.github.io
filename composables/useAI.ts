@@ -127,9 +127,14 @@ export const useAI = () => {
     }
   };
 
+  const invokeDetectSymbols = async (payload: { journal_entry_data: any; user_symbols: any[]; }) => {
+    return _invokeSupabaseFunction('detect_symbols', payload);
+  };
+
   return {
     invokeAIAnalysis,
     invokeEnhance,
     streamAIAnalysis,
+    invokeDetectSymbols,
   };
 };

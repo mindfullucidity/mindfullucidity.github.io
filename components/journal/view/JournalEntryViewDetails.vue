@@ -6,22 +6,16 @@ import Characteristics from './details/Characteristics.vue';
 import Symbols from './details/Symbols.vue';
 import JournalEntryViewDetailsSkeleton from './JournalEntryViewDetailsSkeleton.vue';
 
+import type { JournalEntry } from '@/composables/useJournal';
+
 const props = defineProps({
-  initialLucidityLevel: { type: Number, default: 0 },
-  initialLucidityTrigger: { type: String, default: '' },
-  initialMood: { type: Number as PropType<number | null>, default: 50 },
-  initialCharacteristics: { type: Array as () => string[], default: () => [] },
-  initialSymbolIds: { type: Array as PropType<number[]>, default: () => [] },
   isLoadingEntry: { type: Boolean, default: false },
   isEnhancingDetails: { type: Boolean, default: false },
+  journalEntry: { type: Object as PropType<JournalEntry>, required: true },
 });
 
 const emit = defineEmits([
-  'update:lucidityLevel',
-  'update:lucidityTrigger',
-  'update:mood',
-  'update:characteristics',
-  'update:symbolIds',
+  'update:journalEntry',
 ]);
 
 const contentReady = ref(false);
@@ -50,32 +44,32 @@ watch(() => props.isLoadingEntry, (newVal) => {
     <JournalEntryViewDetailsSkeleton v-show="!contentReady || props.isLoadingEntry" />
     <div v-show="contentReady && !props.isLoadingEntry" class=" space-y-8">
         <LucidityLevel
-          :initial-lucidity-level="props.initialLucidityLevel"
-          :initial-lucidity-trigger="props.initialLucidityTrigger"
+          :initial-lucidity-level="props.journalEntry.lucidity_level"
+          :initial-lucidity-trigger="props.journalEntry.lucidity_trigger"
           :is-loading-entry="props.isLoadingEntry"
           :is-enhancing-details="props.isEnhancingDetails"
-          @update:lucidity-level="(value) => emit('update:lucidityLevel', value)"
-          @update:lucidity-trigger="(value) => emit('update:lucidityTrigger', value)"
+          @update:lucidity-level="(value) => emit('update:journalEntry', { ...props.journalEntry, lucidity_level: value })"
+          @update:lucidity-trigger="(value) => emit('update:journalEntry', { ...props.journalEntry, lucidity_trigger: value })"
           @component-ready="() => handleComponentReady('LucidityLevel')"
         />
 
         <MoodSpectrum
-          :initial-mood="props.initialMood"
-          @update:mood="(value) => emit('update:mood', value)"
+          :initial-mood="props.journalEntry.mood"
+          @update:mood="(value) => emit('update:journalEntry', { ...props.journalEntry, mood: value })"
           @component-ready="() => handleComponentReady('MoodSpectrum')"
         />
 
         <Characteristics
-          :initial-characteristics="props.initialCharacteristics"
-          @update:characteristics="(value) => emit('update:characteristics', value)"
+          :initial-characteristics="props.journalEntry.characteristics"
+          @update:characteristics="(value) => emit('update:journalEntry', { ...props.journalEntry, characteristics: value })"
           @component-ready="() => handleComponentReady('Characteristics')"
         />
 
         <Symbols
           :is-loading-entry="props.isLoadingEntry"
           :is-enhancing-details="props.isEnhancingDetails"
-          :initial-symbol-ids="props.initialSymbolIds"
-          @update:symbol-ids="(value) => emit('update:symbolIds', value)"
+          :journal-entry="props.journalEntry"
+          @update:journal-entry="(value) => emit('update:journalEntry', value)"
           @component-ready="() => handleComponentReady('Symbols')"
         />
       </div>

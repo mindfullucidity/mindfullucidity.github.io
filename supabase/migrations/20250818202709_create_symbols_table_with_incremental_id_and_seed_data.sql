@@ -44,7 +44,6 @@ INSERT INTO public.symbols (category, name, description, user_id) VALUES
     ('Objects & Items', 'Key', 'A solution to a problem or a new opportunity. In Freudian terms, a key can be a phallic symbol.', NULL),
     ('Objects & Items', 'Car', 'The dreamer''s drive in life and their ability to navigate their path.', NULL),
     ('Objects & Items', 'Water', 'Emotions, especially when contained. Freudian theory views a container as a vaginal symbol.', NULL),
-    ('Objects & Items', 'House', 'The self or the mind. Each room represents a different aspect of the dreamer''s personality.', NULL),
     ('Objects & Items', 'Money', 'Self-worth, power, or value.', NULL),
     ('Objects & Items', 'Mirror', 'Self-reflection and how one sees themselves. A broken mirror might indicate a shattered self-image.', NULL),
     ('Objects & Items', 'Tower', 'A sense of self, an ideal, or ambition. Freud saw towers as a clear phallic symbol.', NULL),

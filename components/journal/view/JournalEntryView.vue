@@ -32,20 +32,12 @@
         @show-upgrade-dialog="showUpgradeDialog = true"
       />
       <TabsContent value="details" class="p-6 overflow-y-auto flex-grow">
-        <div class="mx-auto max-w-4xl w-full">
+        <div v-if="editableEntry" class="mx-auto max-w-4xl w-full">
           <JournalEntryViewDetails
-            :initial-lucidity-level="editableEntry?.lucidity_level"
-            :initial-lucidity-trigger="editableEntry?.lucidity_trigger"
-            :initial-mood="editableEntry?.mood"
-            :initial-characteristics="editableEntry?.characteristics"
-            :initial-symbol-ids="editableEntry?.symbol_ids"
+            :journal-entry="editableEntry"
             :is-loading-entry="isLoadingEntry"
             :is-enhancing-details="activeTab === 'details' && isEnhancingEntry"
-            @update:lucidity-level="editableEntry.lucidity_level = $event"
-            @update:lucidity-trigger="editableEntry.lucidity_trigger = $event"
-            @update:mood="editableEntry.mood = $event"
-            @update:characteristics="editableEntry.characteristics = $event"
-            @update:symbol-ids="editableEntry.symbol_ids = $event"
+            @update:journal-entry="editableEntry = $event"
           />
         </div>
       </TabsContent>
