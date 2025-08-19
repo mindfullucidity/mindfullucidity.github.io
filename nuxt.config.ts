@@ -32,7 +32,7 @@ export default defineNuxtConfig({
     ],
   },
 
-  modules: ['shadcn-nuxt', '@nuxtjs/device', '@nuxtjs/supabase', 'vue-sonner/nuxt', '@vesp/nuxt-fontawesome', '@vite-pwa/nuxt'],
+  modules: ['shadcn-nuxt', '@nuxtjs/device', '@nuxtjs/supabase', 'vue-sonner/nuxt', '@vesp/nuxt-fontawesome', '@vite-pwa/nuxt', '@pinia/nuxt'],
   fontawesome: {
     icons: {
       brands: ['github', 'patreon']

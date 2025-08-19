@@ -2,14 +2,14 @@
   <TabsContent value="analysis" class="p-6 overflow-y-auto flex-grow min-w-0">
     <div class="mx-auto max-w-4xl w-full">
       <div class="flex flex-col gap-4 overflow-y-auto flex-grow" ref="analysisContainerRef">
-        <template v-if="isLoadingAnalyses">
+        <template v-if="!diaryViewActiveStore.isLoaded">
           <SkeletonPreviewAnalysisCard :type="null" />
         </template>
-        <template v-else-if="journalAnalyses.length > 0">
-          <template v-for="analysis in journalAnalyses" :key="analysis.journal_analysis_id">
+        <template v-else-if="diaryAnalyses.length > 0">
+          <template v-for="analysis in diaryAnalyses" :key="analysis.journal_analysis_id">
             <NewPersonalAnalysisCard
               v-if="editingAnalysis && editingAnalysis.journal_analysis_id === analysis.journal_analysis_id"
-              :journalId="editableEntry.journal_id"
+              :journalId="diaryViewActiveStore.current.journal_id"
               :initialAnalysis="editingAnalysis"
               @save="handleSaveNewAnalysis"
               @cancel="handleCancelNewAnalysis"
@@ -30,15 +30,15 @@
         <!-- This section is for adding *new* analyses, not editing existing ones -->
         <template v-if="showNewAnalysisCard === 'personal' && !editingAnalysis">
           <NewPersonalAnalysisCard
-            :journalId="editableEntry.journal_id"
+            :journalId="diaryViewActiveStore.current.journal_id"
             @save="handleSaveNewAnalysis"
             @cancel="handleCancelNewAnalysis"
           />
         </template>
         <template v-else-if="showNewAnalysisCard === 'ai' && !editingAnalysis">
           <NewAIAnalysisCard
-            :journalId="editableEntry.journal_id"
-            :journalContent="editableEntry.content"
+            :journalId="diaryViewActiveStore.current.journal_id"
+            :journalContent="diaryViewActiveStore.current.entry.content"
             @generate-ai-analysis="handleGenerateAIAnalysis"
             @cancel="handleCancelNewAnalysis"
           />
@@ -79,7 +79,6 @@
 </template>
 
 <script setup lang="ts">
-import type { JournalEntry, JournalAnalysis } from '@/composables/useJournal';
 import { toast } from 'vue-sonner';
 import { TabsContent } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
@@ -89,31 +88,29 @@ import NewPersonalAnalysisCard from '@/components/journal/analysis_card/NewPerso
 import PreviewAnalysisCard from '@/components/journal/analysis_card/PreviewAnalysisCard.vue';
 import NewAIAnalysisCard from '@/components/journal/analysis_card/NewAIAnalysisCard.vue';
 import AIStreamingPreviewAnalysisCard from '@/components/journal/analysis_card/AIStreamingPreviewAnalysisCard.vue';
-import { useJournal } from '@/composables/useJournal';
 import { useAI } from '@/composables/useAI';
 import { useLocalStorage } from '@vueuse/core';
+import { useDiaryViewActiveStore } from '@/stores/diary/view/active';
+import type { JournalAnalysis } from '@/components/diary'; // Assuming this path for types
 
 const props = defineProps<{
-  editableEntry: JournalEntry;
-  isNewEntry: boolean;
   activeTab: string;
 }>();
 
 const emit = defineEmits([
   'showUpgradeDialog',
-  'saveNewEntryAnalyses', // New emit for saving analyses when the entry is new
 ]);
 
-const { loadJournalAnalyses, createJournalAnalysis, updateJournalAnalysis, deleteJournalAnalysis, getAnalysisPrettyTitle } = useJournal();
+const diaryViewActiveStore = useDiaryViewActiveStore();
 const { invokeAIAnalysis, streamAIAnalysis } = useAI();
 
-const journalAnalyses = ref<JournalAnalysis[]>([]);
+const diaryAnalyses = computed(() => diaryViewActiveStore.current.analyses);
 const currentStreamingAnalysis = ref<{ type: 'ai', title: string | null, textChunks: string[] } | null>(null);
 const newlyGeneratedAnalysis = ref<JournalAnalysis | null>(null);
 const showNewAnalysisCard = ref<'ai' | 'personal' | null>(null);
 const editingAnalysis = ref<JournalAnalysis | null>(null);
 const lastDeletedAnalysis = ref<JournalAnalysis | null>(null);
-const isLoadingAnalyses = ref(false);
+const isLoadingAnalyses = ref(false); // This will be managed by the store's loading state
 const isGeneratingAIAnalysis = ref(false);
 const generatingAnalysisType = ref<string | null>(null);
 const abortController = ref<AbortController | null>(null);
@@ -130,46 +127,31 @@ const shouldShowDialog = () => {
   return false;
 };
 
-onMounted(async () => {
-  if (props.activeTab === 'analysis' && !props.isNewEntry && props.editableEntry.journal_id && props.editableEntry.journal_id !== 0) {
-    await fetchJournalAnalyses(props.editableEntry.journal_id);
-  }
-});
-
-watch(() => props.activeTab, async (newTab) => {
-  if (newTab === 'analysis') {
-    if (props.isNewEntry) {
-      // For new entries, analyses are managed internally until saved
-      // No change needed here for new entries
-    } else if (props.editableEntry.journal_id && props.editableEntry.journal_id !== 0) {
-      await fetchJournalAnalyses(props.editableEntry.journal_id);
-    } else {
-      journalAnalyses.value = [];
-    }
-  }
-});
-
-// New watch to react to changes in editableEntry.analyses
-watch(() => props.editableEntry.analyses, (newAnalyses) => {
-  if (newAnalyses) {
-    journalAnalyses.value = [...newAnalyses]; // Deep copy to ensure reactivity
-    journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-  } else {
-    journalAnalyses.value = [];
-  }
-}, { deep: true, immediate: true });
-
-const fetchJournalAnalyses = async (journalId: number) => {
-  isLoadingAnalyses.value = true;
-  try {
-    const analyses = await loadJournalAnalyses(journalId);
-    if (analyses) {
-      journalAnalyses.value.splice(0, journalAnalyses.value.length, ...analyses);
-    }
-  } finally {
-    isLoadingAnalyses.value = false;
+// Helper function for pretty titles (can be moved to a composable later)
+const getAnalysisPrettyTitle = (title: string) => {
+  switch (title) {
+    case 'jungian': return 'Jungian Analysis';
+    case 'freudian': return 'Freudian Analysis';
+    case 'cognitive-behavioral': return 'Cognitive Behavioral Analysis';
+    case 'initial-thoughts': return 'Initial Thoughts';
+    case 'meditation': return 'Meditation';
+    case 'retrospective': return 'Retrospective';
+    default: return title;
   }
 };
+
+// No need for onMounted or watch(activeTab) to fetch analyses, as the store manages it.
+// However, we might want to ensure the store is loaded when this tab becomes active.
+watch(() => props.activeTab, async (newTab) => {
+  if (newTab === 'analysis') {
+    // Ensure the store has loaded the journal if it's not a new entry
+    if (!diaryViewActiveStore.isNew && !diaryViewActiveStore.isLoaded) {
+      // This scenario should ideally be handled by the parent component loading the store
+      // before rendering this tab. For now, we'll just rely on the store's reactivity.
+    }
+  }
+});
+
 
 const handleAddPersonalAnalysis = () => {
   if (editingAnalysis.value) {
@@ -221,8 +203,8 @@ const handleCancelAIAnalysisGeneration = () => {
 
 const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: string, depth: string, content: string }) => {
   
-  if (!props.editableEntry) {
-    toast.error('Journal entry is not loaded.');
+  if (!diaryViewActiveStore.current) {
+    toast.error('Diary entry is not loaded.');
     return;
   }
 
@@ -241,10 +223,10 @@ const handleGenerateAIAnalysis = async (payload: { journal_id: number, type: str
   try {
     await streamAIAnalysis({
       entry: {
-        title: props.editableEntry.title,
-        content: props.editableEntry.content,
+        title: diaryViewActiveStore.current.entry.title,
+        content: diaryViewActiveStore.current.entry.content,
       },
-      analyses: journalAnalyses.value,
+      analyses: diaryAnalyses.value,
       generate: {
         type: payload.type,
         depth: payload.depth,
@@ -304,48 +286,23 @@ const handleStreamComplete = async (fullContent: string) => {
     return;
   }
 
-  if (props.isNewEntry) {
-    const newAnalysis: JournalAnalysis = {
-      journal_analysis_id: Date.now() * -1,
-      created_at: new Date().toISOString(),
-      journal_id: 0,
-      type: `ai`,
-      title: `${payloadType}`,
-      content: fullContent,
-      user_id: '',
-    };
+  const newAnalysis: JournalAnalysis = {
+    journal_analysis_id: Date.now() * -1, // Temporary ID for new analysis
+    created_at: new Date().toISOString(),
+    journal_id: diaryViewActiveStore.current.journal_id,
+    type: `ai`,
+    title: `${payloadType}`,
+    content: fullContent,
+    user_id: '', // Will be filled on save to DB
+  };
 
-    journalAnalyses.value.push(newAnalysis);
-    journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-    toast.success('AI Analysis generated and added to entry!');
-    newlyGeneratedAnalysis.value = newAnalysis;
+  diaryViewActiveStore.current.analyses.push(newAnalysis);
+  diaryViewActiveStore.current.analyses.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  toast.success('AI Analysis generated and added to entry!');
+  newlyGeneratedAnalysis.value = newAnalysis;
 
-
-    await nextTick();
-    newlyGeneratedAnalysis.value = null; // Clear after nextTick to prevent duplication
-  } else {
-    const resultAnalysis = await createJournalAnalysis({
-      journal_id: props.editableEntry.journal_id,
-      type: `ai`,
-      title: `${payloadType}`,
-      content: fullContent,
-    });
-
-    if (resultAnalysis) {
-      toast.success('AI Analysis generated and saved successfully!');
-
-      journalAnalyses.value.push(resultAnalysis);
-      journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-      newlyGeneratedAnalysis.value = resultAnalysis;
-
-
-      await nextTick();
-      newlyGeneratedAnalysis.value = null; // Clear after nextTick to prevent duplication
-    } else {
-      toast.error('Failed to save AI Analysis to database.');
-      console.error('handleStreamComplete: Failed to save AI Analysis to database.');
-    }
-  }
+  await nextTick();
+  newlyGeneratedAnalysis.value = null; // Clear after nextTick to prevent duplication
 
   isGeneratingAIAnalysis.value = false;
   currentStreamingAnalysis.value = null;
@@ -354,132 +311,62 @@ const handleStreamComplete = async (fullContent: string) => {
 };
 
 const handleSaveNewAnalysis = async (analysisData: Omit<JournalAnalysis, 'journal_analysis_id' | 'created_at' | 'user_id'>) => {
-  if (props.isNewEntry) {
-    if (editingAnalysis.value) {
-      const index = journalAnalyses.value.findIndex(a => a.journal_analysis_id === editingAnalysis.value?.journal_analysis_id);
-      if (index !== -1) {
-        journalAnalyses.value[index] = {
-          ...journalAnalyses.value[index],
-          ...analysisData,
-        };
-        toast.success('Analysis updated in memory!');
-      }
-    } else {
-      const newAnalysis: JournalAnalysis = {
-        journal_analysis_id: Date.now() * -1, 
-        created_at: new Date().toISOString(),
-        journal_id: 0, 
-        type: analysisData.type,
-        title: analysisData.title,
-        content: analysisData.content,
-        user_id: '', 
-      };
-      journalAnalyses.value.push(newAnalysis);
-      toast.success('Analysis added to entry!');
-    }
-    journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-    showNewAnalysisCard.value = null;
-    editingAnalysis.value = null;
-    return;
-  }
-
-  let resultAnalysis: JournalAnalysis | null = null;
   if (editingAnalysis.value) {
-    resultAnalysis = await updateJournalAnalysis({
-      ...analysisData,
-      journal_analysis_id: editingAnalysis.value.journal_analysis_id,
-      created_at: editingAnalysis.value.created_at,
-      user_id: editingAnalysis.value.user_id,
-    });
-  } else {
-    resultAnalysis = await createJournalAnalysis({
-      ...analysisData,
-      journal_id: props.editableEntry.journal_id,
-    });
-  }
-
-  if (resultAnalysis) {
-    toast.success('Analysis saved successfully!');
-    if (editingAnalysis.value) { 
-      const index = journalAnalyses.value.findIndex(a => a.journal_analysis_id === resultAnalysis.journal_analysis_id);
-      if (index !== -1) {
-        journalAnalyses.value[index] = resultAnalysis;
-      }
-    } else { 
-      journalAnalyses.value.push(resultAnalysis);
+    const index = diaryViewActiveStore.current.analyses.findIndex(a => a.journal_analysis_id === editingAnalysis.value?.journal_analysis_id);
+    if (index !== -1) {
+      diaryViewActiveStore.current.analyses[index] = {
+        ...diaryViewActiveStore.current.analyses[index],
+        ...analysisData,
+      };
+      toast.success('Analysis updated in memory!');
     }
-    journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-    showNewAnalysisCard.value = null;
-    editingAnalysis.value = null;
   } else {
-    toast.error('Failed to save analysis.');
+    const newAnalysis: JournalAnalysis = {
+      journal_analysis_id: Date.now() * -1, // Temporary ID
+      created_at: new Date().toISOString(),
+      journal_id: diaryViewActiveStore.current.journal_id,
+      type: analysisData.type,
+      title: analysisData.title,
+      content: analysisData.content,
+      user_id: '', // Will be filled on save to DB
+    };
+    diaryViewActiveStore.current.analyses.push(newAnalysis);
+    toast.success('Analysis added to entry!');
   }
+  diaryViewActiveStore.current.analyses.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+  showNewAnalysisCard.value = null;
+  editingAnalysis.value = null;
 };
 
 const handleUndoDeleteAnalysis = async () => {
   if (lastDeletedAnalysis.value) {
-    if (props.isNewEntry) {
-      journalAnalyses.value.push(lastDeletedAnalysis.value);
-      journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-      lastDeletedAnalysis.value = null;
-      toast.success('Analysis restored to memory!');
-    } else {
-      const restoredAnalysis = await createJournalAnalysis({
-        journal_id: lastDeletedAnalysis.value.journal_id,
-        type: lastDeletedAnalysis.value.type,
-        title: lastDeletedAnalysis.value.title,
-        content: lastDeletedAnalysis.value.content,
-      });
-
-      if (restoredAnalysis) {
-        toast.success('Analysis restored successfully!');
-        journalAnalyses.value.push(restoredAnalysis);
-        journalAnalyses.value.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
-        lastDeletedAnalysis.value = null;
-      } else {
-        toast.error('Failed to restore analysis.');
-      }
-    }
+    diaryViewActiveStore.current.analyses.push(lastDeletedAnalysis.value);
+    diaryViewActiveStore.current.analyses.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+    lastDeletedAnalysis.value = null;
+    toast.success('Analysis restored to memory!');
   }
 };
 
 const handleDeleteAnalysis = async (analysisId: number) => {
-  const analysisToDelete = journalAnalyses.value.find(a => a.journal_analysis_id === analysisId);
+  const analysisToDelete = diaryViewActiveStore.current.analyses.find(a => a.journal_analysis_id === analysisId);
   if (!analysisToDelete) {
     toast.error('Analysis not found.');
     return;
   }
 
-  if (props.isNewEntry) {
-    lastDeletedAnalysis.value = analysisToDelete;
-    journalAnalyses.value = journalAnalyses.value.filter(a => a.journal_analysis_id !== analysisId);
-    toast.success('Analysis deleted from memory!', {
-      action: {
-        label: 'Undo',
-        onClick: () => handleUndoDeleteAnalysis(),
-      },
-      duration: 5000,
-    });
-  } else {
-    const success = await deleteJournalAnalysis(analysisId, props.editableEntry.journal_id);
-    if (success) {
-      lastDeletedAnalysis.value = analysisToDelete;
-      journalAnalyses.value = journalAnalyses.value.filter(a => a.journal_analysis_id !== analysisId);
-      toast.success('Analysis deleted successfully!', {
-        action: {
-          label: 'Undo',
-          onClick: () => handleUndoDeleteAnalysis(),
-        },
-        duration: 5000, 
-      });
-    } else {
-      toast.error('Failed to delete analysis.');
-    }
-  }
+  lastDeletedAnalysis.value = analysisToDelete;
+  diaryViewActiveStore.current.analyses = diaryViewActiveStore.current.analyses.filter(a => a.journal_analysis_id !== analysisId);
+  toast.success('Analysis deleted from memory!', {
+    action: {
+      label: 'Undo',
+      onClick: () => handleUndoDeleteAnalysis(),
+    },
+    duration: 5000, 
+  });
 };
 
 const handleEditAnalysis = (analysisId: number) => {
-  const analysisToEdit = journalAnalyses.value.find(a => a.journal_analysis_id === analysisId);
+  const analysisToEdit = diaryViewActiveStore.current.analyses.find(a => a.journal_analysis_id === analysisId);
   if (analysisToEdit && analysisToEdit.type === 'personal') {
     editingAnalysis.value = { ...analysisToEdit };
     showNewAnalysisCard.value = 'personal';
@@ -487,9 +374,4 @@ const handleEditAnalysis = (analysisId: number) => {
     console.warn('Attempted to edit an AI analysis, which is not supported via this flow.');
   }
 };
-
-// Expose journalAnalyses for parent component to access when saving a new entry
-defineExpose({
-  journalAnalyses,
-});
 </script>

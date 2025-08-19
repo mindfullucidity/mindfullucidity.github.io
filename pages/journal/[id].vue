@@ -6,10 +6,14 @@ definePageMeta({
   layout: 'diary',
 });
 
+const route = useRoute();
 const activeStore = useDiaryViewActiveStore();
 
 onMounted(() => {
-  activeStore.newJournal();
+  const journalId = Number(route.params.id);
+  if (!isNaN(journalId)) {
+    activeStore.loadJournal(journalId);
+  }
 });
 </script>
 

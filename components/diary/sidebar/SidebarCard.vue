@@ -19,11 +19,11 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import type { JournalEntryOverview } from '@/composables/useJournal';
+import type { SidebarItem } from '@/components/diary/sidebar/types';
 import { formatDate } from '@/lib/utils';
 
 interface Props {
-  entry: JournalEntryOverview;
+  entry: SidebarItem;
   selected?: boolean;
 }
 
@@ -37,4 +37,3 @@ const displayTitle = computed(() => {
   return props.entry.title || formattedDate.value;
 });
 </script>
-

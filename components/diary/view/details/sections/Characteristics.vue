@@ -1,7 +1,8 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, watch } from 'vue';
 import { Card } from '@/components/ui/card';
 import { RotateCcw, Ghost, Bed, EyeOff } from 'lucide-vue-next';
+import { useDiaryViewActiveStore } from '@/stores/diary/view/active'; // Assuming this path and store structure
 
 interface Characteristic {
   id: string;
@@ -10,23 +11,12 @@ interface Characteristic {
   color: string;
 }
 
-const props = defineProps({
-  initialCharacteristics: { type: Array as () => string[], default: () => [] },
-});
+const diaryStore = useDiaryViewActiveStore();
 
-const emit = defineEmits([
-  'update:characteristics',
-  'component-ready',
-]);
+const selectedCharacteristics = ref<string[]>(diaryStore.current.details.characteristics || []);
 
-const selectedCharacteristics = ref<string[]>(props.initialCharacteristics);
-
-watch(() => props.initialCharacteristics, (newVal) => {
-  selectedCharacteristics.value = newVal;
-});
-
-onMounted(() => {
-  emit('component-ready');
+watch(() => diaryStore.current.details.characteristics, (newVal) => {
+  selectedCharacteristics.value = newVal || [];
 });
 
 const characteristics: Characteristic[] = [
@@ -58,12 +48,16 @@ const characteristics: Characteristic[] = [
 
 const handleCharacteristicToggle = (characteristicId: string) => {
   const index = selectedCharacteristics.value.indexOf(characteristicId);
+  let updatedCharacteristics: string[];
   if (index > -1) {
-    selectedCharacteristics.value = selectedCharacteristics.value.filter(id => id !== characteristicId);
+    updatedCharacteristics = selectedCharacteristics.value.filter(id => id !== characteristicId);
   } else {
-    selectedCharacteristics.value = [...selectedCharacteristics.value, characteristicId];
+    updatedCharacteristics = [...selectedCharacteristics.value, characteristicId];
   }
-  emit('update:characteristics', selectedCharacteristics.value);
+  // Update the store directly
+  if (diaryStore.current.details) {
+    diaryStore.current.details.characteristics = updatedCharacteristics;
+  }
 };
 </script>
 

@@ -1,24 +1,14 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
+import { useDiaryViewActiveStore } from '@/stores/diary/view/active'; // Assuming this path and store structure
 
-const props = defineProps({
-  initialMood: { type: Number as PropType<number | null>, default: 50 },
-});
+const diaryStore = useDiaryViewActiveStore();
 
-const emit = defineEmits([
-  'update:mood',
-  'component-ready',
-]);
-
-const mood = ref<number>(props.initialMood ?? 50);
+const mood = ref<number>(diaryStore.current.details.mood ?? 50);
 const isDragging = ref(false);
 
-watch(() => props.initialMood, (newVal) => {
+watch(() => diaryStore.current.details.mood, (newVal) => {
   mood.value = newVal === null ? 50 : newVal;
-});
-
-onMounted(() => {
-  emit('component-ready');
 });
 
 let moodSpectrumRect: DOMRect | null = null;
@@ -32,7 +22,9 @@ const handleMoodDrag = (event: MouseEvent | TouchEvent) => {
   const x = clientX - moodSpectrumRect.left;
   const percentage = Math.max(0, Math.min(100, (x / moodSpectrumRect.width) * 100));
   mood.value = Math.round(percentage);
-  emit('update:mood', mood.value);
+  if (diaryStore.current.details) {
+    diaryStore.current.details.mood = mood.value;
+  };
 };
 
 const startDragging = (event: MouseEvent | TouchEvent) => {

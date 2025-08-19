@@ -16,16 +16,11 @@ import { useSupabaseUser } from '#imports';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import type { Symbol } from '@/composables/useSymbols';
 
-import type { JournalEntry, JournalAnalysis } from '@/composables/useJournal';
+import type { JournalAnalysis } from '@/composables/useJournal';
 import { useAI } from '@/composables/useAI';
+import { useDiaryViewActiveStore } from '@/stores/diary/view/active';
 
-const props = defineProps({
-  isLoadingEntry: { type: Boolean, default: false },
-  isEnhancingDetails: { type: Boolean, default: false },
-  journalEntry: { type: Object as PropType<JournalEntry>, required: true },
-});
-
-const emit = defineEmits(['update:journalEntry', 'component-ready']);
+const diaryStore = useDiaryViewActiveStore();
 
 const { getSymbols, createSymbol, deleteSymbol } = useSymbols();
 const { invokeDetectSymbols } = useAI();
@@ -58,16 +53,15 @@ const getLucidityLevelLabel = (level: number) => {
 onMounted(async () => {
   allSymbols.value = await getSymbols();
   // Populate selectedSymbols based on initialSymbolIds
-  if (props.journalEntry.symbol_ids && props.journalEntry.symbol_ids.length > 0) {
+  if (diaryStore.current.details.symbol_ids && diaryStore.current.details.symbol_ids.length > 0) {
     selectedSymbols.value = allSymbols.value.filter(symbol =>
-      props.journalEntry.symbol_ids.includes(symbol.symbol_id)
+      diaryStore.current.details.symbol_ids?.includes(symbol.symbol_id)
     );
   }
-  emit('component-ready');
 });
 
 // Add watch effect
-watch(() => props.journalEntry.symbol_ids, (newSymbolIds) => {
+watch(() => diaryStore.current.details.symbol_ids, (newSymbolIds) => {
   if (allSymbols.value.length > 0) { // Ensure allSymbols are loaded before filtering
     selectedSymbols.value = allSymbols.value.filter(symbol =>
       newSymbolIds?.includes(symbol.symbol_id)
@@ -123,6 +117,8 @@ const groupedSelectedSymbols = computed(() => {
   Object.keys(categoryIcons).forEach(category => {
     if (grouped[category]) {
       sortedGrouped[category] = grouped[category];
+    } else if (grouped["Other"] && category === "Other") { // Ensure 'Other' is always last if it exists
+      sortedGrouped[category] = grouped[category];
     }
   });
   return sortedGrouped;
@@ -154,7 +150,9 @@ const selectSymbol = (symbol: Symbol) => {
     toast.info(`Removed symbol: ${symbol.name}`);
   }
   showAddSymbolDialog.value = false;
-  emit('update:journalEntry', { ...props.journalEntry, symbol_ids: selectedSymbols.value.map(s => s.symbol_id) });
+  if (diaryStore.current.details) {
+    diaryStore.current.details.symbol_ids = selectedSymbols.value.map(s => s.symbol_id);
+  };
 };
 
 const newSymbolCategory = ref('');
@@ -187,7 +185,9 @@ const handleSaveNewSymbol = async () => {
     newSymbolName.value = '';
     newSymbolDescription.value = '';
     showCreateSymbolCard.value = false;
-    emit('update:journalEntry', { ...props.journalEntry, symbol_ids: selectedSymbols.value.map(s => s.symbol_id) });
+        if (diaryStore.current.details) {
+      diaryStore.current.details.symbol_ids = selectedSymbols.value.map(s => s.symbol_id);
+    };
   } else {
     toast.error('Failed to create symbol.');
   }
@@ -231,7 +231,9 @@ const handleDeleteSymbol = async () => {
       toast.success(`Symbol '${symbolToDelete.value.name}' deleted.`);
       // Remove from selectedSymbols as well
       selectedSymbols.value = selectedSymbols.value.filter(s => s.symbol_id !== symbolToDelete.value?.symbol_id);
-      emit('update:journalEntry', { ...props.journalEntry, symbol_ids: selectedSymbols.value.map(s => s.symbol_id) });
+      if (diaryStore.current.details) {
+        diaryStore.current.details.symbol_ids = selectedSymbols.value.map(s => s.symbol_id);
+      };
     } else {
       toast.error(`Failed to delete symbol '${symbolToDelete.value.name}'.`);
     }
@@ -250,12 +252,12 @@ const cancelDetection = () => {
 };
 
 const detectSymbols = async () => {
-  if (!props.journalEntry || props.isLoadingEntry || props.isEnhancingDetails) {
+  if (!diaryStore.current || !diaryStore.isLoaded || isDetectingSymbols.value) {
     return;
   }
 
   // Basic validation for content
-  if (!props.journalEntry.content && !props.journalEntry.title) {
+  if (!diaryStore.current.entry.content && !diaryStore.current.entry.title) {
     toast.error("Journal entry is empty. Nothing to detect symbols from.");
     return;
   }
@@ -268,15 +270,15 @@ const detectSymbols = async () => {
     // Prepare data for the Edge Function
     // Explicitly fetch analyses to ensure they are up-to-date
     const { loadJournalAnalyses } = useJournal();
-    const currentAnalyses = await loadJournalAnalyses(props.journalEntry.journal_id);
+    const currentAnalyses = await loadJournalAnalyses(diaryStore.current.journal_id);
 
     const journalEntryData = {
-      title: props.journalEntry.title || '',
-      content: props.journalEntry.content || '',
-      lucidity_level: getLucidityLevelLabel(props.journalEntry.lucidity_level || 0),
-      lucidity_trigger: props.journalEntry.lucidity_trigger || '',
-      mood: props.journalEntry.mood || 50,
-      characteristics: props.journalEntry.characteristics || [],
+      title: diaryStore.current.entry.title || '',
+      content: diaryStore.current.entry.content || '',
+      lucidity_level: getLucidityLevelLabel(diaryStore.current.details.lucidity_level || 0),
+      lucidity_trigger: diaryStore.current.details.lucidity_trigger || '',
+      mood: diaryStore.current.details.mood || 50,
+      characteristics: diaryStore.current.details.characteristics || [],
       analyses: currentAnalyses || [],
     };
 
@@ -292,7 +294,7 @@ const detectSymbols = async () => {
     const { data, error } = await invokeDetectSymbols({
       journal_entry_data: journalEntryData,
       user_symbols: userSymbols,
-      selected_symbol_ids: props.journalEntry.symbol_ids || [],
+      selected_symbol_ids: diaryStore.current.details.symbol_ids || [],
     }, abortController.signal); // Pass the signal here
 
     if (error) {
@@ -306,7 +308,9 @@ const detectSymbols = async () => {
     );
 
     selectedSymbols.value = newSelectedSymbols;
-    emit('update:journalEntry', { ...props.journalEntry, symbol_ids: newSelectedSymbols.map(s => s.symbol_id) });
+    if (diaryStore.current.details) {
+      diaryStore.current.details.symbol_ids = newSelectedSymbols.map(s => s.symbol_id);
+    }
     toast.success('Symbols detected successfully!');
 
   } catch (error: any) {
@@ -404,7 +408,7 @@ const detectSymbols = async () => {
       variant="ghost"
       class="border w-full sm:w-auto text-blue-200"
       @click="addSymbol"
-      :disabled="props.isLoadingEntry || props.isEnhancingDetails || isDetectingSymbols"
+      :disabled="!diaryStore.isLoaded || isDetectingSymbols"
     >
       <Plus class="w-4 h-4" /> Add Symbol
     </Button>
@@ -412,7 +416,7 @@ const detectSymbols = async () => {
       variant="ghost"
       class="border w-full sm:w-auto text-green-200"
       @click="showCreateSymbolCard = true"
-      :disabled="props.isLoadingEntry || props.isEnhancingDetails || isDetectingSymbols"
+      :disabled="!diaryStore.isLoaded || isDetectingSymbols"
     >
       <BadgePlus class="w-4 h-4" /> Create Symbol
     </Button>
@@ -420,7 +424,7 @@ const detectSymbols = async () => {
       variant="ghost"
       class="border w-full sm:w-auto"
       @click="detectSymbols"
-      :disabled="props.isLoadingEntry || props.isEnhancingDetails || isDetectingSymbols"
+      :disabled="!diaryStore.isLoaded || isDetectingSymbols"
     >
       <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" /> <span class="bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text"> Detect Symbols</span>
     </Button>

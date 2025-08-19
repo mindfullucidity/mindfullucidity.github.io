@@ -1,10 +1,11 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue';
+import { ref, computed, watch } from 'vue';
 import { Moon, Sun, Cloud, Eye } from 'lucide-vue-next';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Skeleton } from '@/components/ui/skeleton';
+import { useDiaryViewActiveStore } from '@/stores/diary/view/active'; // Assuming this path and store structure
 
 interface LucidityLevel {
   level: number;
@@ -13,31 +14,16 @@ interface LucidityLevel {
   color: string;
 }
 
-const props = defineProps({
-  initialLucidityLevel: { type: Number, default: 0 },
-  initialLucidityTrigger: { type: String, default: '' },
-  isLoadingEntry: { type: Boolean, default: false },
-  isEnhancingDetails: { type: Boolean, default: false },
+const diaryStore = useDiaryViewActiveStore();
+
+const selectedLucidity = ref<number>(diaryStore.current.details.lucidity_level || 0);
+const lucidityTrigger = ref<string>(diaryStore.current.details.lucidity_trigger || '');
+
+watch(() => diaryStore.current.details.lucidity_level, (newVal) => {
+  selectedLucidity.value = newVal || 0;
 });
-
-const emit = defineEmits([
-  'update:lucidityLevel',
-  'update:lucidityTrigger',
-  'component-ready',
-]);
-
-const selectedLucidity = ref<number>(props.initialLucidityLevel);
-const lucidityTrigger = ref<string>(props.initialLucidityTrigger);
-
-watch(() => props.initialLucidityLevel, (newVal) => {
-  selectedLucidity.value = newVal;
-});
-watch(() => props.initialLucidityTrigger, (newVal) => {
-  lucidityTrigger.value = newVal;
-});
-
-onMounted(() => {
-  emit('component-ready');
+watch(() => diaryStore.current.details.lucidity_trigger, (newVal) => {
+  lucidityTrigger.value = newVal || '';
 });
 
 const lucidityLevels: LucidityLevel[] = [
@@ -72,13 +58,17 @@ const handleLuciditySelect = (level: number) => {
   if (level === 0) {
     lucidityTrigger.value = '';
   }
-  emit('update:lucidityLevel', selectedLucidity.value);
-  emit('update:lucidityTrigger', lucidityTrigger.value);
+  if (diaryStore.current.details) {
+    diaryStore.current.details.lucidity_level = selectedLucidity.value;
+    diaryStore.current.details.lucidity_trigger = lucidityTrigger.value;
+  };
 };
 
 const handleTriggerChange = (event: Event) => {
   lucidityTrigger.value = (event.target as HTMLInputElement).value;
-  emit('update:lucidityTrigger', lucidityTrigger.value);
+  if (diaryStore.current.details) {
+    diaryStore.current.details.lucidity_trigger = lucidityTrigger.value;
+  };
 };
 
 const selectedLucidityDetails = computed(() => {
@@ -121,7 +111,7 @@ const selectedLucidityDetails = computed(() => {
       <label class="block text-sm font-medium text-foreground mb-2">
         What triggered your lucidity?
       </label>
-      <div v-if="isEnhancingDetails" class="space-y-2">
+      <div v-if="diaryStore.isEnhancing" class="space-y-2">
         <Skeleton class="h-5 w-full" />
         <Skeleton class="h-5 w-full" />
         <Skeleton class="h-5 w-4/5" />

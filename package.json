@@ -1,6 +1,6 @@
 {
   "name": "mindfullucidity",
-  "version": "1.0.1", 
+  "version": "1.0.1",
   "private": true,
   "type": "module",
   "scripts": {
@@ -14,6 +14,7 @@
     "@fortawesome/free-brands-svg-icons": "^7.0.0",
     "@nuxtjs/device": "^3.2.4",
     "@nuxtjs/supabase": "^1.6.0",
+    "@pinia/nuxt": "0.11.2",
     "@tailwindcss/vite": "^4.1.11",
     "@vesp/nuxt-fontawesome": "^2.0.0",
     "@vite-pwa/nuxt": "^1.0.4",
@@ -27,6 +28,7 @@
     "marked": "^16.1.1",
     "nuxt": "^3.17.7",
     "patreon": "^0.4.1",
+    "pinia": "^3.0.3",
     "reka-ui": "^2.4.1",
     "shadcn-nuxt": "2.2.0",
     "supabase": "link:../../.local/share/pnpm/global/5/node_modules/supabase",
