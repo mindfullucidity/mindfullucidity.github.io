@@ -6,9 +6,12 @@ import { Button } from '@/components/ui/button'
 import { Label } from '@/components/ui/label'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { toast } from 'vue-sonner'; // Import toast
+import { useJournal } from '@/composables/useJournal'; // Import useJournal
 
 const props = defineProps<{ journalId: number, journalContent: string }>();
 const emit = defineEmits(['save', 'cancel']);
+
+const { userGender } = useJournal(); // Access userGender
 
 const selectedType = ref('jungian');
 const selectedDepth = ref('to-the-point');
@@ -26,6 +29,7 @@ const handleGenerateAIAnalysis = () => {
     type: selectedType.value,
     depth: selectedDepth.value,
     content: content.value,
+    userGender: userGender.value, // Pass userGender
   });
 };
 
@@ -50,11 +54,8 @@ const handleCancel = () => {
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="jungian">Jungian</SelectItem>
-              <SelectItem value="symbolic">Symbolic</SelectItem>
-              <SelectItem value="narrative">Narrative</SelectItem>
+              <SelectItem value="freudian">Freudian</SelectItem>
               <SelectItem value="cognitive-behavioral">Cognitive Behavioral</SelectItem>
-              <SelectItem value="psychodynamic">Psychodynamic</SelectItem>
-              <SelectItem value="humanistic">Humanistic</SelectItem>
             </SelectContent>
           </Select>
         </div>
@@ -78,9 +79,9 @@ const handleCancel = () => {
         class="placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-ring/50 aria-invalid:ring-destructive/20 dark:aria-invalid:ring-destructive/40 aria-invalid:border-destructive dark:bg-input/30 flex field-sizing-content w-full rounded-md border bg-card px-3 py-2 text-base shadow-xs transition-[color,box-shadow] outline-none focus-visible:ring-[3px] disabled:cursor-not-allowed disabled:opacity-50 md:text-sm min-h-[100px]"
         placeholder="Is there anything else you'd like to tell the AI before generating the analysis?"
       ></textarea>
-      <div class="flex gap-2">
-        <Button variant="ghost" class="border h-8 " @click="handleGenerateAIAnalysis"><Sparkle class="h-4 w-4" stroke="url(#sparkle-gradient)" aria-hidden="true" /><span class="bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text">Generate AI Analysis</span></Button>
-        <Button variant="ghost" class="h-8" @click="handleCancel">Cancel</Button>
+      <div class="flex flex-wrap gap-2">
+        <Button variant="ghost" class="border h-8 w-full sm:w-auto" @click="handleGenerateAIAnalysis"><Sparkle class="h-4 w-4" stroke="url(#sparkle-gradient)" aria-hidden="true" /><span class="bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text">Generate AI Analysis</span></Button>
+        <Button variant="ghost" class="h-8 w-full sm:w-auto" @click="handleCancel">Cancel</Button>
       </div>
     </CardHeader>
   </Card>

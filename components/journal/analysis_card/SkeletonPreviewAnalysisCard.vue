@@ -30,8 +30,8 @@ const handleCancel = () => {
   <Collapsible v-model:open="isOpen">
     <Card class="text-card-foreground flex flex-col gap-6 rounded-xl border shadow-sm transition-all duration-200">
       <CardHeader>
-        <div class="flex items-center justify-between">
-          <div class="flex items-center gap-3">
+        <div class="flex items-start justify-between">
+          <div class="flex flex-wrap items-start gap-3 flex-grow">
             <div
               class="px-2 py-1 rounded-full text-xs font-medium flex items-center gap-1 bg-card border"
             >
@@ -48,7 +48,7 @@ const handleCancel = () => {
                 <Skeleton class="h-3 w-20" />
               </template>
             </div>
-            <CardTitle class="font-medium">
+            <CardTitle class="font-medium flex-grow min-w-0 truncate">
                 <template v-if="props.title">
                   {{ props.title }}
                 </template>
@@ -57,7 +57,7 @@ const handleCancel = () => {
                 </template>
             </CardTitle>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2 flex-shrink-0">
             <Button variant="ghost" size="icon" class="h-8 w-8 text-red-400 hover:text-red-400" @click="handleCancel">
               <X class="h-4 w-4" aria-hidden="true" />
             </Button>

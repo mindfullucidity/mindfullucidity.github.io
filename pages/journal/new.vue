@@ -1,16 +1,18 @@
-<template>
-  <JournalEntryView :entryId="null" :isNewEntry="true" />
-</template>
-
 <script setup lang="ts">
-import JournalEntryView from '~/components/journal/view/JournalEntryView.vue';
-import { useJournal } from '@/composables/useJournal';
-
-const { clearSelectedEntry } = useJournal();
-clearSelectedEntry();
+import { View } from '@/components/diary/view'
+import { useDiaryViewActiveStore } from '@/stores/diary/view/active';
 
 definePageMeta({
-  layout: 'journal',                                                                                                     
-  middleware: ['auth'], 
+  layout: 'diary',
+});
+
+const activeStore = useDiaryViewActiveStore();
+
+onMounted(() => {
+  activeStore.newJournal();
 });
 </script>
+
+<template>
+    <View/>
+</template>

@@ -2,8 +2,14 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { HumanMessage, SystemMessage } from "npm:@langchain/core/messages";
 import { StructuredOutputParser } from "npm:langchain/output_parsers";
 import { z } from "npm:zod";
+import { createClient } from "npm:@supabase/supabase-js";
 
 import { setupAIModel } from "../_shared/model_setup.ts";
+
+const supabase = createClient(
+  Deno.env.get('SUPABASE_URL') ?? '',
+  Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+);
 
 interface JournalEntry {
   title: string;
@@ -26,6 +32,7 @@ interface RequestPayload {
   entry: JournalEntry;
   analyses: Analysis[];
   generate: GenerateOptions;
+  userGender?: string;
 }
 
 export const corsHeaders = {
@@ -42,7 +49,7 @@ Deno.serve(async (req: Request) => {
   }
 
   try {
-    const { entry, analyses, generate } = await req.json() as RequestPayload;
+    const { entry, analyses, generate, userGender } = await req.json() as RequestPayload;
 
     const modelSetupResult = await setupAIModel(req);
 
@@ -55,8 +62,16 @@ Deno.serve(async (req: Request) => {
 
     const model = modelSetupResult.model;
 
-    let systemPrompt = `You are an AI assistant specialized in generating insightful analyses of journal entries.`;
-    let humanPrompt = `Journal Entry:\nTitle: ${entry.title}\nContent: ${entry.content}\n\n`;
+    let systemPrompt = `You are a compassionate spiritual guide and insightful dream interpreter, dedicated to helping individuals uncover deeper meaning and foster self-realization through their journal entries. Your purpose is to illuminate the hidden wisdom within their experiences, guiding them towards profound personal growth and understanding. Always ensure the generated content is appropriate and adheres to safety guidelines, suitable for a general audience.
+
+    Crucially, your analysis should be presented as a standalone reflection, not as a direct message in a chat. Begin immediately with the analysis content, without any conversational opening or direct address to the user. While your tone should be empathetic and supportive, refrain from needless compliments or pandering; focus on genuine insights and guidance.`;
+    let humanPrompt = '';
+
+    if (userGender) {
+      humanPrompt += `User Details:\n\tGender: ${userGender}\n\n`;
+    }
+
+    humanPrompt += `Journal Entry:\nTitle: ${entry.title}\nContent: ${entry.content}\n\n`;
 
     if (analyses && analyses.length > 0) {
       humanPrompt += `Existing Analyses:\n`;
@@ -69,59 +84,67 @@ Deno.serve(async (req: Request) => {
 
     switch (generate.type) {
       case "jungian":
-        systemPrompt += ` Your task is to provide a Jungian analysis of the provided journal entry, taking into account any existing analyses. Focus on identifying archetypes (e.g., the Self, the Shadow, the Anima/Animus, the Hero), symbols, and manifestations of the collective unconscious. Explain how these elements relate to the user's personal growth and individuation process.`;
-        break;
-      case "symbolic":
-        systemPrompt += ` Your task is to provide a symbolic analysis of the provided journal entry, taking into account any existing analyses. Identify key symbols, metaphors, and imagery present in the entry. Explain their potential meanings and interpretations, considering both universal and personal contexts. Discuss how these symbols might represent underlying emotions, conflicts, or aspirations.`;
-        break;
-      case "narrative":
-        systemPrompt += ` Your task is to provide a narrative analysis of the provided journal entry, taking into account any existing analyses. Analyze the journal entry as a story, focusing on its plot, characters (including the self as a character), setting, and overarching themes. Discuss the narrative arc, conflicts, resolutions, and how the story reflects the user's experiences and perceptions.`;
+        systemPrompt += ` Your sacred task is to offer a Jungian reflection on this journal entry, weaving in any existing insights. Gently explore the archetypal energies (such as the Self, the Shadow, the Anima/Animus, the Hero) and potent symbols that emerge, revealing how they resonate with the journey of your soul's unfolding and the path of individuation.`;
         break;
       case "cognitive-behavioral":
-        systemPrompt += ` Your task is to provide a Cognitive Behavioral Therapy (CBT) analysis of the provided journal entry, taking into account any existing analyses. Identify automatic thoughts, cognitive distortions (e.g., all-or-nothing thinking, catastrophizing, overgeneralization), and their impact on emotions and behaviors. Suggest alternative, more balanced thoughts or coping strategies.`;
+        systemPrompt += ` Your sacred task is to offer a compassionate Cognitive Behavioral reflection on this journal entry, integrating any existing insights. Gently identify the automatic thoughts and cognitive patterns that may be clouding perception (such as all-or-nothing thinking, catastrophizing, or overgeneralization), and observe their gentle impact on emotions and actions. Offer pathways towards alternative, more balanced perspectives and nurturing coping strategies.`;
         break;
-      case "psychodynamic":
-        systemPrompt += ` Your task is to provide a psychodynamic analysis of the provided journal entry, taking into account any existing analyses. Explore unconscious processes, early experiences, defense mechanisms, and recurring patterns in relationships or behaviors. Discuss how past experiences might influence current feelings and actions described in the entry.`;
-        break;
-      case "humanistic":
-        systemPrompt += ` Your task is to provide a humanistic analysis of the provided journal entry, taking into account any existing analyses. Focus on themes of self-actualization, personal growth, free will, and the search for meaning. Emphasize the user's subjective experience, potential, and inherent drive towards fulfillment. Discuss how the entry reflects their values, aspirations, and current state of being.`;
+      case "freudian":
+        systemPrompt += ` Your sacred task is to offer a Freudian reflection on this journal entry, integrating any existing insights. Gently explore the unconscious drives, defense mechanisms, and early childhood experiences that may be influencing the thoughts, feelings, and behaviors described. Consider how repressed desires, conflicts, or unresolved issues from the past might manifest in the present narrative.`;
         break;
     }
 
     systemPrompt += `\n\n`;
     switch (generate.depth) {
       case "to-the-point":
-        systemPrompt += `The analysis should be fewer than 50 words and give the core of the analysis.`;
+        systemPrompt += `The analysis should be a concise, yet profound, spiritual insight, offering the core realization in fewer than 50 words.`;
         break;
       case "details":
-        systemPrompt += `The analysis should be fewer than 400 words and give some details but not go too in-depth.`;
+        systemPrompt += `The analysis should offer gentle guidance and deeper reflections, providing meaningful details in fewer than 400 words, without overwhelming the seeker.`;
         break;
       case "in-depth":
-        systemPrompt += `The analysis can be as long as it needs to be for a full analysis.`;
+        systemPrompt += `The analysis can unfold as extensively as needed to provide a comprehensive and deeply transformative spiritual exploration.`;
         break;
     }
     if (generate.note) {
-      systemPrompt += ` Additional notes/instructions: ${generate.note}.`;
+      systemPrompt += ` Additionally, hold this sacred note in your awareness: ${generate.note}.`;
     }
         systemPrompt += `
 
-Provide the analysis content directly as a markdown compliant string. Do not wrap it in JSON or provide a title.`;
+Present this spiritual guidance directly as a markdown compliant string. Do not enclose it in JSON, provide a separate title, or include any conversational greetings or direct addresses to the user. Focus solely on the insightful analysis.`;
 
     humanPrompt += `Generate a new AI analysis based on the type "${generate.type}" and depth "${generate.depth}".`;
     if (generate.note) {
       humanPrompt += ` Consider the following note: "${generate.note}".`;
     }
 
-    const generatedResponse = await model.invoke([
+    const stream = await model.stream([
       new SystemMessage(systemPrompt),
       new HumanMessage(humanPrompt),
     ]);
 
-    // Extract the content from the generated response
-    const contentString = generatedResponse.content;
+    const customReadable = new ReadableStream({
+      async start(controller) {
+        const encoder = new TextEncoder();
+        try {
+          for await (const chunk of stream) {
+            if (chunk.content) {
+              controller.enqueue(encoder.encode(`data: ${JSON.stringify({ content: chunk.content })}\n\n`));
+            }
+          }
+        } finally {
+          controller.close();
+        }
+      },
+    });
 
-    return new Response(JSON.stringify({ type: "ai_analysis", object: { content: contentString } }), {
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    return new Response(customReadable, {
+      headers: {
+        ...corsHeaders,
+        'Content-Type': 'text/event-stream',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
       status: 200,
     });
 

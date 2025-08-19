@@ -28,7 +28,7 @@ watch(() => props.initialAnalysis, (newVal) => {
 });
 
 const handleSave = () => {
-  console.log('NewPersonalAnalysisCard handleSave called. journalId:', props.journalId);
+  
   if (!content.value.trim()) {
     toast.error('Analysis for dream is required.');
     return;
@@ -114,13 +114,13 @@ const handleEnhance = async () => {
           <Skeleton class="h-4 w-full" />
           <Skeleton class="h-4 w-[80%]" />
         </div>
-      <div class="flex gap-2">
-        <Button variant="ghost" class="border h-8" @click="handleSave" :disabled="isEnhancing">Save Analysis</Button>
-        <Button variant="ghost" class="border h-8" @click="handleEnhance" :disabled="isEnhancing">
+      <div class="flex flex-wrap gap-2">
+        <Button variant="ghost" class="border h-8 w-full sm:w-auto" @click="handleSave" :disabled="isEnhancing">Save Analysis</Button>
+        <Button variant="ghost" class="border h-8 w-full sm:w-auto" @click="handleEnhance" :disabled="isEnhancing">
           <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" />
           <span class="bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text"> Enhance</span>
         </Button>
-        <Button variant="ghost" class="h-8" @click="handleCancel">Cancel</Button>
+        <Button variant="ghost" class="h-8 w-full sm:w-auto" @click="handleCancel">Cancel</Button>
       </div>
     </CardHeader>
   </Card>

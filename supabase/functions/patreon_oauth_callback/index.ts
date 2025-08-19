@@ -68,7 +68,7 @@ serve(async (req) => {
     // Add the patreonLinked indicator
     redirectUrl.searchParams.set('patreonLinked', 'true');
 
-    console.log(redirectUrl)
+    
     return new Response(null, {
       status: 302,
       headers: {

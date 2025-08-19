@@ -29,7 +29,7 @@ async function submitForm() {
     formData.append('_subject', 'New Contact Form Submission!'); // Default subject
     formData.append('_replyto', email.value); // Set reply-to to user's email
 
-    const response = await fetch('https://formsubmit.co/ajax/mindfullucidy.gnosisflow@gmail.com', {
+    const response = await fetch('https://formsubmit.co/ajax/mindfullucidity@outlook.com', {
       method: 'POST',
       body: formData,
     });

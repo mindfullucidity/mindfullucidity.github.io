@@ -124,4 +124,4 @@ This project is open-source and available under the [GNU General Public License 
 
 ## Contact 📧
 
-For any inquiries or support, please reach out to us at mindfullucidy.gnosisflow@gmail.com
+For any inquiries or support, please reach out to us at mindfullucidity@outlook.com

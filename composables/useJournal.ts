@@ -20,6 +20,7 @@ interface JournalEntry {
   lucidity_trigger?: string;
   mood?: number;
   characteristics?: string[];
+  symbol_ids?: number[];
 }
 
 export interface JournalAnalysis {
@@ -75,17 +76,20 @@ export const useJournal = () => {
       isLoadingOverview.value = false;
     }
   };
+const loadFullEntry = async (journal_id: number): Promise<JournalEntry | null> => {                                                                                                                  
+  console.log(`Attempting to load full entry for journal_id: ${journal_id}`); // Log start of load     
 
-  const loadFullEntry = async (journal_id: number): Promise<JournalEntry | null> => {
-    if (entriesFullCache.has(journal_id)) {
-      return entriesFullCache.get(journal_id)!;
+    if (entriesFullCache.has(journal_id)) {  
+      const cachedEntry = entriesFullCache.get(journal_id)!;
+      console.log(`Returning cached entry for journal_id: ${journal_id}, symbol_ids: ${cachedEntry.symbol_ids}`); // Log cached entry
+      return cachedEntry;
     }
 
     isLoadingEntry.value = true;
     try {
       const { data, error } = await supabase
         .from('journals')
-        .select('journal_id, title, date, description, content, lucidity_level, lucidity_trigger, mood, characteristics, journal_analyses(*)')
+        .select('journal_id, title, date, description, content, lucidity_level, lucidity_trigger, mood, characteristics, journal_analyses(*), journal_details_symbols(symbol_id)')
         .eq('journal_id', journal_id)
         .single();
 
@@ -95,14 +99,26 @@ export const useJournal = () => {
       }
 
       if (data) {
+        const symbol_ids = data.journal_details_symbols.map((s: { symbol_id: number }) => s.symbol_id);
+        // Remove journal_details_symbols from data to clean up the object before caching
+        delete data.journal_details_symbols;
+
+        const entryWithSymbols: JournalEntry = {
+          ...data,
+          symbol_ids: symbol_ids,
+        };
+
+        console.log(`Successfully loaded entry for journal_id: ${journal_id}, symbol_ids: ${entryWithSymbols.symbol_ids}`); // Log loaded entry
+
         if (entriesFullCache.size >= MAX_CACHE_SIZE) {
           // Remove the oldest entry from cache
           const oldestKey = entriesFullCache.keys().next().value;
           entriesFullCache.delete(oldestKey);
         }
-        entriesFullCache.set(journal_id, data);
-        return data;
+        entriesFullCache.set(journal_id, entryWithSymbols);
+        return entryWithSymbols;
       }
+      console.log(`No data found for journal_id: ${journal_id}`); // Log no data
       return null;
     } finally {
       isLoadingEntry.value = false;
@@ -150,6 +166,12 @@ export const useJournal = () => {
         return null;
       }
       if (data) {
+        // Upsert symbols after journal entry is created
+        await upsertJournalSymbols(data.journal_id, newEntry.symbol_ids);
+
+        // Force reload the entry to ensure symbols are fetched and cached correctly
+        const fullEntry = await loadFullEntry(data.journal_id);
+
         const newOverviewEntry: JournalEntryOverview = {
           journal_id: data.journal_id,
           title: data.title,
@@ -159,7 +181,7 @@ export const useJournal = () => {
         entriesOverview.value.unshift(newOverviewEntry); // Add to the beginning
         entriesOverview.value.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Re-sort
         clearHomeCache();
-        return data;
+        return fullEntry; // Return the full entry with symbols
       }
       return null;
     } finally {
@@ -192,7 +214,15 @@ export const useJournal = () => {
         return null;
       }
       if (data) {
-        entriesFullCache.set(data.journal_id, data); // Update cache
+        // Upsert symbols after journal entry is updated
+        await upsertJournalSymbols(data.journal_id, updatedEntry.symbol_ids);
+
+        // Force reload the entry to ensure symbols are fetched and cached correctly
+        const fullEntry = await loadFullEntry(data.journal_id);
+
+        // Update cache with the reloaded full entry
+        entriesFullCache.set(data.journal_id, fullEntry);
+
         const index = entriesOverview.value.findIndex(entry => entry.journal_id === data.journal_id);
         if (index !== -1) {
           entriesOverview.value[index] = {
@@ -204,7 +234,7 @@ export const useJournal = () => {
           entriesOverview.value.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()); // Re-sort
         }
         clearHomeCache();
-        return data;
+        return fullEntry; // Return the full entry with symbols
       }
       return null;
     } finally {
@@ -241,6 +271,17 @@ export const useJournal = () => {
       const analysesDeleted = await deleteJournalAnalysesByJournalId(journal_id);
       if (!analysesDeleted) {
         console.error(`Failed to delete analyses for journal ${journal_id}. Aborting journal deletion.`);
+        return false;
+      }
+
+      // Delete associated symbols
+      const { error: deleteSymbolsError } = await supabase
+        .from('journal_details_symbols')
+        .delete()
+        .eq('journal_id', journal_id);
+
+      if (deleteSymbolsError) {
+        console.error(`Error deleting symbols for journal ${journal_id}:`, deleteSymbolsError.message);
         return false;
       }
 
@@ -397,16 +438,10 @@ export const useJournal = () => {
     switch (type) {
       case 'jungian':
         return 'Jungian Analysis';
-      case 'symbolic':
-        return 'Symbolic Analysis';
-      case 'narrative':
-        return 'Narrative Analysis';
       case 'cognitive-behavioral':
         return 'Cognitive Behavioral Analysis';
-      case 'psychodynamic':
-        return 'Psychodynamic Analysis';
-      case 'humanistic':
-        return 'Humanistic Analysis';
+      case 'freudian':
+        return 'Freudian Analysis';
       case 'initial-thoughts':
         return 'Initial Thoughts';
       case 'meditation':
@@ -415,6 +450,35 @@ export const useJournal = () => {
         return 'Retrospective';
       default:
         return type.charAt(0).toUpperCase() + type.slice(1).replace(/-/g, ' ');
+    }
+  };
+
+  const upsertJournalSymbols = async (journalId: number, symbolIds: number[] | undefined) => {
+    // First, delete all existing symbols for this journal entry
+    const { error: deleteError } = await supabase
+      .from('journal_details_symbols')
+      .delete()
+      .eq('journal_id', journalId);
+
+    if (deleteError) {
+      console.error(`Error deleting existing symbols for journal ${journalId}:`, deleteError.message);
+      return;
+    }
+
+    // Then, insert the new symbols
+    if (symbolIds && symbolIds.length > 0) {
+      const symbolsToInsert = symbolIds.map(symbol_id => ({
+        journal_id: journalId,
+        symbol_id: symbol_id,
+      }));
+
+      const { error: insertError } = await supabase
+        .from('journal_details_symbols')
+        .insert(symbolsToInsert);
+
+      if (insertError) {
+        console.error(`Error inserting new symbols for journal ${journalId}:`, insertError.message);
+      }
     }
   };
 
@@ -437,5 +501,6 @@ export const useJournal = () => {
     updateJournalAnalysis,
     deleteJournalAnalysis,
     getAnalysisPrettyTitle,
+    userGender: user.value?.user_metadata?.gender as string | "Unknown", // Expose user gender
   };
 };

@@ -50,7 +50,16 @@ const route = useRoute()
 const isLoading = ref(true); // Initially true for loading state
 const user = useSupabaseUser(); // Get the Supabase user
 
-const redirectToPath = computed(() => route.query.to?.toString() || '/home');
+const redirectToPath = computed(() => {
+  let path = route.query.to?.toString() || '/home';
+  const hash = route.hash;
+
+  // Append the hash if it exists and the path doesn't already contain one
+  if (hash && !path.includes('#')) {
+    path += hash;
+  }
+  return path;
+});
 
 let authListener: any; // To store the subscription
 
