@@ -143,7 +143,7 @@ watch(windowWidth, () => {
         How It Works
       </h2>
       <p class="mx-auto max-w-[700px] text-muted-foreground md:text-xl text-center">
-        An upward spiral to self-realization
+        Feeling lost or seeking deeper meaning? MindfulLucidity helps you unlock profound self-discovery through your dreams. Our guided journaling and AI analysis provide clarity, resolve inner conflicts, and accelerate your path to self-realization. This is the app you need to truly understand yourself.
       </p>
       <div class="relative flex items-center justify-center w-full">
         <div class="circle-container w-full h-full max-w-[500px] md:max-w-[600px] md:max-h-[600px] lg:max-w-[700px] lg:max-h-[700px]">
