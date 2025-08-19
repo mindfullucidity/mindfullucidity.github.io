@@ -123,9 +123,6 @@ ${journal_entry_data.selected_symbol_ids && journal_entry_data.selected_symbol_i
 
 **Relevant Symbol IDs:**`;
 
-    console.log(new SystemMessage(systemPrompt))
-    console.log(new HumanMessage(humanPrompt))
-
     let detectedSymbolIds: number[];
     try {
       const { content } = await model.invoke([new SystemMessage(systemPrompt), new HumanMessage(humanPrompt)]);

@@ -2,7 +2,7 @@
 import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { Button } from '@/components/ui/button';
 import { toast } from 'vue-sonner';
-import { Plus, Sparkles, Activity, PawPrint, Users, Box, MapPin, CloudSun, HelpCircle, BadgePlus, BookOpenText } from 'lucide-vue-next';
+import { Plus, Sparkles, Activity, PawPrint, Users, Box, MapPin, CloudSun, HelpCircle, BadgePlus, BookOpenText, Loader2, X } from 'lucide-vue-next';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { ScrollArea, ScrollBar } from '@/components/ui/scroll-area';
 import { Input } from '@/components/ui/input';
@@ -37,6 +37,9 @@ const selectedSymbols = ref<Symbol[]>([]);
 const showDeleteConfirmDialog = ref(false);
 const symbolToDelete = ref<Symbol | null>(null);
 let pressTimer: ReturnType<typeof setTimeout> | null = null;
+
+const isDetectingSymbols = ref(false);
+let abortController: AbortController | null = null;
 
 const allSymbols = ref<any[]>([]); // To store all fetched symbols
 
@@ -237,6 +240,15 @@ const handleDeleteSymbol = async () => {
   showDeleteConfirmDialog.value = false;
 };
 
+const cancelDetection = () => {
+  if (abortController) {
+    abortController.abort();
+    toast.info('Symbol detection cancelled.');
+  }
+  isDetectingSymbols.value = false;
+  abortController = null;
+};
+
 const detectSymbols = async () => {
   if (!props.journalEntry || props.isLoadingEntry || props.isEnhancingDetails) {
     return;
@@ -248,36 +260,40 @@ const detectSymbols = async () => {
     return;
   }
 
-  // Prepare data for the Edge Function
-  // Explicitly fetch analyses to ensure they are up-to-date
-  const { loadJournalAnalyses } = useJournal();
-  const currentAnalyses = await loadJournalAnalyses(props.journalEntry.journal_id);
-
-  const journalEntryData = {
-    title: props.journalEntry.title || '',
-    content: props.journalEntry.content || '',
-    lucidity_level: getLucidityLevelLabel(props.journalEntry.lucidity_level || 0),
-    lucidity_trigger: props.journalEntry.lucidity_trigger || '',
-    mood: props.journalEntry.mood || 50,
-    characteristics: props.journalEntry.characteristics || [],
-    analyses: currentAnalyses || [],
-  };
-
-  console.log('Sending journalEntryData to detect_symbols:', journalEntryData);
-
-  const userSymbols = allSymbols.value.map(s => ({
-    symbol_id: s.symbol_id,
-    category: s.category,
-    name: s.name,
-    description: s.description,
-  }));
+  showCreateSymbolCard.value = false;
+  isDetectingSymbols.value = true;
+  abortController = new AbortController();
 
   try {
+    // Prepare data for the Edge Function
+    // Explicitly fetch analyses to ensure they are up-to-date
+    const { loadJournalAnalyses } = useJournal();
+    const currentAnalyses = await loadJournalAnalyses(props.journalEntry.journal_id);
+
+    const journalEntryData = {
+      title: props.journalEntry.title || '',
+      content: props.journalEntry.content || '',
+      lucidity_level: getLucidityLevelLabel(props.journalEntry.lucidity_level || 0),
+      lucidity_trigger: props.journalEntry.lucidity_trigger || '',
+      mood: props.journalEntry.mood || 50,
+      characteristics: props.journalEntry.characteristics || [],
+      analyses: currentAnalyses || [],
+    };
+
+    console.log('Sending journalEntryData to detect_symbols:', journalEntryData);
+
+    const userSymbols = allSymbols.value.map(s => ({
+      symbol_id: s.symbol_id,
+      category: s.category,
+      name: s.name,
+      description: s.description,
+    }));
+
     const { data, error } = await invokeDetectSymbols({
       journal_entry_data: journalEntryData,
       user_symbols: userSymbols,
       selected_symbol_ids: props.journalEntry.symbol_ids || [],
-    });
+    }, abortController.signal); // Pass the signal here
 
     if (error) {
       throw new Error(error.message || 'Failed to detect symbols.');
@@ -294,8 +310,16 @@ const detectSymbols = async () => {
     toast.success('Symbols detected successfully!');
 
   } catch (error: any) {
-    console.error('Error detecting symbols:', error);
-    toast.error(`Failed to detect symbols: ${error.message || 'An unknown error occurred.'}`);
+    if (error.name === 'AbortError') {
+      console.log('Symbol detection aborted by user.');
+      // No toast for user-initiated abort
+    } else {
+      console.error('Error detecting symbols:', error);
+      toast.error(`Failed to detect symbols: ${error.message || 'An unknown error occurred.'}`);
+    }
+  } finally {
+    isDetectingSymbols.value = false;
+    abortController = null;
   }
 };
 </script>
@@ -306,88 +330,101 @@ const detectSymbols = async () => {
       <h2 class="text-xl font-semibold">Symbols</h2>
     </div>
 
-    <div v-if="Object.keys(groupedSelectedSymbols).length > 0" class="space-y-4 border p-4 rounded-md bg-card">
-      <div v-for="(symbolsInCat, category) in groupedSelectedSymbols" :key="category">
-        <h3 class="text-lg font-semibold mb-2 flex items-center">
-          <component :is="categoryIcons[category]" class="w-5 h-5 mr-2" />
-          {{ category }}
-        </h3>
-        <div class="flex flex-wrap gap-2">
-          <Button
-            v-for="symbol in symbolsInCat"
-            :key="symbol.symbol_id"
-            variant="outline"
-            @click="selectSymbol(symbol)"
-            @mousedown="onMouseDown(symbol)"
-            @mouseup="onMouseUp()"
-            @mouseleave="onMouseLeave()"
-          >
-            {{ symbol.name }}
-          </Button>
-        </div>
+    <div v-if="isDetectingSymbols" class="relative flex items-center justify-center h-48 border p-4 rounded-md bg-card mb-4">
+      <div class="absolute top-2 right-2">
+        <Button variant="ghost" size="icon" class="h-8 w-8 text-red-400 hover:text-red-400" @click="cancelDetection">
+          <X class="h-4 w-4" aria-hidden="true" />
+        </Button>
+      </div>
+      <div class="flex flex-col items-center gap-2">
+        <Loader2 class="h-12 w-12 animate-spin text-primary" />
+        <span class="text-lg font-semibold">Detecting Symbols</span>
       </div>
     </div>
-
-<Card v-if="showCreateSymbolCard" class="bg-transparent text-card-foreground flex flex-col gap-6 rounded-xl shadow-sm border-dashed border-2 border-muted-foreground/30 p-4">
-  <CardHeader class="space-y-3 p-0">
-    <div class="flex items-center gap-2">
-      <BadgePlus class="h-4 w-4 text-purple-200" aria-hidden="true" />
-      <span class="text-sm font-medium text-purple-200">New Custom Symbol</span>
-    </div>
-    <div class="flex flex-col gap-2">
-      <Label for="new-symbol-category">Category:</Label>
-      <Select v-model="newSymbolCategory">
-        <SelectTrigger id="new-symbol-category">
-          <SelectValue placeholder="Select a category" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem v-for="(icon, category) in categoryIcons" :key="category" :value="category">
+    <div v-else>
+      <div v-if="Object.keys(groupedSelectedSymbols).length > 0" class="space-y-4 border p-4 rounded-md bg-card mb-4">
+        <div v-for="(symbolsInCat, category) in groupedSelectedSymbols" :key="category">
+          <h3 class="text-lg font-semibold mb-2 flex items-center">
+            <component :is="categoryIcons[category]" class="w-5 h-5 mr-2" />
             {{ category }}
-          </SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
-    <div class="flex flex-col gap-2">
-      <Label for="new-symbol-name">Name:</Label>
-      <Input id="new-symbol-name" v-model="newSymbolName" placeholder="Symbol Name" />
-    </div>
-    <div class="flex flex-col gap-2">
-      <Label for="new-symbol-description">Description:</Label>
-      <Textarea id="new-symbol-description" v-model="newSymbolDescription" placeholder="Describe the symbol (optional, useful for AI detection)" />
-    </div>
-    <div class="flex flex-wrap gap-2 mt-4">
-      <Button variant="ghost" class="border h-8 w-full sm:w-auto" @click="handleSaveNewSymbol">Save Symbol</Button>
-      <Button variant="ghost" class="h-8 w-full sm:w-auto" @click="handleCancelNewSymbol">Cancel</Button>
-    </div>
-  </CardHeader>
-</Card>
+          </h3>
+          <div class="flex flex-wrap gap-2">
+            <Button
+              v-for="symbol in symbolsInCat"
+              :key="symbol.symbol_id"
+              variant="outline"
+              @click="selectSymbol(symbol)"
+              @mousedown="onMouseDown(symbol)"
+              @mouseup="onMouseUp()"
+              @mouseleave="onMouseLeave()"
+            >
+              {{ symbol.name }}
+            </Button>
+          </div>
+        </div>
+      </div>
 
-    <div class="flex flex-col sm:flex-row gap-2 justify-center">
-      <Button
-        variant="ghost"
-        class="border w-full sm:w-auto text-blue-200"
-        @click="addSymbol"
-        :disabled="props.isLoadingEntry || props.isEnhancingDetails"
-      >
-        <Plus class="w-4 h-4" /> Add Symbol
-      </Button>
-      <Button
-        variant="ghost"
-        class="border w-full sm:w-auto text-green-200"
-        @click="showCreateSymbolCard = true"
-        :disabled="props.isLoadingEntry || props.isEnhancingDetails"
-      >
-        <BadgePlus class="w-4 h-4" /> Create Symbol
-      </Button>
-      <Button
-        variant="ghost"
-        class="border w-full sm:w-auto"
-        @click="detectSymbols"
-        :disabled="props.isLoadingEntry || props.isEnhancingDetails"
-      >
-        <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" /> <span class="bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text"> Detect Symbols</span>
-      </Button>
+      <Card v-if="showCreateSymbolCard" class="bg-transparent text-card-foreground flex flex-col gap-6 rounded-xl shadow-sm border-dashed border-2 border-muted-foreground/30 p-4">
+        <CardHeader class="space-y-3 p-0">
+          <div class="flex items-center gap-2">
+            <BadgePlus class="h-4 w-4 text-purple-200" aria-hidden="true" />
+            <span class="text-sm font-medium text-purple-200">New Custom Symbol</span>
+          </div>
+          <div class="flex flex-col gap-2">
+            <Label for="new-symbol-category">Category:</Label>
+            <Select v-model="newSymbolCategory">
+              <SelectTrigger id="new-symbol-category">
+                <SelectValue placeholder="Select a category" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem v-for="(icon, category) in categoryIcons" :key="category" :value="category">
+                  {{ category }}
+                </SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+          <div class="flex flex-col gap-2">
+            <Label for="new-symbol-name">Name:</Label>
+            <Input id="new-symbol-name" v-model="newSymbolName" placeholder="Symbol Name" />
+          </div>
+          <div class="flex flex-col gap-2">
+            <Label for="new-symbol-description">Description:</Label>
+            <Textarea id="new-symbol-description" v-model="newSymbolDescription" placeholder="Describe the symbol (optional, useful for AI detection)" />
+          </div>
+          <div class="flex flex-wrap gap-2 mt-4">
+            <Button variant="ghost" class="border h-8 w-full sm:w-auto" @click="handleSaveNewSymbol">Save Symbol</Button>
+            <Button variant="ghost" class="h-8 w-full sm:w-auto" @click="handleCancelNewSymbol">Cancel</Button>
+          </div>
+        </CardHeader>
+      </Card>
     </div>
+
+  <div class="flex flex-col sm:flex-row gap-2 justify-center">
+    <Button
+      variant="ghost"
+      class="border w-full sm:w-auto text-blue-200"
+      @click="addSymbol"
+      :disabled="props.isLoadingEntry || props.isEnhancingDetails || isDetectingSymbols"
+    >
+      <Plus class="w-4 h-4" /> Add Symbol
+    </Button>
+    <Button
+      variant="ghost"
+      class="border w-full sm:w-auto text-green-200"
+      @click="showCreateSymbolCard = true"
+      :disabled="props.isLoadingEntry || props.isEnhancingDetails || isDetectingSymbols"
+    >
+      <BadgePlus class="w-4 h-4" /> Create Symbol
+    </Button>
+    <Button
+      variant="ghost"
+      class="border w-full sm:w-auto"
+      @click="detectSymbols"
+      :disabled="props.isLoadingEntry || props.isEnhancingDetails || isDetectingSymbols"
+    >
+      <Sparkles class="w-4 h-4" stroke="url(#sparkle-gradient)" /> <span class="bg-gradient-to-r from-[#a78bfa] to-[#60a5fa] text-transparent bg-clip-text"> Detect Symbols</span>
+    </Button>
+  </div>
 
     
     <Dialog v-model:open="showAddSymbolDialog">

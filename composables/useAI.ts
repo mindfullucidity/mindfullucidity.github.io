@@ -127,8 +127,8 @@ export const useAI = () => {
     }
   };
 
-  const invokeDetectSymbols = async (payload: { journal_entry_data: any; user_symbols: any[]; }) => {
-    return _invokeSupabaseFunction('detect_symbols', payload);
+  const invokeDetectSymbols = async (payload: { journal_entry_data: any; user_symbols: any[]; }, signal?: AbortSignal) => {
+    return _invokeSupabaseFunction('detect_symbols', payload, signal);
   };
 
   return {

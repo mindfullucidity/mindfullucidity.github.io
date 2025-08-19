@@ -76,11 +76,10 @@ export const useJournal = () => {
       isLoadingOverview.value = false;
     }
   };
+const loadFullEntry = async (journal_id: number): Promise<JournalEntry | null> => {                                                                                                                  
+  console.log(`Attempting to load full entry for journal_id: ${journal_id}`); // Log start of load     
 
-  const loadFullEntry = async (journal_id: number): Promise<JournalEntry | null> => {
-    console.log(`Attempting to load full entry for journal_id: ${journal_id}`); // Log start of load
-
-    if (entriesFullCache.has(journal_id)) {
+    if (entriesFullCache.has(journal_id)) {  
       const cachedEntry = entriesFullCache.get(journal_id)!;
       console.log(`Returning cached entry for journal_id: ${journal_id}, symbol_ids: ${cachedEntry.symbol_ids}`); // Log cached entry
       return cachedEntry;
