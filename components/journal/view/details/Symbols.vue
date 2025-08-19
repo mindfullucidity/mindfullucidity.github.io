@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, watch, nextTick } from 'vue';
 import { Button } from '@/components/ui/button';
 import { toast } from 'vue-sonner';
 import { Plus, Sparkles, Activity, PawPrint, Users, Box, MapPin, CloudSun, HelpCircle, BadgePlus, BookOpenText } from 'lucide-vue-next';
@@ -18,7 +18,10 @@ import type { Symbol } from '@/composables/useSymbols';
 const props = defineProps({
   isLoadingEntry: { type: Boolean, default: false },
   isEnhancingDetails: { type: Boolean, default: false },
+  initialSymbolIds: { type: Array as PropType<number[]>, default: () => [] },
 });
+
+const emit = defineEmits(['update:symbolIds']);
 
 const { getSymbols, createSymbol, deleteSymbol } = useSymbols();
 const user = useSupabaseUser();
@@ -34,7 +37,30 @@ const allSymbols = ref<any[]>([]); // To store all fetched symbols
 
 onMounted(async () => {
   allSymbols.value = await getSymbols();
+  // Populate selectedSymbols based on initialSymbolIds
+  if (props.initialSymbolIds && props.initialSymbolIds.length > 0) {
+    selectedSymbols.value = allSymbols.value.filter(symbol =>
+      props.initialSymbolIds.includes(symbol.symbol_id)
+    );
+  }
 });
+
+// Add watch effect
+watch(() => props.initialSymbolIds, (newSymbolIds) => {
+  if (allSymbols.value.length > 0) { // Ensure allSymbols are loaded before filtering
+    selectedSymbols.value = allSymbols.value.filter(symbol =>
+      newSymbolIds.includes(symbol.symbol_id)
+    );
+  } else {
+    // If allSymbols are not yet loaded, re-fetch and then filter
+    getSymbols().then(fetchedSymbols => {
+      allSymbols.value = fetchedSymbols;
+      selectedSymbols.value = allSymbols.value.filter(symbol =>
+        newSymbolIds.includes(symbol.symbol_id)
+      );
+    });
+  }
+}, { deep: true, immediate: true });
 
 const categoryIcons: Record<string, any> = {
   'Actions & Events': Activity,
@@ -107,6 +133,7 @@ const selectSymbol = (symbol: Symbol) => {
     toast.info(`Removed symbol: ${symbol.name}`);
   }
   showAddSymbolDialog.value = false;
+  emit('update:symbolIds', selectedSymbols.value.map(s => s.symbol_id));
 };
 
 const newSymbolCategory = ref('');
@@ -139,6 +166,7 @@ const handleSaveNewSymbol = async () => {
     newSymbolName.value = '';
     newSymbolDescription.value = '';
     showCreateSymbolCard.value = false;
+    emit('update:symbolIds', selectedSymbols.value.map(s => s.symbol_id));
   } else {
     toast.error('Failed to create symbol.');
   }
@@ -182,6 +210,7 @@ const handleDeleteSymbol = async () => {
       toast.success(`Symbol '${symbolToDelete.value.name}' deleted.`);
       // Remove from selectedSymbols as well
       selectedSymbols.value = selectedSymbols.value.filter(s => s.symbol_id !== symbolToDelete.value?.symbol_id);
+      emit('update:symbolIds', selectedSymbols.value.map(s => s.symbol_id));
     } else {
       toast.error(`Failed to delete symbol '${symbolToDelete.value.name}'.`);
     }

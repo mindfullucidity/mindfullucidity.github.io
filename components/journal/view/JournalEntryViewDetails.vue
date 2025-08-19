@@ -10,6 +10,7 @@ const props = defineProps({
   initialLucidityTrigger: { type: String, default: '' },
   initialMood: { type: Number as PropType<number | null>, default: 50 },
   initialCharacteristics: { type: Array as () => string[], default: () => [] },
+  initialSymbolIds: { type: Array as PropType<number[]>, default: () => [] },
   isLoadingEntry: { type: Boolean, default: false },
   isEnhancingDetails: { type: Boolean, default: false },
 });
@@ -19,6 +20,7 @@ const emit = defineEmits([
   'update:lucidityTrigger',
   'update:mood',
   'update:characteristics',
+  'update:symbolIds',
 ]);
 
 </script>
@@ -50,6 +52,8 @@ const emit = defineEmits([
         <Symbols
           :is-loading-entry="props.isLoadingEntry"
           :is-enhancing-details="props.isEnhancingDetails"
+          :initial-symbol-ids="props.initialSymbolIds"
+          @update:symbol-ids="(value) => emit('update:symbolIds', value)"
         />
       </div>
     </div>

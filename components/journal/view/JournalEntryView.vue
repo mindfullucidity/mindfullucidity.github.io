@@ -38,12 +38,14 @@
             :initial-lucidity-trigger="editableEntry?.lucidity_trigger"
             :initial-mood="editableEntry?.mood"
             :initial-characteristics="editableEntry?.characteristics"
+            :initial-symbol-ids="editableEntry?.symbol_ids"
             :is-loading-entry="isLoadingEntry"
             :is-enhancing-details="activeTab === 'details' && isEnhancingEntry"
             @update:lucidity-level="editableEntry.lucidity_level = $event"
             @update:lucidity-trigger="editableEntry.lucidity_trigger = $event"
             @update:mood="editableEntry.mood = $event"
             @update:characteristics="editableEntry.characteristics = $event"
+            @update:symbol-ids="editableEntry.symbol_ids = $event"
           />
         </div>
       </TabsContent>
@@ -138,8 +140,9 @@ watch(editableEntry, (newVal, oldVal) => {
   const isMoodSame = newVal?.mood === originalEntry.value.mood;
   const isCharacteristicsSame = JSON.stringify(newVal?.characteristics) === JSON.stringify(originalEntry.value.characteristics);
   const isDescriptionSame = newVal?.description === originalEntry.value.description;
+  const isSymbolIdsSame = JSON.stringify(newVal?.symbol_ids) === JSON.stringify(originalEntry.value.symbol_ids);
 
-  hasUnsavedChanges.value = !(isContentSame && isTitleSame && isDateSame && isLucidityLevelSame && isLucidityTriggerSame && isMoodSame && isCharacteristicsSame && isDescriptionSame);
+  hasUnsavedChanges.value = !(isContentSame && isTitleSame && isDateSame && isLucidityLevelSame && isLucidityTriggerSame && isMoodSame && isCharacteristicsSame && isDescriptionSame && isSymbolIdsSame);
 
 }, { deep: true });
 
