@@ -52,9 +52,16 @@ export const useDiaryViewActiveStore = defineStore('diary-view-active', () => {
 
   function newJournal() {
     isLoaded.value = false;
+    if(loaded.value !== null){
+      loaded.value = null;
+      current.value = createBlankJournal();
+    }
+    isLoaded.value = true;
+  }
+
+  function cancelNew() {
     loaded.value = null;
     current.value = createBlankJournal();
-    isLoaded.value = true;
   }
 
   function cancelChanges() {
@@ -263,5 +270,6 @@ export const useDiaryViewActiveStore = defineStore('diary-view-active', () => {
     saveJournal,
     createJournal,
     deleteJournal,
+    cancelNew,
   };
 });

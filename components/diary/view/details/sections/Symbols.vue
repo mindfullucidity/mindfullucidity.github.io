@@ -27,6 +27,20 @@ const { invokeDetectSymbols } = useAI();
 const user = useSupabaseUser();
 const showAddSymbolDialog = ref(false);
 const showCreateSymbolCard = ref(false);
+const symbolsRoot = ref<HTMLElement | null>(null);
+
+watch(showCreateSymbolCard, (newValue) => {
+  if (newValue) {
+    nextTick(() => {
+      if (symbolsRoot.value) {
+        symbolsRoot.value.scrollIntoView({
+          behavior: 'smooth',
+          block: 'end'
+        });
+      }
+    });
+  }
+});
 const searchTerm = ref('');
 const selectedSymbols = ref<Symbol[]>([]);
 const showDeleteConfirmDialog = ref(false);
@@ -329,7 +343,7 @@ const detectSymbols = async () => {
 </script>
 
 <template>
-  <div class="space-y-4">
+  <div class="space-y-4" ref="symbolsRoot">
     <div class="flex items-center justify-between">
       <h2 class="text-xl font-semibold">Symbols</h2>
     </div>

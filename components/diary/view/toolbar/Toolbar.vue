@@ -73,6 +73,7 @@ const handleEnhance = async () => {
 
 const handleCancel = () => {
   if (activeStore.isNew) {
+    activeStore.cancelNew();
     router.push('/journal');
   } else {
     activeStore.cancelChanges();
