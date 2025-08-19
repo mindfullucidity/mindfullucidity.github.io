@@ -21,7 +21,7 @@ const props = defineProps({
   initialSymbolIds: { type: Array as PropType<number[]>, default: () => [] },
 });
 
-const emit = defineEmits(['update:symbolIds']);
+const emit = defineEmits(['update:symbolIds', 'component-ready']);
 
 const { getSymbols, createSymbol, deleteSymbol } = useSymbols();
 const user = useSupabaseUser();
@@ -43,6 +43,7 @@ onMounted(async () => {
       props.initialSymbolIds.includes(symbol.symbol_id)
     );
   }
+  emit('component-ready');
 });
 
 // Add watch effect

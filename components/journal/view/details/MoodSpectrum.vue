@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 
 const props = defineProps({
   initialMood: { type: Number as PropType<number | null>, default: 50 },
@@ -7,6 +7,7 @@ const props = defineProps({
 
 const emit = defineEmits([
   'update:mood',
+  'component-ready',
 ]);
 
 const mood = ref<number>(props.initialMood ?? 50);
@@ -14,6 +15,10 @@ const isDragging = ref(false);
 
 watch(() => props.initialMood, (newVal) => {
   mood.value = newVal === null ? 50 : newVal;
+});
+
+onMounted(() => {
+  emit('component-ready');
 });
 
 let moodSpectrumRect: DOMRect | null = null;

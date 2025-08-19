@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { Moon, Sun, Cloud, Eye } from 'lucide-vue-next';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -23,6 +23,7 @@ const props = defineProps({
 const emit = defineEmits([
   'update:lucidityLevel',
   'update:lucidityTrigger',
+  'component-ready',
 ]);
 
 const selectedLucidity = ref<number>(props.initialLucidityLevel);
@@ -33,6 +34,10 @@ watch(() => props.initialLucidityLevel, (newVal) => {
 });
 watch(() => props.initialLucidityTrigger, (newVal) => {
   lucidityTrigger.value = newVal;
+});
+
+onMounted(() => {
+  emit('component-ready');
 });
 
 const lucidityLevels: LucidityLevel[] = [

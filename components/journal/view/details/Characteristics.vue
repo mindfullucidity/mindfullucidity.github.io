@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, watch } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { Card } from '@/components/ui/card';
 import { RotateCcw, Ghost, Bed, EyeOff } from 'lucide-vue-next';
 
@@ -16,12 +16,17 @@ const props = defineProps({
 
 const emit = defineEmits([
   'update:characteristics',
+  'component-ready',
 ]);
 
 const selectedCharacteristics = ref<string[]>(props.initialCharacteristics);
 
 watch(() => props.initialCharacteristics, (newVal) => {
   selectedCharacteristics.value = newVal;
+});
+
+onMounted(() => {
+  emit('component-ready');
 });
 
 const characteristics: Characteristic[] = [
